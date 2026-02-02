@@ -58,8 +58,22 @@ class MainActivity : AppCompatActivity() {
         // Sätt WebView som innehåll
         setContentView(webView)
 
-        // Ladda din sida
-        webView.loadUrl("file:///android_asset/www/index.html")
+        // Välj rätt HTML-fil baserat på enhetens språk
+        val locale = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            resources.configuration.locales.get(0)
+        } else {
+            @Suppress("DEPRECATION")
+            resources.configuration.locale
+        }
+        val lang = locale?.language ?: java.util.Locale.getDefault().language
+        val assetIndex = when (lang) {
+            "en" -> "file:///android_asset/www/index_en.html"
+            "sv" -> "file:///android_asset/www/index.html"
+            else -> "file:///android_asset/www/index.html" // fallback to Swedish/default
+        }
+        
+        // Ladda den valda sidan
+        webView.loadUrl(assetIndex)
 
         // Be om mikrofon-tillstånd direkt (om det behövs)
         if (ContextCompat.checkSelfPermission(
