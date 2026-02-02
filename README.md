@@ -128,6 +128,21 @@ Horselhjalp/
 
 ## Felsökning
 
+### "Plugin [id: 'com.android.application', version: 'X.X.X'] was not found"
+
+Om du får detta fel vid byggning kan det bero på att versionsnumret i `gradle/libs.versions.toml` inte är tillgängligt ännu eller att det finns ett nätverksproblem.
+
+**Lösning**: Använd en stabil version av Android Gradle Plugin. Öppna filen `gradle/libs.versions.toml` och ändra raden:
+```toml
+agp = "8.7.3"
+```
+till en stabil version som finns tillgänglig, t.ex.:
+```toml
+agp = "8.2.0"
+```
+
+Du kan hitta tillgängliga versioner på: https://developer.android.com/studio/releases/gradle-plugin
+
 ### "Permission denied" när du kör ./gradlew
 
 Om du får ett felmeddelande om att tillstånd nekas:
