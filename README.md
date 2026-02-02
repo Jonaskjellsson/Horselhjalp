@@ -4,18 +4,44 @@ En Android-applikation för hörselhjälp.
 
 ## Snabbstart - Hur bygger jag appen?
 
-För att snabbt komma igång och bygga appen:
+### Steg-för-steg: Kör ./gradlew assembleDebug
 
-```bash
-# 1. Ge exekveringsrättigheter till Gradle wrapper (endast första gången)
-chmod +x gradlew
+Följ dessa steg för att köra kommandot och bygga din första APK:
 
-# 2. Bygg en debug-version av appen
-./gradlew assembleDebug
+**1. Öppna en terminal/kommandotolk**
+   - På Mac/Linux: Öppna Terminal
+   - På Windows: Öppna Command Prompt eller PowerShell
 
-# 3. Hitta din färdiga APK här:
-# app/build/outputs/apk/debug/app-debug.apk
-```
+**2. Navigera till projektmappen**
+   ```bash
+   cd /sökväg/till/Horselhjalp
+   ```
+   (Ersätt `/sökväg/till/` med faktisk sökväg där du klonat/laddat ner projektet)
+
+**3. Ge exekveringsrättigheter (endast första gången på Mac/Linux)**
+   ```bash
+   chmod +x gradlew
+   ```
+   På Windows: Detta steg behövs inte, använd `gradlew.bat` istället för `./gradlew`
+
+**4. Kör build-kommandot**
+   ```bash
+   ./gradlew assembleDebug
+   ```
+   På Windows:
+   ```bash
+   gradlew.bat assembleDebug
+   ```
+
+**5. Vänta på att byggprocessen slutförs**
+   - Första gången kan ta längre tid (laddar ner beroenden)
+   - Du kommer se byggstatus i terminalen
+   - När det är klart ser du "BUILD SUCCESSFUL"
+
+**6. Hitta din färdiga APK**
+   ```
+   app/build/outputs/apk/debug/app-debug.apk
+   ```
 
 Läs vidare för mer detaljerade instruktioner och alternativa byggmetoder.
 
@@ -140,8 +166,35 @@ Horselhjalp/
 
 ### Från kommandoraden
 
-1. Navigera till projektmappen
-2. Använd Gradle-kommandona ovan för att bygga och installera
+**Steg 1: Öppna terminal och navigera till projektet**
+```bash
+cd /sökväg/till/Horselhjalp
+```
+
+**Steg 2: Verifiera att du är i rätt mapp**
+Du ska se filer som `gradlew`, `build.gradle.kts`, och en `app`-mapp:
+```bash
+ls -la
+```
+
+**Steg 3: Kör Gradle-kommandon**
+Använd någon av följande kommandon beroende på vad du vill göra:
+
+- **Bygga debug APK**: `./gradlew assembleDebug`
+- **Bygga release APK**: `./gradlew assembleRelease`
+- **Installera på enhet**: `./gradlew installDebug`
+- **Rensa byggfiler**: `./gradlew clean`
+
+**Windows-användare**: Använd `gradlew.bat` istället för `./gradlew`:
+```bash
+gradlew.bat assembleDebug
+```
+
+**Vad händer när du kör kommandot?**
+1. Gradle laddar ner nödvändiga beroenden (första gången)
+2. Kompilerar din kod
+3. Paketerar allt till en APK-fil
+4. Sparar APK:n i `app/build/outputs/apk/`
 
 ## Felsökning
 
