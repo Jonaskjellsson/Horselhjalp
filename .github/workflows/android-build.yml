@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       JAVA_VERSION: '17'
+      HAS_KEYSTORE: ${{ secrets.KEYSTORE_BASE64 != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,19 +33,24 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Decode signing keystore
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        if: env.HAS_KEYSTORE == 'true'
         run: |
           mkdir -p app
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/keystore.jks
           chmod 600 app/keystore.jks
 
-      - name: Build release APK
+      - name: Build signed release APK
+        if: env.HAS_KEYSTORE == 'true'
         run: |
           ./gradlew clean assembleRelease \
             -Pandroid.injected.signing.store.file=app/keystore.jks \
             -Pandroid.injected.signing.store.password="${{ secrets.KEYSTORE_PASSWORD }}" \
             -Pandroid.injected.signing.key.alias="${{ secrets.KEY_ALIAS }}" \
             -Pandroid.injected.signing.key.password="${{ secrets.KEY_PASSWORD }}"
+
+      - name: Build unsigned release APK
+        if: env.HAS_KEYSTORE != 'true'
+        run: ./gradlew clean assembleRelease
 
       - name: Upload release APK artifact
         uses: actions/upload-artifact@v4
