@@ -2,6 +2,23 @@
 
 En Android-applikation för hörselhjälp.
 
+## Snabbstart - Hur bygger jag appen?
+
+För att snabbt komma igång och bygga appen:
+
+```bash
+# 1. Ge exekveringsrättigheter till Gradle wrapper (endast första gången)
+chmod +x gradlew
+
+# 2. Bygg en debug-version av appen
+./gradlew assembleDebug
+
+# 3. Hitta din färdiga APK här:
+# app/build/outputs/apk/debug/app-debug.apk
+```
+
+Läs vidare för mer detaljerade instruktioner och alternativa byggmetoder.
+
 ## Förutsättningar
 
 - **Java Development Kit (JDK)**: Version 17 eller senare
