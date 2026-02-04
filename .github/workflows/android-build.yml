@@ -1,8 +1,8 @@
-name: Build Android APK
+name: Android CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master, main ]
   pull_request:
 
 jobs:
@@ -27,16 +27,19 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*','**/gradle/wrapper/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*','**/gradle/wrapper/gradle-wrapper.properties','**/gradle/libs.versions.toml') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-
       - name: Decode signing keystore
         if: ${{ secrets.KEYSTORE_BASE64 != '' }}
         run: |
           mkdir -p app
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/keystore.jks
           chmod 600 app/keystore.jks
+
+      - name: Run unit tests
+        run: |
+          ./gradlew test --no-daemon --stacktrace
 
       - name: Build release APK
         run: |
