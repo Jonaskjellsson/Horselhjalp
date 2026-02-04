@@ -11,6 +11,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -58,8 +59,15 @@ class MainActivity : AppCompatActivity() {
         // Sätt WebView som innehåll
         setContentView(webView)
 
-        // Ladda din sida
-        webView.loadUrl("file:///android_asset/www/index.html")
+        // Ladda din sida - välj språk baserat på systemspråk
+        val locale = Locale.getDefault()
+        val assetsPath = if (locale.language == "sv") {
+            "file:///android_asset/www/index.html"
+        } else {
+            // Default to English for all non-Swedish languages
+            "file:///android_asset/www-en/index.html"
+        }
+        webView.loadUrl(assetsPath)
 
         // Be om mikrofon-tillstånd direkt (om det behövs)
         if (ContextCompat.checkSelfPermission(
