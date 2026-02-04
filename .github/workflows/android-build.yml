@@ -32,14 +32,14 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Decode signing keystore
-        if: secrets.KEYSTORE_BASE64 != ''
+        if: secrets.KEYSTORE_BASE64 != '' && secrets.KEYSTORE_PASSWORD != '' && secrets.KEY_ALIAS != '' && secrets.KEY_PASSWORD != ''
         run: |
           mkdir -p app
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/keystore.jks
           chmod 600 app/keystore.jks
 
       - name: Build signed release APK
-        if: secrets.KEYSTORE_BASE64 != ''
+        if: secrets.KEYSTORE_BASE64 != '' && secrets.KEYSTORE_PASSWORD != '' && secrets.KEY_ALIAS != '' && secrets.KEY_PASSWORD != ''
         run: |
           ./gradlew clean assembleRelease \
             -Pandroid.injected.signing.store.file=app/keystore.jks \
@@ -48,7 +48,7 @@ jobs:
             -Pandroid.injected.signing.key.password="${{ secrets.KEY_PASSWORD }}"
 
       - name: Build unsigned release APK
-        if: secrets.KEYSTORE_BASE64 == ''
+        if: secrets.KEYSTORE_BASE64 == '' || secrets.KEYSTORE_PASSWORD == '' || secrets.KEY_ALIAS == '' || secrets.KEY_PASSWORD == ''
         run: |
           ./gradlew clean assembleRelease
 
