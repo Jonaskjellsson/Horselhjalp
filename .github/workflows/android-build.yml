@@ -40,6 +40,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Decode signing keystore
+        if: ${{ secrets.KEYSTORE_BASE64 != '' && secrets.KEYSTORE_PASSWORD != '' && secrets.KEY_ALIAS != '' && secrets.KEY_PASSWORD != '' }}
         if: env.KEYSTORE_BASE64 != '' && env.KEYSTORE_PASSWORD != '' && env.KEY_ALIAS != '' && env.KEY_PASSWORD != ''
         run: |
           mkdir -p app
@@ -47,6 +48,7 @@ jobs:
           chmod 600 app/keystore.jks
 
       - name: Build signed release APK
+        if: ${{ secrets.KEYSTORE_BASE64 != '' && secrets.KEYSTORE_PASSWORD != '' && secrets.KEY_ALIAS != '' && secrets.KEY_PASSWORD != '' }}
         if: env.KEYSTORE_BASE64 != '' && env.KEYSTORE_PASSWORD != '' && env.KEY_ALIAS != '' && env.KEY_PASSWORD != ''
         run: |
           ./gradlew clean assembleRelease \
@@ -57,6 +59,11 @@ jobs:
 
       - name: Build unsigned release APK
         if: env.KEYSTORE_BASE64 == '' || env.KEYSTORE_PASSWORD == '' || env.KEY_ALIAS == '' || env.KEY_PASSWORD == ''
+        run: |
+          ./gradlew clean assembleRelease
+
+      - name: Build unsigned release APK
+        if: ${{ secrets.KEYSTORE_BASE64 == '' || secrets.KEYSTORE_PASSWORD == '' || secrets.KEY_ALIAS == '' || secrets.KEY_PASSWORD == '' }}
         run: |
           ./gradlew clean assembleRelease
 
