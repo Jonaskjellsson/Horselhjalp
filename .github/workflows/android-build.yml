@@ -23,9 +23,9 @@ jobs:
         id: check_secrets
         run: |
           if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ] && [ -n "$KEY_ALIAS" ] && [ -n "$KEY_PASSWORD" ]; then
-            echo "available=true" >> $GITHUB_OUTPUT
+            echo "available=true" >> "$GITHUB_OUTPUT"
           else
-            echo "available=false" >> $GITHUB_OUTPUT
+            echo "available=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Set up JDK
