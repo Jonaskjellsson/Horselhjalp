@@ -11,9 +11,22 @@ jobs:
     runs-on: ubuntu-latest
     env:
       JAVA_VERSION: '17'
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Check if signing secrets are available
+        id: check_secrets
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ] && [ -n "$KEY_ALIAS" ] && [ -n "$KEY_PASSWORD" ]; then
+            echo "available=true" >> $GITHUB_OUTPUT
+          else
+            echo "available=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -36,23 +49,23 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Decode signing keystore
-        if: ${{ secrets.KEYSTORE_BASE64 != '' && secrets.KEYSTORE_PASSWORD != '' && secrets.KEY_ALIAS != '' && secrets.KEY_PASSWORD != '' }}
+        if: steps.check_secrets.outputs.available == 'true'
         run: |
           mkdir -p app
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/keystore.jks
+          echo "${{ env.KEYSTORE_BASE64 }}" | base64 --decode > app/keystore.jks
           chmod 600 app/keystore.jks
 
       - name: Build signed release APK
-        if: ${{ secrets.KEYSTORE_BASE64 != '' && secrets.KEYSTORE_PASSWORD != '' && secrets.KEY_ALIAS != '' && secrets.KEY_PASSWORD != '' }}
+        if: steps.check_secrets.outputs.available == 'true'
         run: |
           ./gradlew clean assembleRelease \
             -Pandroid.injected.signing.store.file=app/keystore.jks \
-            -Pandroid.injected.signing.store.password="${{ secrets.KEYSTORE_PASSWORD }}" \
-            -Pandroid.injected.signing.key.alias="${{ secrets.KEY_ALIAS }}" \
-            -Pandroid.injected.signing.key.password="${{ secrets.KEY_PASSWORD }}"
+            -Pandroid.injected.signing.store.password="${{ env.KEYSTORE_PASSWORD }}" \
+            -Pandroid.injected.signing.key.alias="${{ env.KEY_ALIAS }}" \
+            -Pandroid.injected.signing.key.password="${{ env.KEY_PASSWORD }}"
 
       - name: Build unsigned release APK
-        if: ${{ secrets.KEYSTORE_BASE64 == '' || secrets.KEYSTORE_PASSWORD == '' || secrets.KEY_ALIAS == '' || secrets.KEY_PASSWORD == '' }}
+        if: steps.check_secrets.outputs.available != 'true'
         run: |
           ./gradlew clean assembleRelease
 
