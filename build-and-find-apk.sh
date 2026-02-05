@@ -18,6 +18,22 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+# Function to get file size in human-readable format (cross-platform)
+get_file_size() {
+    local file="$1"
+    if command -v stat > /dev/null 2>&1; then
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            # macOS
+            stat -f%z "$file" | awk '{ split( "B KB MB GB" , v ); s=1; while( $1>1024 ){ $1/=1024; s++ } printf "%.1f%s", $1, v[s] }'
+        else
+            # Linux
+            stat -c%s "$file" | awk '{ split( "B KB MB GB" , v ); s=1; while( $1>1024 ){ $1/=1024; s++ } printf "%.1f%s", $1, v[s] }'
+        fi
+    else
+        ls -lh "$file" | awk '{print $5}'
+    fi
+}
+
 echo -e "${BLUE}Steg 1:${NC} Rensar gamla byggfiler..."
 ./gradlew clean
 
@@ -63,8 +79,10 @@ if [ -f "$APK_PATH" ]; then
     echo "   - Överför den till din Android-enhet"
     echo "   - Öppna filen på enheten för att installera"
     echo ""
-    echo "3. För att öppna mappen i filhanteraren (Linux):"
-    echo "   xdg-open app/build/outputs/apk/debug/"
+    echo "3. För att öppna mappen i filhanteraren:"
+    echo "   xdg-open app/build/outputs/apk/debug/   # Linux"
+    echo "   open app/build/outputs/apk/debug/       # Mac"
+    echo "   explorer app\\build\\outputs\\apk\\debug\\    # Windows"
     echo ""
 else
     echo -e "${YELLOW}⚠ Varning:${NC} APK-filen kunde inte hittas på den förväntade platsen."

@@ -77,7 +77,7 @@ Den färdiga APK-filen hittar du sedan i:
 app/build/outputs/apk/debug/app-debug.apk
 ```
 
-**Tips:** Om du har svårt att hitta filen, kan du använda följande kommando för att öppna mappen:
+**Tips:** För att öppna mappen där APK-filen finns (fungerar endast **efter** att du har byggt projektet):
 ```bash
 # På Linux/Mac
 xdg-open app/build/outputs/apk/debug/  # Linux
@@ -86,6 +86,8 @@ open app/build/outputs/apk/debug/      # Mac
 # På Windows (från PowerShell eller CMD)
 explorer app\build\outputs\apk\debug\
 ```
+
+**Obs:** Mappen `app/build/outputs/apk/debug/` skapas endast när du kör bygget första gången. Om kommandona ovan inte fungerar, bygg projektet först med `./gradlew assembleDebug`.
 
 ### 2. Bygga Release APK (för distribution)
 
