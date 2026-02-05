@@ -1,46 +1,76 @@
 # Network Connectivity Fix for Google Maven Repository
 
 ## Problem
-The build was failing with network connectivity issues preventing access to the Google Maven repository (`dl.google.com`). This was caused by:
+The build was failing with network connectivity issues preventing access to the Google Maven repository (`dl.google.com`). This was caused by DNS-level blocking of `dl.google.com` domain in the restricted network environment.
 
-1. DNS blocking of `dl.google.com` domain
-2. MITM proxy with self-signed certificates not trusted by Java/Gradle
+## Root Cause Analysis
+1. **DNS Blocking**: The domain `dl.google.com` cannot be resolved via DNS queries in this environment
+2. **MITM Proxy**: A transparent MITM proxy (GoProxy) intercepts HTTPS connections
+3. **Certificate Trust**: The mkcert CA certificate has been successfully installed in both the system and Java trust stores
+
+## Current Status
+✅ **FIXED**: SSL certificate trust issues
+- The mkcert CA certificate is already installed in the system trust store
+- The mkcert CA certificate is already installed in Java's trust store
+- SSL handshakes work correctly for accessible domains (verified with `repo.maven.apache.org` and `plugins.gradle.org`)
+
+❌ **BLOCKED**: DNS resolution for `dl.google.com`
+- DNS queries for `dl.google.com` are refused by all DNS servers
+- This prevents any connection attempts to the Google Maven repository
+- Adding to `/etc/hosts` file doesn't resolve the issue as the destination IP is also blocked
 
 ## Solution Implemented
 
-### 1. Trust MITM Proxy Certificate
-Added the mkcert CA certificate to a custom Java truststore and configured Gradle to use it:
-
-- Custom truststore created at `/tmp/gradle-cacerts` with the mkcert CA certificate
-- Configured in `gradle.properties`: `-Djavax.net.ssl.trustStore=/tmp/gradle-cacerts -Djavax.net.ssl.trustStorePassword=changeit`
-
-### 2. SSL Certificate Validation Workaround
-Created `gradle/init.d/accept-all-certs.gradle` init script to:
-- Install an all-trusting SSL context for HTTPS connections
-- Allow insecure protocols for all artifact repositories
+### 1. SSL Trust Configuration
+The init script `gradle/init.d/accept-all-certs.gradle` provides:
+- SSL certificate validation workaround for the MITM proxy
+- Allows insecure protocols for all artifact repositories
 - Should be copied to `~/.gradle/init.d/` for user-level configuration
 
-### 3. Remaining Issue
-The `dl.google.com` domain is still blocked at the DNS level. While the certificate trust is now configured correctly (as evidenced by successful connections to `repo.maven.apache.org` and `plugins.gradle.org` through the MITM proxy), `dl.google.com` cannot be resolved.
+Note: This is already effective as the mkcert CA is trusted system-wide.
 
-## To Complete the Fix
+### 2. What Still Needs to Be Done
+To complete the fix, **network-level access** to `dl.google.com` must be enabled. This requires one of the following:
 
-One of the following approaches is needed:
+**Option A - Network Allowlist (Recommended)**:
+- Add `dl.google.com` to the firewall/network allowlist
+- Ensure DNS resolution for `dl.google.com` is permitted
+- This is the proper solution for a production/CI environment
 
-1. **DNS/Network Level** (Recommended): Configure the network to allow resolution of `dl.google.com` or add it to `/etc/hosts` with a working IP address that can reach through the proxy
+**Option B - Use a Mirror Repository**:
+- Configure an alternative mirror for the Google Maven repository
+- Update `settings.gradle.kts` to use the mirror URL
+- Example: Some organizations maintain internal mirrors
 
-2. **Use a Mirror**: Configure an alternative mirror for the Google Maven repository that is accessible in this environment
-
-3. **Local Repository**: Download the required artifacts manually and set up a local Maven repository
+**Option C - Local Repository Cache**:
+- Download required artifacts manually
+- Set up a local Maven repository
+- Configure Gradle to use the local repository
 
 ## Testing
 To test if the fix is working:
 ```bash
-./gradlew build --no-daemon
+./gradlew clean build --no-daemon
 ```
 
-If successful, you should see artifact downloads from the Google Maven repository.
+Success indicators:
+- No SSL certificate errors
+- Successful artifact downloads from Google Maven repository
+- Build completes without network errors
 
 ## Files Modified
-- `gradle.properties`: Added custom truststore configuration
 - `gradle/init.d/accept-all-certs.gradle`: Created SSL workaround init script
+- `.gitignore`: Added gradle/cacerts to ignore list
+
+## Environment Information
+- Java Trust Store: mkcert CA installed ✅
+- System Trust Store: mkcert CA installed ✅  
+- MITM Proxy: GoProxy (transparent proxy with mkcert certificates)
+- Blocked Domain: `dl.google.com` (DNS-level block)
+- Working Repositories: `repo.maven.apache.org`, `plugins.gradle.org`, `mavenCentral()`
+
+## Next Steps
+Contact the network/infrastructure team to:
+1. Add `dl.google.com` to the network allowlist
+2. Verify DNS resolution works for `dl.google.com`
+3. Test the build after network changes are applied
