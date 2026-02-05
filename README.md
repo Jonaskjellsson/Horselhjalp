@@ -2,6 +2,38 @@
 
 En Android-applikation för hörselhjälp.
 
+## Snabbstart - Bygg och hitta APK
+
+### Alternativ 1: Kolla om APK redan finns
+
+Om du vill se om APK-filen redan är byggd och var den finns:
+
+```bash
+./find-apk.sh
+```
+
+Detta skript visar dig:
+- Om debug och release APK finns
+- Exakta sökvägar till APK-filerna
+- Hur du bygger dem om de inte finns
+
+### Alternativ 2: Bygg och hitta APK automatiskt
+
+Om du vill bygga debug-versionen och få exakt sökväg:
+
+```bash
+./build-and-find-apk.sh
+```
+
+Detta skript bygger debug-versionen av appen och visar dig exakt var APK-filen finns. 
+
+### Alternativ 3: Bygg manuellt
+
+```bash
+./gradlew assembleDebug
+```
+APK-filen finns sedan i: `app/build/outputs/apk/debug/app-debug.apk`
+
 ## Förutsättningar
 
 - **Java Development Kit (JDK)**: Version 17 eller senare
@@ -14,15 +46,45 @@ Det finns flera sätt att bygga en APK från detta projekt:
 
 ### 1. Bygga Debug APK (för testning)
 
-För att bygga en debug-version av appen som kan installeras direkt på din enhet:
+#### Enklaste sättet - Använd hjälpskripten
+
+För att kontrollera om APK redan finns:
+```bash
+./find-apk.sh
+```
+
+För att bygga och hitta debug APK på ett enkelt sätt:
+```bash
+./build-and-find-apk.sh
+```
+
+Detta skript kommer att:
+- Rensa gamla byggfiler
+- Bygga debug APK
+- Visa exakt var filen finns
+- Ge dig instruktioner för nästa steg
+
+#### Manuellt sätt
+
+För att bygga en debug-version av appen manuellt:
 
 ```bash
 ./gradlew assembleDebug
 ```
 
-Den färdiga APK-filen hittar du i:
+Den färdiga APK-filen hittar du sedan i:
 ```
 app/build/outputs/apk/debug/app-debug.apk
+```
+
+**Tips:** Om du har svårt att hitta filen, kan du använda följande kommando för att öppna mappen:
+```bash
+# På Linux/Mac
+xdg-open app/build/outputs/apk/debug/  # Linux
+open app/build/outputs/apk/debug/      # Mac
+
+# På Windows (från PowerShell eller CMD)
+explorer app\build\outputs\apk\debug\
 ```
 
 ### 2. Bygga Release APK (för distribution)
