@@ -32,9 +32,9 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            Toast.makeText(this, "Mikrofon-tillstånd beviljat", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.toast_permission_granted), Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(this, "Mikrofon-tillstånd krävs för att använda denna app", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.toast_permission_required), Toast.LENGTH_LONG).show()
         }
     }
 
@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         if (!SpeechRecognizer.isRecognitionAvailable(this)) {
             Toast.makeText(
                 this, 
-                "Taligenkänning är inte tillgänglig på denna enhet", 
+                getString(R.string.toast_recognition_unavailable), 
                 Toast.LENGTH_LONG
             ).show()
             micButton.isEnabled = false
@@ -84,8 +84,8 @@ class MainActivity : AppCompatActivity() {
         // Radera-knapp
         clearButton.setOnClickListener {
             recognizedText.clear()
-            textDisplay.text = ""
-            statusText.text = "Text raderad"
+            textDisplay.text = getString(R.string.text_placeholder)
+            statusText.text = getString(R.string.status_text_cleared)
         }
     }
 
@@ -93,11 +93,11 @@ class MainActivity : AppCompatActivity() {
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
         speechRecognizer?.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {
-                statusText.text = "Lyssnar..."
+                statusText.text = getString(R.string.status_listening)
             }
 
             override fun onBeginningOfSpeech() {
-                statusText.text = "Tal upptäckt"
+                statusText.text = getString(R.string.status_speech_detected)
             }
 
             override fun onRmsChanged(rmsdB: Float) {
@@ -109,21 +109,21 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onEndOfSpeech() {
-                statusText.text = "Bearbetar..."
+                statusText.text = getString(R.string.status_processing)
             }
 
             override fun onError(error: Int) {
                 val errorMessage = when (error) {
-                    SpeechRecognizer.ERROR_AUDIO -> "Ljudfel"
-                    SpeechRecognizer.ERROR_CLIENT -> "Klientfel"
-                    SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Saknar behörigheter"
-                    SpeechRecognizer.ERROR_NETWORK -> "Nätverksfel"
-                    SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Nätverkstimeout"
-                    SpeechRecognizer.ERROR_NO_MATCH -> "Inget tal hittades"
-                    SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Igenkännaren är upptagen"
-                    SpeechRecognizer.ERROR_SERVER -> "Serverfel"
-                    SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "Inget tal upptäckt"
-                    else -> "Okänt fel"
+                    SpeechRecognizer.ERROR_AUDIO -> getString(R.string.error_audio)
+                    SpeechRecognizer.ERROR_CLIENT -> getString(R.string.error_client)
+                    SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> getString(R.string.error_permissions)
+                    SpeechRecognizer.ERROR_NETWORK -> getString(R.string.error_network)
+                    SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> getString(R.string.error_network_timeout)
+                    SpeechRecognizer.ERROR_NO_MATCH -> getString(R.string.error_no_match)
+                    SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> getString(R.string.error_busy)
+                    SpeechRecognizer.ERROR_SERVER -> getString(R.string.error_server)
+                    SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> getString(R.string.error_speech_timeout)
+                    else -> getString(R.string.error_unknown)
                 }
                 statusText.text = errorMessage
                 isListening = false
@@ -148,7 +148,7 @@ class MainActivity : AppCompatActivity() {
                         scrollView.fullScroll(ScrollView.FOCUS_DOWN)
                     }
                     
-                    statusText.text = "Klart! Tryck på mikrofonen för att fortsätta"
+                    statusText.text = getString(R.string.status_complete)
                 }
                 isListening = false
                 updateMicButton()
@@ -157,7 +157,7 @@ class MainActivity : AppCompatActivity() {
             override fun onPartialResults(partialResults: Bundle?) {
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
-                    statusText.text = "Hörde: ${matches[0]}"
+                    statusText.text = getString(R.string.status_heard, matches[0])
                 }
             }
 
@@ -187,22 +187,22 @@ class MainActivity : AppCompatActivity() {
         speechRecognizer?.startListening(intent)
         isListening = true
         updateMicButton()
-        statusText.text = "Förbereder..."
+        statusText.text = getString(R.string.status_preparing)
     }
 
     private fun stopListening() {
         speechRecognizer?.stopListening()
         isListening = false
         updateMicButton()
-        statusText.text = "Stoppad"
+        statusText.text = getString(R.string.status_stopped)
     }
 
     private fun updateMicButton() {
         if (isListening) {
-            micButton.text = "🛑 STOPPA"
+            micButton.text = getString(R.string.button_stop)
             micButton.setBackgroundColor(ContextCompat.getColor(this, R.color.button_stop))
         } else {
-            micButton.text = "🎤 STARTA TAL"
+            micButton.text = getString(R.string.button_start)
             micButton.setBackgroundColor(ContextCompat.getColor(this, R.color.button_start))
         }
     }
