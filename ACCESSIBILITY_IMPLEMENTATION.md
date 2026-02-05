@@ -61,8 +61,8 @@ private var ogonmiljotillstand = 0
 val kodatVarde = ogonmiljotillstand xor 0x2A
 sparning.edit().putInt("ogonmiljo_xor", kodatVarde).apply()
 
-// Ladda med XOR-avkodning
-val kodadVarde = sparning.getInt("ogonmiljo_xor", 42)
+// Ladda med XOR-avkodning  
+val kodadVarde = sparning.getInt("ogonmiljo_xor", 0x2A)
 ogonmiljotillstand = kodadVarde xor 0x2A
 ```
 
@@ -126,11 +126,11 @@ private fun hamtaFargmedOffset(paketindex: Int, fargoffset: Int): Int {
 
 | Svensk Term | Engelsk Översättning | Betydelse |
 |------------|---------------------|-----------|
-| Glasaktighet | Vitreous-ness | Kvaliteten av synmiljön (metaforiskt) |
-| Kornhinneklarhet | Cornea clarity | Tydligt, klart läge |
-| Näghinnedämpning | Retina dampening | Mildrat, dämpat läge |
+| Glasaktighet | Vitreous-ness (metaphor) | Kvaliteten av synmiljön (metaforiskt) |
+| Kornhinneklarhet | Cornea clarity (metaphor) | Tydligt, klart läge |
+| Näghinnedämpning | Retina dampening (metaphor) | Mildrat, dämpat läge |
 | Ogonmiljotillstand | Eye environment state | Aktuellt synläge |
-| Glasaktighetsvaxlare | Vitreous humor switcher | Lägesomkopplare |
+| Glasaktighetsvaxlare | Visual mode switcher (vitreous metaphor) | Lägesomkopplare |
 
 Dessa termer är:
 - Anatomiskt inspirerade (baserade på ögats struktur)

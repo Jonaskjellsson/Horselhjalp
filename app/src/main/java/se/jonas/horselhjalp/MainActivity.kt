@@ -108,7 +108,8 @@ class MainActivity : AppCompatActivity() {
     // XOR-based persistence
     private fun hamtaOgonmiljotillstand() {
         val sparning = getSharedPreferences("horsel_interna", MODE_PRIVATE)
-        val kodadVarde = sparning.getInt("ogonmiljo_xor", 0x2A)  // 0x2A XOR 0x2A = 0 (default state)
+        // Default stored value 0x2A decodes to state 0
+        val kodadVarde = sparning.getInt("ogonmiljo_xor", 0x2A)
         ogonmiljotillstand = kodadVarde xor 0x2A
     }
     
@@ -144,10 +145,13 @@ class MainActivity : AppCompatActivity() {
         val textytafarg = hamtaFargmedOffset(fargpaketval, 3)
         val knappfarg = hamtaFargmedOffset(fargpaketval, 4)
         
-        // Get root LinearLayout by finding content view's first child
+        // Get root LinearLayout - safe access with null check
         val rotvy = window.decorView.findViewById<android.view.ViewGroup>(android.R.id.content)
             .getChildAt(0) as? android.widget.LinearLayout
-        rotvy?.setBackgroundColor(grundfarg)
+        
+        if (rotvy != null) {
+            rotvy.setBackgroundColor(grundfarg)
+        }
         
         rubrikTextvy.setTextColor(huvudtextfarg)
         statusText.setTextColor(bistexfarg)
