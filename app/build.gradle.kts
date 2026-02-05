@@ -23,14 +23,14 @@ android {
             // These properties are injected via command line during CI build
             val keystoreFile = project.findProperty("android.injected.signing.store.file") as String?
             val keystorePassword = project.findProperty("android.injected.signing.store.password") as String?
-            val keyAlias = project.findProperty("android.injected.signing.key.alias") as String?
-            val keyPassword = project.findProperty("android.injected.signing.key.password") as String?
+            val keyAliasValue = project.findProperty("android.injected.signing.key.alias") as String?
+            val keyPasswordValue = project.findProperty("android.injected.signing.key.password") as String?
             
-            if (keystoreFile != null && keystorePassword != null && keyAlias != null && keyPassword != null) {
+            if (keystoreFile != null && keystorePassword != null && keyAliasValue != null && keyPasswordValue != null) {
                 storeFile = file(keystoreFile)
                 storePassword = keystorePassword
-                keyAlias = keyAlias
-                this.keyPassword = keyPassword
+                keyAlias = keyAliasValue
+                keyPassword = keyPasswordValue
             }
         }
     }
