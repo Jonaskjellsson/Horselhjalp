@@ -1,12 +1,5 @@
 # Ignore all files in build directory
 /build/*
-# But keep the directory itself with .gitkeep
+# But keep the directory structure with .gitkeep files
 !/build/.gitkeep
-# Preserve directory structure for APK outputs
-!/build/outputs/
-/build/outputs/*
-!/build/outputs/apk/
-/build/outputs/apk/*
-!/build/outputs/apk/debug/
-/build/outputs/apk/debug/*
 !/build/outputs/apk/debug/.gitkeep
