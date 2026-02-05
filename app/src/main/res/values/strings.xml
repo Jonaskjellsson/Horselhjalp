@@ -1,3 +1,37 @@
 <resources>
     <string name="app_name">Hörselhjälp</string>
+    
+    <!-- Status messages -->
+    <string name="status_ready">Tryck på knappen för att börja</string>
+    <string name="status_text_cleared">Text raderad</string>
+    <string name="status_listening">Lyssnar…</string>
+    <string name="status_speech_detected">Tal upptäckt</string>
+    <string name="status_processing">Bearbetar…</string>
+    <string name="status_complete">Klart! Tryck på mikrofonen för att fortsätta</string>
+    <string name="status_preparing">Förbereder…</string>
+    <string name="status_stopped">Stoppad</string>
+    <string name="status_heard">Hörde: %s</string>
+    
+    <!-- Error messages -->
+    <string name="error_audio">Ljudfel</string>
+    <string name="error_client">Klientfel</string>
+    <string name="error_permissions">Saknar behörigheter</string>
+    <string name="error_network">Nätverksfel</string>
+    <string name="error_network_timeout">Nätverkstimeout</string>
+    <string name="error_no_match">Inget tal hittades</string>
+    <string name="error_busy">Igenkännaren är upptagen</string>
+    <string name="error_server">Serverfel</string>
+    <string name="error_speech_timeout">Inget tal upptäckt</string>
+    <string name="error_unknown">Okänt fel</string>
+    
+    <!-- Toast messages -->
+    <string name="toast_permission_granted">Mikrofon-tillstånd beviljat</string>
+    <string name="toast_permission_required">Mikrofon-tillstånd krävs för att använda denna app</string>
+    <string name="toast_recognition_unavailable">Taligenkänning är inte tillgänglig på denna enhet</string>
+    
+    <!-- Placeholder and button text -->
+    <string name="text_placeholder">Din talade text kommer att visas här...</string>
+    <string name="button_start">🎤 STARTA TAL</string>
+    <string name="button_stop">🛑 STOPPA</string>
+    <string name="button_clear">🗑️ RENSA TEXT</string>
 </resources>

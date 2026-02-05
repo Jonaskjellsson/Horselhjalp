@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/background"
+    tools:context=".MainActivity">
+
+    <!-- Header -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:gravity="center"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:contentDescription="@string/app_name" />
+
+    <!-- Status text -->
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/status_ready"
+        android:textSize="20sp"
+        android:textColor="@color/text_secondary"
+        android:gravity="center"
+        android:paddingBottom="16dp"
+        android:contentDescription="Status" />
+
+    <!-- Scrollable text display -->
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/text_area_background"
+        android:padding="16dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/textDisplay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_placeholder"
+            android:textSize="24sp"
+            android:textColor="@color/text_primary"
+            android:lineSpacingExtra="8dp"
+            android:contentDescription="Igenkänd text" />
+    </ScrollView>
+
+    <!-- Control buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <!-- Microphone button -->
+        <Button
+            android:id="@+id/micButton"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:text="@string/button_start"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/button_text"
+            android:background="@color/button_start"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="Starta eller stoppa taligenkänning" />
+
+        <!-- Clear button -->
+        <Button
+            android:id="@+id/clearButton"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="@string/button_clear"
+            android:textSize="20sp"
+            android:textColor="@color/button_text"
+            android:background="@color/button_clear"
+            android:contentDescription="Rensa text" />
+    </LinearLayout>
+
+</LinearLayout>
