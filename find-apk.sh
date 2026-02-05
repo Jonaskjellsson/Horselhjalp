@@ -12,6 +12,22 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
+# Function to get file size in human-readable format (cross-platform)
+get_file_size() {
+    local file="$1"
+    if command -v stat > /dev/null 2>&1; then
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            # macOS
+            stat -f%z "$file" | awk '{ split( "B KB MB GB" , v ); s=1; while( $1>1024 ){ $1/=1024; s++ } printf "%.1f%s", $1, v[s] }'
+        else
+            # Linux
+            stat -c%s "$file" | awk '{ split( "B KB MB GB" , v ); s=1; while( $1>1024 ){ $1/=1024; s++ } printf "%.1f%s", $1, v[s] }'
+        fi
+    else
+        ls -lh "$file" | awk '{print $5}'
+    fi
+}
+
 echo "================================================"
 echo "  Hörselhjälp - Hitta APK-fil"
 echo "================================================"
@@ -27,18 +43,7 @@ echo -e "${BLUE}Debug APK:${NC}"
 if [ -f "$DEBUG_APK" ]; then
     echo -e "  ${GREEN}✓ Finns!${NC}"
     echo "  Sökväg: $FULL_DEBUG_PATH"
-    # Cross-platform file size display
-    if command -v stat > /dev/null 2>&1; then
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            # macOS
-            FILE_SIZE=$(stat -f%z "$DEBUG_APK" | awk '{ split( "B KB MB GB" , v ); s=1; while( $1>1024 ){ $1/=1024; s++ } printf "%.1f%s", $1, v[s] }')
-        else
-            # Linux
-            FILE_SIZE=$(stat -c%s "$DEBUG_APK" | awk '{ split( "B KB MB GB" , v ); s=1; while( $1>1024 ){ $1/=1024; s++ } printf "%.1f%s", $1, v[s] }')
-        fi
-    else
-        FILE_SIZE=$(ls -lh "$DEBUG_APK" | awk '{print $5}')
-    fi
+    FILE_SIZE=$(get_file_size "$DEBUG_APK")
     echo "  Storlek: $FILE_SIZE"
 else
     echo -e "  ${YELLOW}✗ Finns inte ännu${NC}"
@@ -52,18 +57,7 @@ echo -e "${BLUE}Release APK:${NC}"
 if [ -f "$RELEASE_APK" ]; then
     echo -e "  ${GREEN}✓ Finns!${NC}"
     echo "  Sökväg: $FULL_RELEASE_PATH"
-    # Cross-platform file size display
-    if command -v stat > /dev/null 2>&1; then
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            # macOS
-            FILE_SIZE=$(stat -f%z "$RELEASE_APK" | awk '{ split( "B KB MB GB" , v ); s=1; while( $1>1024 ){ $1/=1024; s++ } printf "%.1f%s", $1, v[s] }')
-        else
-            # Linux
-            FILE_SIZE=$(stat -c%s "$RELEASE_APK" | awk '{ split( "B KB MB GB" , v ); s=1; while( $1>1024 ){ $1/=1024; s++ } printf "%.1f%s", $1, v[s] }')
-        fi
-    else
-        FILE_SIZE=$(ls -lh "$RELEASE_APK" | awk '{print $5}')
-    fi
+    FILE_SIZE=$(get_file_size "$RELEASE_APK")
     echo "  Storlek: $FILE_SIZE"
 else
     echo -e "  ${YELLOW}✗ Finns inte ännu${NC}"

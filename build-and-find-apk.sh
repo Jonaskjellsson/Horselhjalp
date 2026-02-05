@@ -47,17 +47,7 @@ if [ -f "$APK_PATH" ]; then
     echo ""
     
     # Visa filstorlek - cross-platform compatible
-    if command -v stat > /dev/null 2>&1; then
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            # macOS
-            FILE_SIZE=$(stat -f%z "$APK_PATH" | awk '{ split( "B KB MB GB" , v ); s=1; while( $1>1024 ){ $1/=1024; s++ } printf "%.1f%s", $1, v[s] }')
-        else
-            # Linux
-            FILE_SIZE=$(stat -c%s "$APK_PATH" | awk '{ split( "B KB MB GB" , v ); s=1; while( $1>1024 ){ $1/=1024; s++ } printf "%.1f%s", $1, v[s] }')
-        fi
-    else
-        FILE_SIZE=$(ls -lh "$APK_PATH" | awk '{print $5}')
-    fi
+    FILE_SIZE=$(get_file_size "$APK_PATH")
     echo -e "${YELLOW}Filstorlek:${NC} $FILE_SIZE"
     echo ""
     
