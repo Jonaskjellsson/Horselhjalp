@@ -2,7 +2,35 @@
 
 En Android-applikation för hörselhjälp.
 
-## Snabbstart - Bygg och hitta APK
+## Snabbstart - Ladda ner färdig APK
+
+### Alternativ 1: Ladda ner från GitHub Releases (Rekommenderat)
+
+Den enklaste metoden är att ladda ner en färdigbyggd APK från GitHub Releases:
+
+1. Gå till [Releases](https://github.com/Jonaskjellsson/Horselhjalp/releases)
+2. Välj den senaste versionen
+3. Under "Assets", ladda ner:
+   - `app-debug.apk` - för testning och utveckling
+   - `app-release.apk` - för normal användning
+4. Överför APK-filen till din Android-enhet och installera den
+
+### Alternativ 2: Ladda ner från GitHub Actions
+
+Om det inte finns någon release ännu, kan du ladda ner APK från GitHub Actions:
+
+1. Gå till [Actions](https://github.com/Jonaskjellsson/Horselhjalp/actions)
+2. Klicka på den senaste lyckade "Build Android APK" körningen
+3. Scrolla ner till "Artifacts" och ladda ner:
+   - `app-debug-apk` - för testning
+   - `app-release-apk` - för normal användning
+4. Packa upp ZIP-filen och installera APK:n på din Android-enhet
+
+**Obs:** Artefakter från GitHub Actions är endast tillgängliga i 90 dagar efter bygget.
+
+## Bygg APK själv
+
+Om du vill bygga APK:n själv från källkoden:
 
 ### Alternativ 1: Kolla om APK redan finns
 
@@ -34,7 +62,9 @@ Detta skript bygger debug-versionen av appen och visar dig exakt var APK-filen f
 ```
 APK-filen finns sedan i: `app/build/outputs/apk/debug/app-debug.apk`
 
-## Förutsättningar
+**Obs:** Mappen `app/build/outputs/apk/debug/` skapas endast när du kör bygget första gången. Mappen i Git-repositoriet är tom eftersom byggfiler inte ska versionshanteras.
+
+## Förutsättningar (för att bygga själv)
 
 - **Java Development Kit (JDK)**: Version 17 eller senare
 - **Android SDK**: Installeras automatiskt av Android Studio
