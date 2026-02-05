@@ -1,4 +1,5 @@
 # Ignore all files in build directory
 /build/*
-# But keep the directory itself with .gitkeep
+# But keep the directory structure with .gitkeep files
 !/build/.gitkeep
+!/build/outputs/apk/debug/.gitkeep
