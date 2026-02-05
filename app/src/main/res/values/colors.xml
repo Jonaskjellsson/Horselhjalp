@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- High contrast colors for visually impaired users -->
+    <color name="background">#FFFFFF</color>
+    <color name="text_primary">#000000</color>
+    <color name="text_secondary">#424242</color>
+    <color name="text_area_background">#F5F5F5</color>
+    
+    <!-- Button colors with high contrast -->
+    <color name="button_start">#4CAF50</color>
+    <color name="button_stop">#F44336</color>
+    <color name="button_clear">#FF9800</color>
+    <color name="button_text">#FFFFFF</color>
+    
+    <!-- Legacy colors (kept for compatibility) -->
     <color name="purple_200">#A78BFA</color>
     <color name="purple_500">#667EEA</color>
     <color name="purple_700">#764BA2</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="gradient_start">#667EEA</color>
-    <color name="gradient_end">#764BA2</color>
 </resources>

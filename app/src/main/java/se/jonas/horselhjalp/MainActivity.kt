@@ -1,13 +1,16 @@
 package se.jonas.horselhjalp
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.webkit.PermissionRequest
-import android.webkit.WebChromeClient
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import androidx.activity.OnBackPressedCallback
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import android.widget.Button
+import android.widget.ScrollView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -15,61 +18,49 @@ import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var webView: WebView
+    private lateinit var textDisplay: TextView
+    private lateinit var micButton: Button
+    private lateinit var clearButton: Button
+    private lateinit var scrollView: ScrollView
+    private lateinit var statusText: TextView
+    
+    private var speechRecognizer: SpeechRecognizer? = null
+    private var isListening = false
+    private var recognizedText = StringBuilder()
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            webView.reload()  // Ladda om sidan efter att tillstånd getts
+            Toast.makeText(this, "Mikrofon-tillstånd beviljat", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Mikrofon-tillstånd krävs för att använda denna app", Toast.LENGTH_LONG).show()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-        // Skapa och konfigurera WebView
-        webView = WebView(this).apply {
-            settings.javaScriptEnabled = true
-            settings.mediaPlaybackRequiresUserGesture = false
-            settings.domStorageEnabled = true
-            settings.allowFileAccess = true
-            webViewClient = WebViewClient()
+        // Hitta vyer
+        textDisplay = findViewById(R.id.textDisplay)
+        micButton = findViewById(R.id.micButton)
+        clearButton = findViewById(R.id.clearButton)
+        scrollView = findViewById(R.id.scrollView)
+        statusText = findViewById(R.id.statusText)
 
-            webChromeClient = object : WebChromeClient() {
-                override fun onPermissionRequest(request: PermissionRequest) {
-                    if (request.resources.contains(PermissionRequest.RESOURCE_AUDIO_CAPTURE)) {
-                        if (ContextCompat.checkSelfPermission(
-                                this@MainActivity,
-                                Manifest.permission.RECORD_AUDIO
-                            ) == PackageManager.PERMISSION_GRANTED
-                        ) {
-                            request.grant(request.resources)
-                        } else {
-                            requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                            request.deny()  // Nekas tills tillstånd getts
-                        }
-                    } else {
-                        request.grant(request.resources)
-                    }
-                }
-            }
+        // Kontrollera om taligenkänning är tillgänglig
+        if (!SpeechRecognizer.isRecognitionAvailable(this)) {
+            Toast.makeText(
+                this, 
+                "Taligenkänning är inte tillgänglig på denna enhet", 
+                Toast.LENGTH_LONG
+            ).show()
+            micButton.isEnabled = false
+            return
         }
 
-        // Sätt WebView som innehåll
-        setContentView(webView)
-
-        // Ladda din sida - välj språk baserat på systemspråk
-        val locale = Locale.getDefault()
-        val assetsPath = if (locale.language == "sv") {
-            "file:///android_asset/www/horselstod.emergent.host/index.html"
-        } else {
-            // Default to English for all non-Swedish languages
-            "file:///android_asset/www-en/index.html"
-        }
-        webView.loadUrl(assetsPath)
-
-        // Be om mikrofon-tillstånd direkt (om det behövs)
+        // Be om mikrofon-tillstånd
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.RECORD_AUDIO
@@ -78,16 +69,146 @@ class MainActivity : AppCompatActivity() {
             requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
         }
 
-        // Modern hantering av back-knappen (tar bort deprecated-varning)
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (webView.canGoBack()) {
-                    webView.goBack()
-                } else {
-                    isEnabled = false  // Tillåt standard back-beteende (stäng appen)
-                    onBackPressedDispatcher.onBackPressed()
+        // Initiera taligenkänning
+        setupSpeechRecognizer()
+
+        // Mikrofon-knapp
+        micButton.setOnClickListener {
+            if (isListening) {
+                stopListening()
+            } else {
+                startListening()
+            }
+        }
+
+        // Radera-knapp
+        clearButton.setOnClickListener {
+            recognizedText.clear()
+            textDisplay.text = ""
+            statusText.text = "Text raderad"
+        }
+    }
+
+    private fun setupSpeechRecognizer() {
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        speechRecognizer?.setRecognitionListener(object : RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) {
+                statusText.text = "Lyssnar..."
+            }
+
+            override fun onBeginningOfSpeech() {
+                statusText.text = "Tal upptäckt"
+            }
+
+            override fun onRmsChanged(rmsdB: Float) {
+                // Kan användas för att visa ljudnivå
+            }
+
+            override fun onBufferReceived(buffer: ByteArray?) {
+                // Inte använd i denna implementation
+            }
+
+            override fun onEndOfSpeech() {
+                statusText.text = "Bearbetar..."
+            }
+
+            override fun onError(error: Int) {
+                val errorMessage = when (error) {
+                    SpeechRecognizer.ERROR_AUDIO -> "Ljudfel"
+                    SpeechRecognizer.ERROR_CLIENT -> "Klientfel"
+                    SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Saknar behörigheter"
+                    SpeechRecognizer.ERROR_NETWORK -> "Nätverksfel"
+                    SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Nätverkstimeout"
+                    SpeechRecognizer.ERROR_NO_MATCH -> "Inget tal hittades"
+                    SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Igenkännaren är upptagen"
+                    SpeechRecognizer.ERROR_SERVER -> "Serverfel"
+                    SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "Inget tal upptäckt"
+                    else -> "Okänt fel"
+                }
+                statusText.text = errorMessage
+                isListening = false
+                updateMicButton()
+                
+                // Starta om automatiskt efter "inget tal"-fel
+                if (error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT || 
+                    error == SpeechRecognizer.ERROR_NO_MATCH) {
+                    startListening()
                 }
             }
+
+            override fun onResults(results: Bundle?) {
+                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!matches.isNullOrEmpty()) {
+                    val text = matches[0]
+                    recognizedText.append(text).append(" ")
+                    textDisplay.text = recognizedText.toString()
+                    
+                    // Scrolla ner automatiskt
+                    scrollView.post {
+                        scrollView.fullScroll(ScrollView.FOCUS_DOWN)
+                    }
+                    
+                    statusText.text = "Klart! Tryck på mikrofonen för att fortsätta"
+                }
+                isListening = false
+                updateMicButton()
+            }
+
+            override fun onPartialResults(partialResults: Bundle?) {
+                val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!matches.isNullOrEmpty()) {
+                    statusText.text = "Hörde: ${matches[0]}"
+                }
+            }
+
+            override fun onEvent(eventType: Int, params: Bundle?) {
+                // Inte använd i denna implementation
+            }
         })
+    }
+
+    private fun startListening() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.RECORD_AUDIO
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            return
+        }
+
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "sv-SE")
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+        }
+
+        speechRecognizer?.startListening(intent)
+        isListening = true
+        updateMicButton()
+        statusText.text = "Förbereder..."
+    }
+
+    private fun stopListening() {
+        speechRecognizer?.stopListening()
+        isListening = false
+        updateMicButton()
+        statusText.text = "Stoppad"
+    }
+
+    private fun updateMicButton() {
+        if (isListening) {
+            micButton.text = "🛑 STOPPA"
+            micButton.setBackgroundColor(ContextCompat.getColor(this, R.color.button_stop))
+        } else {
+            micButton.text = "🎤 STARTA TAL"
+            micButton.setBackgroundColor(ContextCompat.getColor(this, R.color.button_start))
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        speechRecognizer?.destroy()
     }
 }

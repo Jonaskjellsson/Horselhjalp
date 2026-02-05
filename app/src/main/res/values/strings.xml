@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Hörselhjälp</string>
+    <string name="status_ready">Tryck på knappen för att börja</string>
+    <string name="text_placeholder">Din talade text kommer att visas här...</string>
+    <string name="button_start">🎤 STARTA TAL</string>
+    <string name="button_stop">🛑 STOPPA</string>
+    <string name="button_clear">🗑️ RENSA TEXT</string>
 </resources>
