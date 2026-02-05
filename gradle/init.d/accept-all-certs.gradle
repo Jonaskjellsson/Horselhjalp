@@ -1,0 +1,64 @@
+// Workaround for MITM proxy certificate issues
+// This init script configures Gradle to accept all SSL certificates
+// WARNING: This should only be used in development environments with trusted proxies
+
+import javax.net.ssl.*
+import java.security.cert.X509Certificate
+import java.security.SecureRandom
+
+// Create a trust manager that accepts all certificates
+def trustAllCerts = [
+    new X509TrustManager() {
+        public X509Certificate[] getAcceptedIssuers() {
+            return [] as X509Certificate[]
+        }
+        public void checkClientTrusted(X509Certificate[] certs, String authType) {
+        }
+        public void checkServerTrusted(X509Certificate[] certs, String authType) {
+        }
+    }
+] as TrustManager[]
+
+try {
+    // Create an SSL context that uses the trust-all manager
+    def sslContext = SSLContext.getInstance("TLS")
+    sslContext.init(null, trustAllCerts, new SecureRandom())
+    
+    // Install the all-trusting trust manager
+    HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory())
+    
+    // Install an all-trusting hostname verifier
+    HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+        public boolean verify(String hostname, SSLSession session) {
+            return true
+        }
+    })
+    
+    // Also set default SSL socket factory
+    SSLContext.setDefault(sslContext)
+    
+    println "SSL certificate validation disabled for all repositories (MITM proxy workaround)"
+} catch (Exception e) {
+    println "Warning: Could not disable SSL certificate validation: ${e.message}"
+}
+
+gradle.projectsLoaded {
+    allprojects {
+        buildscript {
+            repositories {
+                all { ArtifactRepository repo ->
+                    if (repo instanceof UrlArtifactRepository) {
+                        repo.allowInsecureProtocol = true
+                    }
+                }
+            }
+        }
+        repositories {
+            all { ArtifactRepository repo ->
+                if (repo instanceof UrlArtifactRepository) {
+                    repo.allowInsecureProtocol = true
+                }
+            }
+        }
+    }
+}
