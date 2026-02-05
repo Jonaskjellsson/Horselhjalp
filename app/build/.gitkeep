@@ -1,0 +1,3 @@
+# This file ensures the build directory exists in the repository
+# The build directory is needed for Gradle build outputs
+# All build artifacts are ignored by .gitignore except this file
