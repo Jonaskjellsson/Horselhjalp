@@ -83,6 +83,7 @@ main {
     line-height: 1.7 !important;
     letter-spacing: 0.03em;
     min-height: 400px;
+    position: relative;
 }
 
 .text-display-area:hover {
@@ -346,7 +347,12 @@ button:disabled {
     pointer-events: none;
 }
 
-/* Floating animation for buttons */
+/* Floating animation for non-microphone buttons */
+[data-testid="clear-btn"],
+[data-testid="theme-toggle-btn"] {
+    animation: float 3s ease-in-out infinite;
+}
+
 @keyframes float {
     0%, 100% {
         transform: translateY(0px);
@@ -356,10 +362,15 @@ button:disabled {
     }
 }
 
-button {
-    animation: float 3s ease-in-out infinite;
+.mic-button {
+    animation: floatMic 2s ease-in-out infinite;
 }
 
-.mic-button {
-    animation: float 2s ease-in-out infinite;
+@keyframes floatMic {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
 }
