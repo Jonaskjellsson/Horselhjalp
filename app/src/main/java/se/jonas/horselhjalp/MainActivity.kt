@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         // Ladda din sida - välj språk baserat på systemspråk
         val locale = Locale.getDefault()
         val assetsPath = if (locale.language == "sv") {
-            "file:///android_asset/www/index.html"
+            "file:///android_asset/www/horselstod.emergent.host/index.html"
         } else {
             // Default to English for all non-Swedish languages
             "file:///android_asset/www-en/index.html"
