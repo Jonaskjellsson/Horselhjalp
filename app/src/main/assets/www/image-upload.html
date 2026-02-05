@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ladda upp bild - Hörselhjälp</title>
+    <link rel="stylesheet" href="enhanced-style.css">
+    <style>
+        .upload-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            border-radius: 1.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+        
+        .upload-title {
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .upload-area {
+            border: 3px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .upload-area:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.7);
+            transform: translateY(-2px);
+        }
+        
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-text {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .upload-subtext {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .preview-area {
+            margin-top: 2rem;
+            display: none;
+        }
+        
+        .preview-area.active {
+            display: block;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1rem;
+        }
+        
+        .image-info {
+            color: white;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-top: 1rem;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-button {
+            display: inline-block;
+            margin: 2rem auto;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 0.75rem;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.6);
+        }
+        
+        .button-container {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .clear-button {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(250, 112, 154, 0.4);
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .clear-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(250, 112, 154, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen">
+        <header style="padding: 2rem 1.5rem; border-bottom: 2px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);">
+            <div style="max-width: 56rem; margin: 0 auto;">
+                <h1 style="font-size: 2rem; font-weight: 900; color: white; text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); text-align: center;">
+                    Ladda upp bild
+                </h1>
+            </div>
+        </header>
+        
+        <main style="padding: 2rem 1.5rem;">
+            <div class="upload-container">
+                <h2 class="upload-title">Välj en bild att ladda upp</h2>
+                
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📸</div>
+                    <div class="upload-text">Klicka här för att välja en bild</div>
+                    <div class="upload-subtext">Eller dra och släpp en bild här</div>
+                </div>
+                
+                <input type="file" id="fileInput" accept="image/*" style="display: none;" multiple>
+                
+                <div class="preview-area" id="previewArea">
+                    <h3 class="upload-title">Förhandsgranskning</h3>
+                    <div id="imagePreview"></div>
+                    <div class="button-container">
+                        <button class="clear-button" onclick="clearImages()">Rensa bilder</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-container">
+                <a href="index.html" class="back-button">← Tillbaka till huvudsidan</a>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const previewArea = document.getElementById('previewArea');
+        const imagePreview = document.getElementById('imagePreview');
+        
+        fileInput.addEventListener('change', handleFiles);
+        
+        // Drag and drop support
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = 'rgba(255, 255, 255, 0.3)';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.background = 'rgba(255, 255, 255, 0.1)';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = 'rgba(255, 255, 255, 0.1)';
+            const files = e.dataTransfer.files;
+            handleFilesFromDrop(files);
+        });
+        
+        function handleFiles(e) {
+            const files = e.target.files;
+            displayImages(files);
+        }
+        
+        function handleFilesFromDrop(files) {
+            displayImages(files);
+        }
+        
+        function displayImages(files) {
+            if (files.length === 0) return;
+            
+            imagePreview.innerHTML = '';
+            previewArea.classList.add('active');
+            
+            Array.from(files).forEach((file, index) => {
+                if (!file.type.startsWith('image/')) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.style.marginBottom = '2rem';
+                    
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'preview-image';
+                    img.alt = `Uploaded image ${index + 1}`;
+                    
+                    const info = document.createElement('div');
+                    info.className = 'image-info';
+                    info.innerHTML = `
+                        <strong>Filnamn:</strong> ${file.name}<br>
+                        <strong>Storlek:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB<br>
+                        <strong>Typ:</strong> ${file.type}
+                    `;
+                    
+                    imgContainer.appendChild(img);
+                    imgContainer.appendChild(info);
+                    imagePreview.appendChild(imgContainer);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        function clearImages() {
+            imagePreview.innerHTML = '';
+            previewArea.classList.remove('active');
+            fileInput.value = '';
+        }
+    </script>
+</body>
+</html>
