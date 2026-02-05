@@ -64,7 +64,7 @@ jobs:
             -Pandroid.injected.signing.key.alias="${{ env.KEY_ALIAS }}" \
             -Pandroid.injected.signing.key.password="${{ env.KEY_PASSWORD }}"
 
-      - name: Build unsigned release APK
+      - name: Build release APK with debug signing
         if: steps.check_secrets.outputs.available != 'true'
         run: |
           ./gradlew clean assembleRelease

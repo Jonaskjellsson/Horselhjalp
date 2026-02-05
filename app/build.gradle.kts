@@ -17,6 +17,24 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        // Custom release signing configuration when keystore is provided
+        create("release") {
+            // These properties are injected via command line during CI build
+            val keystoreFile = project.findProperty("android.injected.signing.store.file") as String?
+            val keystorePassword = project.findProperty("android.injected.signing.store.password") as String?
+            val keyAlias = project.findProperty("android.injected.signing.key.alias") as String?
+            val keyPassword = project.findProperty("android.injected.signing.key.password") as String?
+            
+            if (keystoreFile != null && keystorePassword != null && keyAlias != null && keyPassword != null) {
+                storeFile = file(keystoreFile)
+                storePassword = keystorePassword
+                keyAlias = keyAlias
+                this.keyPassword = keyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -24,6 +42,15 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            
+            // Use custom signing config if available, otherwise fall back to debug signing
+            // This ensures the APK is always signed and installable
+            val releaseSigningConfig = signingConfigs.getByName("release")
+            signingConfig = if (releaseSigningConfig.storeFile != null) {
+                releaseSigningConfig
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
     compileOptions {
