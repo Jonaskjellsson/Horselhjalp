@@ -34,4 +34,10 @@
     <string name="button_start">🎤 STARTA TAL</string>
     <string name="button_stop">🛑 STOPPA</string>
     <string name="button_clear">🗑️ RENSA TEXT</string>
+    
+    <!-- Glasaktighetsvaxlare (vitreous humor switcher) -->
+    <string name="glasaktig_knapp">🔄 GLASAKTIGHET</string>
+    <string name="rapport_kornhinneklarhet">Kornhinneklarhet</string>
+    <string name="rapport_naghinnedampning">Näghinnedämpning</string>
+    <string name="glasaktig_hjalp">Växla ögonmiljö</string>
 </resources>

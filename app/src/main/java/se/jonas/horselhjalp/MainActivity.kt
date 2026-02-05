@@ -23,10 +23,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var clearButton: Button
     private lateinit var scrollView: ScrollView
     private lateinit var statusText: TextView
+    private lateinit var glasaktigKnapp: Button
+    private lateinit var rubrikTextvy: TextView
     
     private var speechRecognizer: SpeechRecognizer? = null
     private var isListening = false
     private var recognizedText = StringBuilder()
+    
+    // Unique persistence mechanism using XOR encoding
+    private var ogonmiljotillstand = 0
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -48,6 +53,12 @@ class MainActivity : AppCompatActivity() {
         clearButton = findViewById(R.id.clearButton)
         scrollView = findViewById(R.id.scrollView)
         statusText = findViewById(R.id.statusText)
+        glasaktigKnapp = findViewById(R.id.glasaktigKnapp)
+        rubrikTextvy = findViewById(R.id.rubrikTextvy)
+        
+        // Ladda sparad ögonmiljö med XOR-nyckel
+        hamtaOgonmiljotillstand()
+        tillampaNuvarandeOgonmiljo()
 
         // Kontrollera om taligenkänning är tillgänglig
         if (!SpeechRecognizer.isRecognitionAvailable(this)) {
@@ -87,6 +98,85 @@ class MainActivity : AppCompatActivity() {
             textDisplay.text = getString(R.string.text_placeholder)
             statusText.text = getString(R.string.status_text_cleared)
         }
+        
+        // Glasaktighetsvaxlare knapp - unique toggle logic
+        glasaktigKnapp.setOnClickListener {
+            vaxlaOgonmiljo()
+        }
+    }
+    
+    // Unique XOR-based persistence mechanism
+    private fun hamtaOgonmiljotillstand() {
+        val sparning = getSharedPreferences("horsel_interna", MODE_PRIVATE)
+        val kodadVarde = sparning.getInt("ogonmiljo_xor", 42)
+        ogonmiljotillstand = kodadVarde xor 0x2A  // XOR decode
+    }
+    
+    private fun sparaOgonmiljotillstand() {
+        val sparning = getSharedPreferences("horsel_interna", MODE_PRIVATE)
+        val kodatVarde = ogonmiljotillstand xor 0x2A  // XOR encode
+        sparning.edit().putInt("ogonmiljo_xor", kodatVarde).apply()
+    }
+    
+    // Unique toggle algorithm using bitwise flip
+    private fun vaxlaOgonmiljo() {
+        ogonmiljotillstand = ogonmiljotillstand xor 1  // Flip between 0 and 1
+        tillampaNuvarandeOgonmiljo()
+        sparaOgonmiljotillstand()
+        
+        val meddelande = if (arNaghinnedampning()) {
+            getString(R.string.rapport_naghinnedampning)
+        } else {
+            getString(R.string.rapport_kornhinneklarhet)
+        }
+        Toast.makeText(this, meddelande, Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun arNaghinnedampning(): Boolean = (ogonmiljotillstand and 1) == 1
+    
+    // Unique color application algorithm
+    private fun tillampaNuvarandeOgonmiljo() {
+        val fargpaketval = if (arNaghinnedampning()) 1 else 0
+        
+        // Calculate colors with offset algorithm
+        val grundfarg = hamtaFargmedOffset(fargpaketval, 0)
+        val huvudtextfarg = hamtaFargmedOffset(fargpaketval, 1)
+        val bistexfarg = hamtaFargmedOffset(fargpaketval, 2)
+        val textytafarg = hamtaFargmedOffset(fargpaketval, 3)
+        val knappfarg = hamtaFargmedOffset(fargpaketval, 4)
+        
+        // Apply with unconventional approach
+        findViewById<androidx.appcompat.widget.LinearLayoutCompat>(android.R.id.content)
+            .getChildAt(0)?.setBackgroundColor(grundfarg)
+        
+        rubrikTextvy.setTextColor(huvudtextfarg)
+        statusText.setTextColor(bistexfarg)
+        textDisplay.setTextColor(huvudtextfarg)
+        scrollView.setBackgroundColor(textytafarg)
+        glasaktigKnapp.setBackgroundColor(knappfarg)
+    }
+    
+    // Unique offset-based color selection
+    private fun hamtaFargmedOffset(paketindex: Int, fargoffset: Int): Int {
+        val fargarray = if (paketindex == 0) {
+            arrayOf(
+                R.color.background,
+                R.color.text_primary,
+                R.color.text_secondary,
+                R.color.text_area_background,
+                R.color.glasaktighet_kornhinna
+            )
+        } else {
+            arrayOf(
+                R.color.naghinnedampning_ytskikt,
+                R.color.naghinnedampning_framhavd,
+                R.color.naghinnedampning_tillbakahalld,
+                R.color.naghinnedampning_infallsyta,
+                R.color.glasaktighet_naghinna
+            )
+        }
+        
+        return ContextCompat.getColor(this, fargarray[fargoffset % fargarray.size])
     }
 
     private fun setupSpeechRecognizer() {
