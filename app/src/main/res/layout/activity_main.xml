@@ -23,11 +23,12 @@
         android:lineSpacingMultiplier="1.35"
         android:contentDescription="@string/app_name" />
 
-    <!-- Status text -->
+    <!-- Status text - hidden per user request -->
     <TextView
         android:id="@+id/statusText"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:visibility="gone"
         android:text="@string/status_ready"
         android:textSize="26sp"
         android:textColor="@color/text_secondary"
@@ -65,38 +66,38 @@
         android:orientation="vertical"
         android:gravity="center">
 
-        <!-- Microphone button -->
+        <!-- Microphone button - reduced size -->
         <Button
             android:id="@+id/micButton"
             android:layout_width="match_parent"
-            android:layout_height="95dp"
+            android:layout_height="65dp"
             android:text="@string/button_start"
-            android:textSize="28sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@color/button_text"
             android:background="@color/button_start"
-            android:layout_marginBottom="18dp"
+            android:layout_marginBottom="12dp"
             android:contentDescription="Starta eller stoppa taligenkänning" />
 
-        <!-- Clear button -->
+        <!-- Clear button - reduced size -->
         <Button
             android:id="@+id/clearButton"
             android:layout_width="match_parent"
-            android:layout_height="75dp"
+            android:layout_height="55dp"
             android:text="@string/button_clear"
-            android:textSize="24sp"
+            android:textSize="18sp"
             android:textColor="@color/button_text"
             android:background="@color/button_clear"
-            android:layout_marginBottom="18dp"
+            android:layout_marginBottom="12dp"
             android:contentDescription="Rensa text" />
         
-        <!-- Glasaktighetsvaxlare button -->
+        <!-- Glasaktighetsvaxlare button - reduced size -->
         <Button
             android:id="@+id/glasaktigKnapp"
             android:layout_width="match_parent"
-            android:layout_height="75dp"
+            android:layout_height="55dp"
             android:text="@string/glasaktig_knapp"
-            android:textSize="24sp"
+            android:textSize="18sp"
             android:textColor="@color/button_text"
             android:background="@color/glasaktighet_kornhinna"
             android:contentDescription="@string/glasaktig_hjalp" />
