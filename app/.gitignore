@@ -2,3 +2,11 @@
 /build/*
 # But keep the directory itself with .gitkeep
 !/build/.gitkeep
+# Preserve directory structure for APK outputs
+!/build/outputs/
+/build/outputs/*
+!/build/outputs/apk/
+/build/outputs/apk/*
+!/build/outputs/apk/debug/
+/build/outputs/apk/debug/*
+!/build/outputs/apk/debug/.gitkeep
