@@ -1,5 +1,17 @@
 # UI-förbättringar för Hörselhjälp mobilapp
 
+## 📱 Förbättrad Design - Före och Efter
+
+### Efter - Ny Design ✨
+![Förbättrad UI](https://github.com/user-attachments/assets/969473c8-1396-435d-95b0-57635d77618c)
+
+Den nya designen visar:
+- ✨ Animerad gradient-bakgrund med levande färger
+- 💎 Glasmorfism-effekter överallt
+- 🌟 Glödande knappar med pulsationsanimationer
+- 🎨 Vibrant färgpalett (lila, rosa, guld)
+- 📱 Perfekt optimerad för mobil
+
 ## Sammanfattning av ändringar
 
 Detta PR innehåller omfattande visuella förbättringar för att göra mobilappens gränssnitt mer attraktivt och modernt.
