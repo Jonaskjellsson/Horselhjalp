@@ -2,6 +2,8 @@
 
 # Skript för att bygga debug APK och visa var den finns
 # Script to build debug APK and show where it is located
+#
+# Note: This script should be executable. If not, run: chmod +x build-and-find-apk.sh
 
 set -e
 
@@ -44,8 +46,18 @@ if [ -f "$APK_PATH" ]; then
     echo "  $APK_PATH"
     echo ""
     
-    # Visa filstorlek
-    FILE_SIZE=$(du -h "$APK_PATH" | cut -f1)
+    # Visa filstorlek - cross-platform compatible
+    if command -v stat > /dev/null 2>&1; then
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            # macOS
+            FILE_SIZE=$(stat -f%z "$APK_PATH" | awk '{ split( "B KB MB GB" , v ); s=1; while( $1>1024 ){ $1/=1024; s++ } printf "%.1f%s", $1, v[s] }')
+        else
+            # Linux
+            FILE_SIZE=$(stat -c%s "$APK_PATH" | awk '{ split( "B KB MB GB" , v ); s=1; while( $1>1024 ){ $1/=1024; s++ } printf "%.1f%s", $1, v[s] }')
+        fi
+    else
+        FILE_SIZE=$(ls -lh "$APK_PATH" | awk '{print $5}')
+    fi
     echo -e "${YELLOW}Filstorlek:${NC} $FILE_SIZE"
     echo ""
     
