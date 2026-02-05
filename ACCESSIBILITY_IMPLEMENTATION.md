@@ -33,7 +33,7 @@ This document describes the unique accessibility features implemented in the Hea
 
 **Unikt Svenskt Koncept:**
 
-Använder anatomiska ögnmetaforer för att beskriva ljuslägen:
+Använder anatomiska ögonmetaforer för att beskriva ljuslägen:
 
 #### Kornhinneklarhet (Cornea Clarity Mode)
 - **Bakgrund:** #F4F6F8 (ljust)
@@ -126,17 +126,17 @@ private fun hamtaFargmedOffset(paketindex: Int, fargoffset: Int): Int {
 
 | Svensk Term | Engelsk Översättning | Betydelse |
 |------------|---------------------|-----------|
-| Glasaktighet | Vitreous-ness | Kvaliteten av synmiljön |
+| Glasaktighet | Vitreous-ness | Kvaliteten av synmiljön (metaforiskt) |
 | Kornhinneklarhet | Cornea clarity | Tydligt, klart läge |
 | Näghinnedämpning | Retina dampening | Mildrat, dämpat läge |
 | Ogonmiljotillstand | Eye environment state | Aktuellt synläge |
 | Glasaktighetsvaxlare | Vitreous humor switcher | Lägesomkopplare |
 
 Dessa termer är:
-- Anatomiskt korrekta (baserade på ögats struktur)
+- Anatomiskt inspirerade (baserade på ögats struktur)
 - Intuitivt begripliga för svenska användare
 - Unika för denna implementation
-- Medicinskt inspirerade för en hörselapp (sinnesöverskridande metafor)
+- Metaforiskt använda (inte medicinska termer)
 
 ## Testning
 

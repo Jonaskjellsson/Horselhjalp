@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
     private var isListening = false
     private var recognizedText = StringBuilder()
     
-    // Unique persistence mechanism using XOR encoding
+    // Custom persistence using XOR encoding to discourage manual preference editing
     private var ogonmiljotillstand = 0
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -105,22 +105,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
     
-    // Unique XOR-based persistence mechanism
+    // XOR-based persistence
     private fun hamtaOgonmiljotillstand() {
         val sparning = getSharedPreferences("horsel_interna", MODE_PRIVATE)
-        val kodadVarde = sparning.getInt("ogonmiljo_xor", 42)
-        ogonmiljotillstand = kodadVarde xor 0x2A  // XOR decode
+        val kodadVarde = sparning.getInt("ogonmiljo_xor", 0x2A)  // 0x2A XOR 0x2A = 0 (default state)
+        ogonmiljotillstand = kodadVarde xor 0x2A
     }
     
     private fun sparaOgonmiljotillstand() {
         val sparning = getSharedPreferences("horsel_interna", MODE_PRIVATE)
-        val kodatVarde = ogonmiljotillstand xor 0x2A  // XOR encode
+        val kodatVarde = ogonmiljotillstand xor 0x2A
         sparning.edit().putInt("ogonmiljo_xor", kodatVarde).apply()
     }
     
-    // Unique toggle algorithm using bitwise flip
+    // Toggle algorithm using bitwise flip
     private fun vaxlaOgonmiljo() {
-        ogonmiljotillstand = ogonmiljotillstand xor 1  // Flip between 0 and 1
+        ogonmiljotillstand = ogonmiljotillstand xor 1
         tillampaNuvarandeOgonmiljo()
         sparaOgonmiljotillstand()
         
@@ -134,20 +134,20 @@ class MainActivity : AppCompatActivity() {
     
     private fun arNaghinnedampning(): Boolean = (ogonmiljotillstand and 1) == 1
     
-    // Unique color application algorithm
+    // Color application algorithm
     private fun tillampaNuvarandeOgonmiljo() {
         val fargpaketval = if (arNaghinnedampning()) 1 else 0
         
-        // Calculate colors with offset algorithm
         val grundfarg = hamtaFargmedOffset(fargpaketval, 0)
         val huvudtextfarg = hamtaFargmedOffset(fargpaketval, 1)
         val bistexfarg = hamtaFargmedOffset(fargpaketval, 2)
         val textytafarg = hamtaFargmedOffset(fargpaketval, 3)
         val knappfarg = hamtaFargmedOffset(fargpaketval, 4)
         
-        // Apply with unconventional approach
-        findViewById<androidx.appcompat.widget.LinearLayoutCompat>(android.R.id.content)
-            .getChildAt(0)?.setBackgroundColor(grundfarg)
+        // Get root LinearLayout by finding content view's first child
+        val rotvy = window.decorView.findViewById<android.view.ViewGroup>(android.R.id.content)
+            .getChildAt(0) as? android.widget.LinearLayout
+        rotvy?.setBackgroundColor(grundfarg)
         
         rubrikTextvy.setTextColor(huvudtextfarg)
         statusText.setTextColor(bistexfarg)
@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity() {
         glasaktigKnapp.setBackgroundColor(knappfarg)
     }
     
-    // Unique offset-based color selection
+    // Offset-based color selection (modulo for future extensibility)
     private fun hamtaFargmedOffset(paketindex: Int, fargoffset: Int): Int {
         val fargarray = if (paketindex == 0) {
             arrayOf(
