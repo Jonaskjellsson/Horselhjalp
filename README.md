@@ -40,6 +40,18 @@ app/build/outputs/apk/release/app-release.apk
 
 **Obs!** För att ladda upp till Google Play Store behöver APK:n vara signerad med din egen nyckel.
 
+**Viktigt om APK-signering:** Alla release APK:er som byggs med detta projekt kommer alltid att vara signerade och installerbara. Om du inte konfigurerar en egen signeringsnyckel kommer APK:n att signeras med debug-nyckeln, vilket gör den installerbar men inte lämplig för Google Play Store-distribution.
+
+För att bygga en release APK med din egen signeringsnyckel kan du använda följande kommando:
+
+```bash
+./gradlew assembleRelease \
+  -Pandroid.injected.signing.store.file=/path/to/your/keystore.jks \
+  -Pandroid.injected.signing.store.password=your_store_password \
+  -Pandroid.injected.signing.key.alias=your_key_alias \
+  -Pandroid.injected.signing.key.password=your_key_password
+```
+
 ### 3. Bygga AAB (Android App Bundle)
 
 Android App Bundle är det rekommenderade formatet för Google Play Store:
@@ -127,6 +139,18 @@ Horselhjalp/
 2. Använd Gradle-kommandona ovan för att bygga och installera
 
 ## Felsökning
+
+### "APK:n går inte att installera på mobilen"
+
+Om du får ett felmeddelande när du försöker installera en release APK kan det bero på att APK:n inte är korrekt signerad. Detta projekt är konfigurerat att alltid signera release APK:er:
+
+- **Med egen signeringsnyckel**: Om du bygger med flaggor för signering (se avsnittet "Bygga Release APK") kommer APK:n att signeras med din egen nyckel.
+- **Utan egen signeringsnyckel**: Om du bara kör `./gradlew assembleRelease` utan signeringsflaggor kommer APK:n automatiskt att signeras med debug-nyckeln, vilket gör den installerbar på alla enheter men inte lämplig för Play Store.
+
+**Lösning**: Om du fortfarande har problem med installation:
+1. Kontrollera att "Installera okända appar" är aktiverat för den app du använder för att installera (t.ex. Filer-appen eller Chrome)
+2. Om APK:n tidigare var installerad med en annan signering, avinstallera den gamla versionen först
+3. Bygg en ny APK med `./gradlew clean assembleRelease`
 
 ### "Plugin [id: 'com.android.application', version: 'X.X.X'] was not found"
 
