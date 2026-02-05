@@ -1,0 +1,135 @@
+name: Create Release with APKs
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers on version tags like v1.0.0
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for the release'
+        required: true
+        default: 'v1.0.0'
+      release_name:
+        description: 'Release name'
+        required: true
+        default: 'Release v1.0.0'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      JAVA_VERSION: '17'
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check if signing secrets are available
+        id: check_secrets
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ] && [ -n "$KEY_ALIAS" ] && [ -n "$KEY_PASSWORD" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: gradle
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*','**/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Decode signing keystore
+        if: steps.check_secrets.outputs.available == 'true'
+        run: |
+          mkdir -p app
+          echo "${{ env.KEYSTORE_BASE64 }}" | base64 --decode > app/keystore.jks
+          chmod 600 app/keystore.jks
+
+      - name: Clean build
+        run: ./gradlew clean
+
+      - name: Build signed release APK
+        if: steps.check_secrets.outputs.available == 'true'
+        run: |
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=app/keystore.jks \
+            -Pandroid.injected.signing.store.password="${{ env.KEYSTORE_PASSWORD }}" \
+            -Pandroid.injected.signing.key.alias="${{ env.KEY_ALIAS }}" \
+            -Pandroid.injected.signing.key.password="${{ env.KEY_PASSWORD }}"
+
+      - name: Build release APK with debug signing
+        if: steps.check_secrets.outputs.available != 'true'
+        run: ./gradlew assembleRelease
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug
+
+      - name: Get tag name
+        id: get_tag
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "tag=${{ github.event.inputs.tag_name }}" >> "$GITHUB_OUTPUT"
+            echo "release_name=${{ github.event.inputs.release_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+            echo "release_name=Release ${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.get_tag.outputs.tag }}
+          name: ${{ steps.get_tag.outputs.release_name }}
+          draft: false
+          prerelease: false
+          files: |
+            app/build/outputs/apk/release/*.apk
+            app/build/outputs/apk/debug/*.apk
+          body: |
+            ## Hörselhjälp ${{ steps.get_tag.outputs.tag }}
+            
+            ### Installation
+            
+            **Debug APK** (för utveckling och testning):
+            - Filnamn: `app-debug.apk`
+            - Använd denna version för testning och felsökning
+            
+            **Release APK** (för produktion):
+            - Filnamn: `app-release.apk`
+            - Använd denna version för normal användning
+            
+            ### Hur man installerar
+            
+            1. Ladda ner APK-filen från "Assets" nedan
+            2. Överför filen till din Android-enhet
+            3. Öppna filen på enheten
+            4. Tillåt installation från okända källor om du blir ombedd
+            5. Följ installationsinstruktionerna
+            
+            ### Ändringslogg
+            
+            Se commit-historiken för detaljer om ändringar i denna version.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
