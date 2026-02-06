@@ -172,7 +172,8 @@ class MainActivity : AppCompatActivity() {
         statusText.setTextColor(bistexfarg)
         textDisplay.setTextColor(huvudtextfarg)
         scrollView.setBackgroundColor(textytafarg)
-        glasaktigKnapp.setBackgroundColor(knappfarg)
+        glasaktigKnapp.backgroundTintList = ContextCompat.getColorStateList(this, 
+            if (arNaghinnedampning()) R.color.glasaktighet_naghinna else R.color.glasaktighet_kornhinna)
     }
     
     // Offset-based color selection (modulo for future extensibility)
@@ -358,10 +359,10 @@ class MainActivity : AppCompatActivity() {
     private fun updateMicButton() {
         if (isListening) {
             micButton.text = getString(R.string.button_stop)
-            micButton.setBackgroundColor(ContextCompat.getColor(this, R.color.button_stop))
+            micButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.button_stop)
         } else {
             micButton.text = getString(R.string.button_start)
-            micButton.setBackgroundColor(ContextCompat.getColor(this, R.color.button_start))
+            micButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.button_start)
         }
     }
 
