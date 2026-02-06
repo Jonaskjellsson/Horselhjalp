@@ -98,13 +98,15 @@
 ## Exempel på användning
 
 ```
-Användare säger:      App visar:
+Användare säger:      App visar (ackumulerat):
 ───────────────       ──────────
 "Hej"           →     Hej
+
 "Hur mår du?"   →     Hej
                       
                       
                       Hur mår du?
+
 "Bra tack!"     →     Hej
                       
                       
