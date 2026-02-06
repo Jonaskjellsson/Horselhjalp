@@ -45,4 +45,10 @@
     <string name="language_button">🌐 LANGUAGE</string>
     <string name="language_switched_to_english">Language switched to English</string>
     <string name="language_switched_to_swedish">Språk bytt till Svenska</string>
+    
+    <!-- Accessibility descriptions -->
+    <string name="accessibility_language_button">Toggle language between Swedish and English</string>
+    <string name="accessibility_mic_button">Start or stop speech recognition</string>
+    <string name="accessibility_clear_button">Clear text</string>
+    <string name="accessibility_theme_button">Toggle between light and dark mode</string>
 </resources>
