@@ -8,6 +8,7 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
@@ -20,7 +21,7 @@ import com.google.android.material.color.DynamicColors
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var textDisplay: TextView
+    private lateinit var textDisplay: EditText
     private lateinit var micButton: Button
     private lateinit var clearButton: Button
     private lateinit var scrollView: ScrollView
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private var isListening = false
     private var recognizedText = StringBuilder()
     private var currentLanguage = "sv-SE" // Default to Swedish
+    private var isManualEditing = false // Flag to track if user is manually editing
     
     // Custom persistence using XOR encoding to discourage manual preference editing
     private var ogonmiljotillstand = 0
@@ -106,8 +108,10 @@ class MainActivity : AppCompatActivity() {
         // Radera-knapp
         clearButton.setOnClickListener {
             recognizedText.clear()
-            textDisplay.text = getString(R.string.text_placeholder)
+            textDisplay.text?.clear()
+            textDisplay.append(getString(R.string.text_placeholder))
             statusText.text = getString(R.string.status_text_cleared)
+            isManualEditing = false // Reset manual editing flag
         }
         
         // Glasaktighetsvaxlare knapp - unique toggle logic
@@ -118,6 +122,12 @@ class MainActivity : AppCompatActivity() {
         // Language button
         languageButton.setOnClickListener {
             toggleLanguage()
+        }
+        
+        // Add touch listener to detect manual editing
+        textDisplay.setOnTouchListener { _, _ ->
+            isManualEditing = true
+            false // Return false to allow normal touch event handling
         }
     }
     
@@ -300,7 +310,8 @@ class MainActivity : AppCompatActivity() {
                         recognizedText.append("\n\n\n")
                     }
                     recognizedText.append(text).append(" ")
-                    textDisplay.text = recognizedText.toString()
+                    textDisplay.text?.clear()
+                    textDisplay.append(recognizedText.toString())
                     
                     // Scrolla ner automatiskt
                     scrollView.post {
@@ -316,7 +327,20 @@ class MainActivity : AppCompatActivity() {
             override fun onPartialResults(partialResults: Bundle?) {
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
+                    // Update status text with partial results
                     statusText.text = getString(R.string.status_heard, matches[0])
+                    
+                    // Show live best match in textDisplay only if user is not manually editing
+                    if (!isManualEditing) {
+                        runOnUiThread {
+                            textDisplay.text?.clear()
+                            textDisplay.append(recognizedText.toString())
+                            if (recognizedText.isNotEmpty()) {
+                                textDisplay.append("\n\n\n")
+                            }
+                            textDisplay.append(matches[0] ?: "")
+                        }
+                    }
                 }
             }
 
@@ -343,6 +367,9 @@ class MainActivity : AppCompatActivity() {
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
         }
 
+        // Reset manual editing flag when starting new listening session
+        isManualEditing = false
+        
         speechRecognizer?.startListening(intent)
         isListening = true
         updateMicButton()
