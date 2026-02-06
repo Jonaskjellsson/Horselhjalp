@@ -11,6 +11,7 @@
     <string name="status_preparing">Förbereder…</string>
     <string name="status_stopped">Stoppad</string>
     <string name="status_heard">Hörde: %s</string>
+    <string name="status_silence_paused">Tystnad – pausad</string>
     
     <!-- Error messages -->
     <string name="error_audio">Ljudfel</string>

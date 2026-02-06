@@ -44,10 +44,25 @@ class MainActivity : AppCompatActivity() {
     private var silenceStartTime: Long? = null
     private var manuallyStopped = false
     private val silenceCheckHandler = Handler(Looper.getMainLooper())
-    private lateinit var silenceCheckRunnable: Runnable
+    private val silenceCheckRunnable: Runnable by lazy {
+        object : Runnable {
+            override fun run() {
+                checkSilenceDuration()
+                silenceCheckHandler.postDelayed(this, SILENCE_CHECK_INTERVAL_MS)
+            }
+        }
+    }
+    private var autoRestartRunnable: Runnable? = null
     
     // Custom persistence using XOR encoding to discourage manual preference editing
     private var ogonmiljotillstand = 0
+    
+    companion object {
+        private const val SILENCE_CHECK_INTERVAL_MS = 500L
+        private const val SILENCE_THRESHOLD_MS = 5000L
+        private const val AUTO_RESTART_DELAY_MS = 1000L
+        private const val SILENCE_RMS_THRESHOLD_DB = -40f
+    }
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -67,13 +82,6 @@ class MainActivity : AppCompatActivity() {
         DynamicColors.applyToActivityIfAvailable(this)
         
         setContentView(R.layout.activity_main)
-        
-        // Initialize silence check runnable
-        silenceCheckRunnable = Runnable {
-            checkSilenceDuration()
-            // Schedule next check
-            silenceCheckHandler.postDelayed(silenceCheckRunnable, 500)
-        }
 
         // Hitta vyer
         textDisplay = findViewById(R.id.textDisplay)
@@ -306,19 +314,20 @@ class MainActivity : AppCompatActivity() {
         val currentSilenceStart = silenceStartTime
         if (currentSilenceStart != null) {
             val currentTime = System.currentTimeMillis()
-            if (currentTime - currentSilenceStart > 5000) {
+            if (currentTime - currentSilenceStart > SILENCE_THRESHOLD_MS) {
                 // More than 5 seconds of silence - auto-pause
                 speechRecognizer?.stopListening()
-                Toast.makeText(this, "Tystnad – pausad", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.status_silence_paused), Toast.LENGTH_SHORT).show()
                 silenceStartTime = null
                 
                 // Restart automatically after a short delay if not manually stopped
                 if (!manuallyStopped) {
-                    silenceCheckHandler.postDelayed({
+                    autoRestartRunnable = Runnable {
                         if (!manuallyStopped && !isListening) {
                             startListening()
                         }
-                    }, 1000)
+                    }
+                    silenceCheckHandler.postDelayed(autoRestartRunnable!!, AUTO_RESTART_DELAY_MS)
                 }
             }
         }
@@ -337,7 +346,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onRmsChanged(rmsdB: Float) {
                 // Auto-pause after silence detection
-                if (rmsdB < -40) {
+                if (rmsdB < SILENCE_RMS_THRESHOLD_DB) {
                     // Silence detected
                     if (silenceStartTime == null) {
                         silenceStartTime = System.currentTimeMillis()
@@ -474,7 +483,7 @@ class MainActivity : AppCompatActivity() {
         manuallyStopped = false
         
         // Start silence check handler
-        silenceCheckHandler.postDelayed(silenceCheckRunnable, 500)
+        silenceCheckHandler.postDelayed(silenceCheckRunnable, SILENCE_CHECK_INTERVAL_MS)
         
         // Make textDisplay non-editable during listening but keep it selectable for copying
         disableTextEditing()
@@ -493,6 +502,7 @@ class MainActivity : AppCompatActivity() {
         
         // Stop silence check handler
         silenceCheckHandler.removeCallbacks(silenceCheckRunnable)
+        autoRestartRunnable?.let { silenceCheckHandler.removeCallbacks(it) }
         
         // Re-enable editing after listening stops
         enableTextEditing()
@@ -514,6 +524,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         silenceCheckHandler.removeCallbacks(silenceCheckRunnable)
+        autoRestartRunnable?.let { silenceCheckHandler.removeCallbacks(it) }
         speechRecognizer?.destroy()
     }
 }
