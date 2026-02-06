@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
@@ -38,8 +40,29 @@ class MainActivity : AppCompatActivity() {
     private var isManualEditing = false // Flag to track if user is manually editing
     private var isProgrammaticUpdate = false // Flag to track programmatic text updates
     
+    // Auto-pause after silence variables
+    private var silenceStartTime: Long? = null
+    private var manuallyStopped = false
+    private val silenceCheckHandler = Handler(Looper.getMainLooper())
+    private val silenceCheckRunnable: Runnable by lazy {
+        object : Runnable {
+            override fun run() {
+                checkSilenceDuration()
+                silenceCheckHandler.postDelayed(this, SILENCE_CHECK_INTERVAL_MS)
+            }
+        }
+    }
+    private var autoRestartRunnable: Runnable? = null
+    
     // Custom persistence using XOR encoding to discourage manual preference editing
     private var ogonmiljotillstand = 0
+    
+    companion object {
+        private const val SILENCE_CHECK_INTERVAL_MS = 500L
+        private const val SILENCE_THRESHOLD_MS = 5000L
+        private const val AUTO_RESTART_DELAY_MS = 1000L
+        private const val SILENCE_RMS_THRESHOLD_DB = -40f
+    }
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -78,6 +101,9 @@ class MainActivity : AppCompatActivity() {
         
         // Ladda sparat språk
         loadLanguage()
+        
+        // Update language button text to show current language
+        updateLanguageButtonText()
 
         // Kontrollera om taligenkänning är tillgänglig
         if (!SpeechRecognizer.isRecognitionAvailable(this)) {
@@ -244,6 +270,16 @@ class MainActivity : AppCompatActivity() {
         sparning.edit().putString("language", currentLanguage).apply()
     }
     
+    private fun updateLanguageButtonText() {
+        // Update button text to show current language
+        val buttonText = if (currentLanguage == "sv-SE") {
+            getString(R.string.language_button_swedish)
+        } else {
+            getString(R.string.language_button_english)
+        }
+        languageButton.text = buttonText
+    }
+    
     private fun toggleLanguage() {
         // Toggle between Swedish and English
         val newLanguage = if (currentLanguage == "sv-SE") "en-US" else "sv-SE"
@@ -285,6 +321,31 @@ class MainActivity : AppCompatActivity() {
         textDisplay.isFocusableInTouchMode = true
         textDisplay.setTextIsSelectable(true)
     }
+    
+    // Check silence duration and auto-pause if needed
+    private fun checkSilenceDuration() {
+        val currentSilenceStart = silenceStartTime
+        if (currentSilenceStart != null) {
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - currentSilenceStart > SILENCE_THRESHOLD_MS) {
+                // More than 5 seconds of silence - auto-pause
+                speechRecognizer?.stopListening()
+                Toast.makeText(this, getString(R.string.status_silence_paused), Toast.LENGTH_SHORT).show()
+                silenceStartTime = null
+                
+                // Restart automatically after a short delay if not manually stopped
+                if (!manuallyStopped) {
+                    val restartRunnable = Runnable {
+                        if (!manuallyStopped && !isListening) {
+                            startListening()
+                        }
+                    }
+                    autoRestartRunnable = restartRunnable
+                    silenceCheckHandler.postDelayed(restartRunnable, AUTO_RESTART_DELAY_MS)
+                }
+            }
+        }
+    }
 
     private fun setupSpeechRecognizer() {
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
@@ -298,7 +359,16 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onRmsChanged(rmsdB: Float) {
-                // Kan användas för att visa ljudnivå
+                // Auto-pause after silence detection
+                if (rmsdB < SILENCE_RMS_THRESHOLD_DB) {
+                    // Silence detected
+                    if (silenceStartTime == null) {
+                        silenceStartTime = System.currentTimeMillis()
+                    }
+                } else {
+                    // Sound detected - reset silence timer
+                    silenceStartTime = null
+                }
             }
 
             override fun onBufferReceived(buffer: ByteArray?) {
@@ -324,6 +394,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 statusText.text = errorMessage
                 isListening = false
+                silenceStartTime = null
+                
+                // Stop silence check handler
+                silenceCheckHandler.removeCallbacks(silenceCheckRunnable)
                 
                 // Re-enable editing after error
                 enableTextEditing()
@@ -358,6 +432,10 @@ class MainActivity : AppCompatActivity() {
                     statusText.text = getString(R.string.status_complete)
                 }
                 isListening = false
+                silenceStartTime = null
+                
+                // Stop silence check handler
+                silenceCheckHandler.removeCallbacks(silenceCheckRunnable)
                 
                 // Re-enable editing after final results
                 enableTextEditing()
@@ -414,6 +492,13 @@ class MainActivity : AppCompatActivity() {
         // Reset manual editing flag when starting new listening session
         isManualEditing = false
         
+        // Reset silence detection
+        silenceStartTime = null
+        manuallyStopped = false
+        
+        // Start silence check handler
+        silenceCheckHandler.postDelayed(silenceCheckRunnable, SILENCE_CHECK_INTERVAL_MS)
+        
         // Make textDisplay non-editable during listening but keep it selectable for copying
         disableTextEditing()
         
@@ -426,6 +511,12 @@ class MainActivity : AppCompatActivity() {
     private fun stopListening() {
         speechRecognizer?.stopListening()
         isListening = false
+        manuallyStopped = true
+        silenceStartTime = null
+        
+        // Stop silence check handler
+        silenceCheckHandler.removeCallbacks(silenceCheckRunnable)
+        autoRestartRunnable?.let { silenceCheckHandler.removeCallbacks(it) }
         
         // Re-enable editing after listening stops
         enableTextEditing()
@@ -446,6 +537,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        silenceCheckHandler.removeCallbacks(silenceCheckRunnable)
+        autoRestartRunnable?.let { silenceCheckHandler.removeCallbacks(it) }
         speechRecognizer?.destroy()
     }
 }

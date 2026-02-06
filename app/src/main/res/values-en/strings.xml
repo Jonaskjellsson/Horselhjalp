@@ -11,6 +11,7 @@
     <string name="status_preparing">Preparing…</string>
     <string name="status_stopped">Stopped</string>
     <string name="status_heard">Heard: %s</string>
+    <string name="status_silence_paused">Silence – paused</string>
     
     <!-- Error messages -->
     <string name="error_audio">Audio error</string>
@@ -43,6 +44,8 @@
     
     <!-- Language switcher -->
     <string name="language_button">🌐 LANGUAGE</string>
+    <string name="language_button_swedish">🌐 SWEDISH</string>
+    <string name="language_button_english">🌐 ENGLISH</string>
     <string name="language_switched_to_english">Language switched to English</string>
     <string name="language_switched_to_swedish">Språk bytt till Svenska</string>
     
