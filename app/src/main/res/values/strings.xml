@@ -44,6 +44,8 @@
     
     <!-- Language switcher -->
     <string name="language_button">🌐 SPRÅK</string>
+    <string name="language_button_swedish">🌐 SVENSKA</string>
+    <string name="language_button_english">🌐 ENGELSKA</string>
     <string name="language_switched_to_english">Language switched to English</string>
     <string name="language_switched_to_swedish">Språk bytt till Svenska</string>
     

@@ -101,6 +101,9 @@ class MainActivity : AppCompatActivity() {
         
         // Ladda sparat språk
         loadLanguage()
+        
+        // Update language button text to show current language
+        updateLanguageButtonText()
 
         // Kontrollera om taligenkänning är tillgänglig
         if (!SpeechRecognizer.isRecognitionAvailable(this)) {
@@ -265,6 +268,16 @@ class MainActivity : AppCompatActivity() {
     private fun saveLanguage() {
         val sparning = getSharedPreferences("horsel_interna", MODE_PRIVATE)
         sparning.edit().putString("language", currentLanguage).apply()
+    }
+    
+    private fun updateLanguageButtonText() {
+        // Update button text to show current language
+        val buttonText = if (currentLanguage == "sv-SE") {
+            getString(R.string.language_button_swedish)
+        } else {
+            getString(R.string.language_button_english)
+        }
+        languageButton.text = buttonText
     }
     
     private fun toggleLanguage() {
