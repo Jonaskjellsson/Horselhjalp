@@ -193,13 +193,20 @@ class MainActivity : AppCompatActivity() {
     }
     
     // Language switching functionality
+    private fun getLocaleFromLanguage(language: String): Locale {
+        return if (language == "en-US") Locale.ENGLISH else Locale("sv", "SE")
+    }
+    
     private fun loadLanguage() {
         val sparning = getSharedPreferences("horsel_interna", MODE_PRIVATE)
         currentLanguage = sparning.getString("language", "sv-SE") ?: "sv-SE"
         
         // Apply language to app context
-        val locale = if (currentLanguage == "en-US") Locale.ENGLISH else Locale("sv", "SE")
-        setLocale(locale)
+        val locale = getLocaleFromLanguage(currentLanguage)
+        Locale.setDefault(locale)
+        val config = Configuration(resources.configuration)
+        config.setLocale(locale)
+        baseContext.createConfigurationContext(config)
     }
     
     private fun saveLanguage() {
@@ -207,29 +214,25 @@ class MainActivity : AppCompatActivity() {
         sparning.edit().putString("language", currentLanguage).apply()
     }
     
-    private fun setLocale(locale: Locale) {
-        Locale.setDefault(locale)
-        val config = Configuration(resources.configuration)
-        config.setLocale(locale)
-        resources.updateConfiguration(config, resources.displayMetrics)
-    }
-    
     private fun toggleLanguage() {
         // Toggle between Swedish and English
-        currentLanguage = if (currentLanguage == "sv-SE") "en-US" else "sv-SE"
+        val newLanguage = if (currentLanguage == "sv-SE") "en-US" else "sv-SE"
+        
+        // Show toast message before switching
+        val message = if (newLanguage == "en-US") {
+            "Language switched to English"
+        } else {
+            "Språk bytt till Svenska"
+        }
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        
+        // Save and apply new language
+        currentLanguage = newLanguage
         saveLanguage()
         
         // Update locale
-        val locale = if (currentLanguage == "en-US") Locale.ENGLISH else Locale("sv", "SE")
-        setLocale(locale)
-        
-        // Show toast message
-        val message = if (currentLanguage == "en-US") {
-            getString(R.string.language_switched_to_english)
-        } else {
-            getString(R.string.language_switched_to_swedish)
-        }
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        val locale = getLocaleFromLanguage(currentLanguage)
+        Locale.setDefault(locale)
         
         // Recreate activity to apply language changes to all views
         recreate()
