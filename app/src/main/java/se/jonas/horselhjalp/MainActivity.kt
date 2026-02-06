@@ -69,6 +69,9 @@ class MainActivity : AppCompatActivity() {
         glasaktigKnapp = findViewById(R.id.glasaktigKnapp)
         languageButton = findViewById(R.id.languageButton)
         
+        // Make textDisplay always selectable for copying
+        textDisplay.setTextIsSelectable(true)
+        
         // Ladda sparad ögonmiljö med XOR-nyckel
         hamtaOgonmiljotillstand()
         tillampaNuvarandeOgonmiljo()
@@ -267,6 +270,22 @@ class MainActivity : AppCompatActivity() {
         recreate()
     }
 
+    // Helper method to disable text editing during listening
+    private fun disableTextEditing() {
+        textDisplay.isFocusable = false
+        textDisplay.isFocusableInTouchMode = false
+        textDisplay.isClickable = true
+        textDisplay.isLongClickable = true
+        textDisplay.setTextIsSelectable(true)
+    }
+
+    // Helper method to enable text editing after listening
+    private fun enableTextEditing() {
+        textDisplay.isFocusable = true
+        textDisplay.isFocusableInTouchMode = true
+        textDisplay.setTextIsSelectable(true)
+    }
+
     private fun setupSpeechRecognizer() {
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
         speechRecognizer?.setRecognitionListener(object : RecognitionListener {
@@ -305,6 +324,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 statusText.text = errorMessage
                 isListening = false
+                
+                // Re-enable editing after error
+                enableTextEditing()
+                
                 updateMicButton()
                 
                 // Starta om automatiskt efter "inget tal"-fel
@@ -335,6 +358,10 @@ class MainActivity : AppCompatActivity() {
                     statusText.text = getString(R.string.status_complete)
                 }
                 isListening = false
+                
+                // Re-enable editing after final results
+                enableTextEditing()
+                
                 updateMicButton()
             }
 
@@ -387,6 +414,9 @@ class MainActivity : AppCompatActivity() {
         // Reset manual editing flag when starting new listening session
         isManualEditing = false
         
+        // Make textDisplay non-editable during listening but keep it selectable for copying
+        disableTextEditing()
+        
         speechRecognizer?.startListening(intent)
         isListening = true
         updateMicButton()
@@ -396,6 +426,10 @@ class MainActivity : AppCompatActivity() {
     private fun stopListening() {
         speechRecognizer?.stopListening()
         isListening = false
+        
+        // Re-enable editing after listening stops
+        enableTextEditing()
+        
         updateMicButton()
         statusText.text = getString(R.string.status_stopped)
     }
