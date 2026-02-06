@@ -201,12 +201,9 @@ class MainActivity : AppCompatActivity() {
         val sparning = getSharedPreferences("horsel_interna", MODE_PRIVATE)
         currentLanguage = sparning.getString("language", "sv-SE") ?: "sv-SE"
         
-        // Apply language to app context
+        // Set default locale for the app
         val locale = getLocaleFromLanguage(currentLanguage)
         Locale.setDefault(locale)
-        val config = Configuration(resources.configuration)
-        config.setLocale(locale)
-        baseContext.createConfigurationContext(config)
     }
     
     private fun saveLanguage() {
@@ -218,11 +215,13 @@ class MainActivity : AppCompatActivity() {
         // Toggle between Swedish and English
         val newLanguage = if (currentLanguage == "sv-SE") "en-US" else "sv-SE"
         
-        // Show toast message before switching
+        // Show toast message in the target language before switching
+        // We use hardcoded strings here because we want to show the message
+        // in the NEW language, not the current one
         val message = if (newLanguage == "en-US") {
-            "Language switched to English"
+            "Language switched to English"  // English message when switching to English
         } else {
-            "Språk bytt till Svenska"
+            "Språk bytt till Svenska"  // Swedish message when switching to Swedish
         }
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         
