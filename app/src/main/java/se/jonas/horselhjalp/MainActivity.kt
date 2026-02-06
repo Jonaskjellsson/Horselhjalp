@@ -12,6 +12,8 @@ import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import android.text.TextWatcher
+import android.text.Editable
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -108,8 +110,7 @@ class MainActivity : AppCompatActivity() {
         // Radera-knapp
         clearButton.setOnClickListener {
             recognizedText.clear()
-            textDisplay.text?.clear()
-            textDisplay.append(getString(R.string.text_placeholder))
+            textDisplay.setText(getString(R.string.text_placeholder))
             statusText.text = getString(R.string.status_text_cleared)
             isManualEditing = false // Reset manual editing flag
         }
@@ -124,11 +125,20 @@ class MainActivity : AppCompatActivity() {
             toggleLanguage()
         }
         
-        // Add touch listener to detect manual editing
-        textDisplay.setOnTouchListener { _, _ ->
-            isManualEditing = true
-            false // Return false to allow normal touch event handling
-        }
+        // Add TextWatcher to detect manual editing
+        textDisplay.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Only mark as manual editing if the change was not programmatic
+                // We check if the text field has focus (user is actively editing)
+                if (textDisplay.hasFocus()) {
+                    isManualEditing = true
+                }
+            }
+            
+            override fun afterTextChanged(s: Editable?) {}
+        })
     }
     
     // XOR-based persistence
@@ -310,8 +320,7 @@ class MainActivity : AppCompatActivity() {
                         recognizedText.append("\n\n\n")
                     }
                     recognizedText.append(text).append(" ")
-                    textDisplay.text?.clear()
-                    textDisplay.append(recognizedText.toString())
+                    textDisplay.setText(recognizedText.toString())
                     
                     // Scrolla ner automatiskt
                     scrollView.post {
@@ -332,14 +341,15 @@ class MainActivity : AppCompatActivity() {
                     
                     // Show live best match in textDisplay only if user is not manually editing
                     if (!isManualEditing) {
-                        runOnUiThread {
-                            textDisplay.text?.clear()
-                            textDisplay.append(recognizedText.toString())
+                        // Build the display text without clearing the entire EditText
+                        val displayText = buildString {
+                            append(recognizedText.toString())
                             if (recognizedText.isNotEmpty()) {
-                                textDisplay.append("\n\n\n")
+                                append("\n\n\n")
                             }
-                            textDisplay.append(matches[0] ?: "")
+                            append(matches[0] ?: "")
                         }
+                        textDisplay.setText(displayText)
                     }
                 }
             }
