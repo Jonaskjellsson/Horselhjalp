@@ -322,12 +322,13 @@ class MainActivity : AppCompatActivity() {
                 
                 // Restart automatically after a short delay if not manually stopped
                 if (!manuallyStopped) {
-                    autoRestartRunnable = Runnable {
+                    val restartRunnable = Runnable {
                         if (!manuallyStopped && !isListening) {
                             startListening()
                         }
                     }
-                    silenceCheckHandler.postDelayed(autoRestartRunnable!!, AUTO_RESTART_DELAY_MS)
+                    autoRestartRunnable = restartRunnable
+                    silenceCheckHandler.postDelayed(restartRunnable, AUTO_RESTART_DELAY_MS)
                 }
             }
         }
