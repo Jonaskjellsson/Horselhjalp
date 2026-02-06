@@ -6,7 +6,7 @@ Detta dokument beskriver implementationen av stöd för AAB (Android App Bundle)
 
 ## Vad är AAB?
 
-Android App Bundle (AAB) är Googles rekommenderade publiceringsformat för Android-appar sedan augusti 2021. AAB ersätter APK som standardformat för publicering på Google Play Store.
+Android App Bundle (AAB) är Googles rekommenderade publiceringsformat för Android-appar. AAB är nu obligatoriskt för nya appar på Google Play Store sedan augusti 2021.
 
 ### Fördelar med AAB
 

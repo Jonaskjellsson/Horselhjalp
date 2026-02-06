@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# Skript för att visa var APK-filen finns (eller kommer att finnas)
-# Script to show where the APK file is (or will be) located
+# Skript för att visa var APK- och AAB-filer finns (eller kommer att finnas)
+# Script to show where the APK and AAB files are (or will be) located
 #
+# Note: This script is named find-apk.sh for backward compatibility,
+#       but it now also handles AAB files.
 # Note: This script should be executable. If not, run: chmod +x find-apk.sh
 
 # Färger för output
@@ -99,8 +101,8 @@ echo ""
 echo "Bygg endast release AAB:"
 echo "  ./gradlew bundleRelease"
 echo ""
-echo "Öppna mappen med APK-filer (fungerar endast efter bygget):"
-echo "  xdg-open app/build/outputs/apk/debug/  # Linux"
-echo "  open app/build/outputs/apk/debug/      # Mac"
-echo "  explorer app\\build\\outputs\\apk\\debug\\  # Windows"
+echo "Öppna mappen med APK- och AAB-filer (fungerar endast efter bygget):"
+echo "  xdg-open app/build/outputs/apk/debug/  # Linux (APK)"
+echo "  open app/build/outputs/apk/debug/      # Mac (APK)"
+echo "  explorer app\\build\\outputs\\apk\\debug\\  # Windows (APK)"
 echo ""

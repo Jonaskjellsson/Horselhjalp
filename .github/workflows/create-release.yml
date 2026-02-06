@@ -139,7 +139,7 @@ jobs:
             - Filnamn: `app-release.aab`
             - Android App Bundle - Googles rekommenderade format
             - Använd denna för publicering på Google Play Store
-            - Kan inte installeras direkt på enheter (kräver Google Play eller bundletool)
+            - Kan inte installeras direkt på enheter utan Google Play eller bundletool
             
             ### Om AAB (Android App Bundle)
             
