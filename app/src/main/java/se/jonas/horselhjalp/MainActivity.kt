@@ -15,6 +15,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import java.util.Locale
+import android.content.res.Configuration
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,10 +25,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var scrollView: ScrollView
     private lateinit var statusText: TextView
     private lateinit var glasaktigKnapp: Button
+    private lateinit var languageButton: Button
     
     private var speechRecognizer: SpeechRecognizer? = null
     private var isListening = false
     private var recognizedText = StringBuilder()
+    private var currentLanguage = "sv-SE" // Default to Swedish
     
     // Custom persistence using XOR encoding to discourage manual preference editing
     private var ogonmiljotillstand = 0
@@ -53,10 +56,14 @@ class MainActivity : AppCompatActivity() {
         scrollView = findViewById(R.id.scrollView)
         statusText = findViewById(R.id.statusText)
         glasaktigKnapp = findViewById(R.id.glasaktigKnapp)
+        languageButton = findViewById(R.id.languageButton)
         
         // Ladda sparad ögonmiljö med XOR-nyckel
         hamtaOgonmiljotillstand()
         tillampaNuvarandeOgonmiljo()
+        
+        // Ladda sparat språk
+        loadLanguage()
 
         // Kontrollera om taligenkänning är tillgänglig
         if (!SpeechRecognizer.isRecognitionAvailable(this)) {
@@ -100,6 +107,11 @@ class MainActivity : AppCompatActivity() {
         // Glasaktighetsvaxlare knapp - unique toggle logic
         glasaktigKnapp.setOnClickListener {
             vaxlaOgonmiljo()
+        }
+        
+        // Language button
+        languageButton.setOnClickListener {
+            toggleLanguage()
         }
     }
     
@@ -178,6 +190,51 @@ class MainActivity : AppCompatActivity() {
         }
         
         return ContextCompat.getColor(this, fargarray[fargoffset % fargarray.size])
+    }
+    
+    // Language switching functionality
+    private fun getLocaleFromLanguage(language: String): Locale {
+        return if (language == "en-US") Locale.ENGLISH else Locale("sv", "SE")
+    }
+    
+    private fun loadLanguage() {
+        val sparning = getSharedPreferences("horsel_interna", MODE_PRIVATE)
+        currentLanguage = sparning.getString("language", "sv-SE") ?: "sv-SE"
+        
+        // Set default locale for the app
+        val locale = getLocaleFromLanguage(currentLanguage)
+        Locale.setDefault(locale)
+    }
+    
+    private fun saveLanguage() {
+        val sparning = getSharedPreferences("horsel_interna", MODE_PRIVATE)
+        sparning.edit().putString("language", currentLanguage).apply()
+    }
+    
+    private fun toggleLanguage() {
+        // Toggle between Swedish and English
+        val newLanguage = if (currentLanguage == "sv-SE") "en-US" else "sv-SE"
+        
+        // Show toast message in the target language before switching
+        // We use hardcoded strings here because we want to show the message
+        // in the NEW language, not the current one
+        val message = if (newLanguage == "en-US") {
+            "Language switched to English"  // English message when switching to English
+        } else {
+            "Språk bytt till Svenska"  // Swedish message when switching to Swedish
+        }
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        
+        // Save and apply new language
+        currentLanguage = newLanguage
+        saveLanguage()
+        
+        // Update locale
+        val locale = getLocaleFromLanguage(currentLanguage)
+        Locale.setDefault(locale)
+        
+        // Recreate activity to apply language changes to all views
+        recreate()
     }
 
     private fun setupSpeechRecognizer() {
@@ -274,7 +331,7 @@ class MainActivity : AppCompatActivity() {
 
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "sv-SE")
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, currentLanguage)
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
         }
