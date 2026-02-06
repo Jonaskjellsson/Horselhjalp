@@ -27,7 +27,7 @@
             android:paddingEnd="12dp"
             app:backgroundTint="@color/button_clear"
             style="@style/Widget.Material3.Button.TextButton"
-            android:contentDescription="Toggle language" />
+            android:contentDescription="@string/accessibility_language_button" />
     </LinearLayout>
 
     <!-- Header removed to maximize text display space -->
@@ -88,7 +88,7 @@
             android:layout_marginEnd="4dp"
             app:backgroundTint="@color/button_start"
             style="@style/Widget.Material3.Button.Icon"
-            android:contentDescription="Starta eller stoppa taligenkänning" />
+            android:contentDescription="@string/accessibility_mic_button" />
 
         <!-- Clear button - Material 3 -->
         <com.google.android.material.button.MaterialButton
@@ -102,7 +102,7 @@
             android:layout_marginEnd="4dp"
             app:backgroundTint="@color/button_clear"
             style="@style/Widget.Material3.Button"
-            android:contentDescription="Rensa text" />
+            android:contentDescription="@string/accessibility_clear_button" />
         
         <!-- Glasaktighetsvaxlare button - Material 3 -->
         <com.google.android.material.button.MaterialButton
@@ -115,7 +115,7 @@
             android:layout_marginStart="4dp"
             app:backgroundTint="@color/glasaktighet_kornhinna"
             style="@style/Widget.Material3.Button.TonalButton"
-            android:contentDescription="@string/glasaktig_hjalp" />
+            android:contentDescription="@string/accessibility_theme_button" />
     </LinearLayout>
 
 </LinearLayout>
