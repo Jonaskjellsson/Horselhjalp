@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">Hearing Help</string>
+    
+    <!-- Status messages -->
+    <string name="status_ready">Press the button to start</string>
+    <string name="status_text_cleared">Text cleared</string>
+    <string name="status_listening">Listening…</string>
+    <string name="status_speech_detected">Speech detected</string>
+    <string name="status_processing">Processing…</string>
+    <string name="status_complete">Done! Press the microphone to continue</string>
+    <string name="status_preparing">Preparing…</string>
+    <string name="status_stopped">Stopped</string>
+    <string name="status_heard">Heard: %s</string>
+    
+    <!-- Error messages -->
+    <string name="error_audio">Audio error</string>
+    <string name="error_client">Client error</string>
+    <string name="error_permissions">Missing permissions</string>
+    <string name="error_network">Network error</string>
+    <string name="error_network_timeout">Network timeout</string>
+    <string name="error_no_match">No speech found</string>
+    <string name="error_busy">Recognizer is busy</string>
+    <string name="error_server">Server error</string>
+    <string name="error_speech_timeout">No speech detected</string>
+    <string name="error_unknown">Unknown error</string>
+    
+    <!-- Toast messages -->
+    <string name="toast_permission_granted">Microphone permission granted</string>
+    <string name="toast_permission_required">Microphone permission is required to use this app</string>
+    <string name="toast_recognition_unavailable">Speech recognition is not available on this device</string>
+    
+    <!-- Placeholder and button text -->
+    <string name="text_placeholder">Your spoken text will appear here...</string>
+    <string name="button_start">🎤 START SPEECH</string>
+    <string name="button_stop">🛑 STOP</string>
+    <string name="button_clear">🗑️ CLEAR TEXT</string>
+    
+    <!-- Dark mode switcher -->
+    <string name="glasaktig_knapp">🔄 DARK MODE</string>
+    <string name="rapport_kornhinneklarhet">Light mode activated</string>
+    <string name="rapport_naghinnedampning">Dark mode activated</string>
+    <string name="glasaktig_hjalp">Toggle between light and dark mode</string>
+    
+    <!-- Language switcher -->
+    <string name="language_button">🌐 LANGUAGE</string>
+    <string name="language_switched_to_english">Language switched to English</string>
+    <string name="language_switched_to_swedish">Språk bytt till Svenska</string>
+</resources>

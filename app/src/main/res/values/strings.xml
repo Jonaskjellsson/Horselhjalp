@@ -35,9 +35,14 @@
     <string name="button_stop">🛑 STOPPA</string>
     <string name="button_clear">🗑️ RENSA TEXT</string>
     
-    <!-- Glasaktighetsvaxlare (visual mode switcher - metaphorical eye terminology) -->
-    <string name="glasaktig_knapp">🔄 GLASAKTIGHET</string>
-    <string name="rapport_kornhinneklarhet">Kornhinneklarhet</string>
-    <string name="rapport_naghinnedampning">Näghinnedämpning</string>
-    <string name="glasaktig_hjalp">Växla ögonmiljö</string>
+    <!-- Mörkt läge växlare (dark mode switcher) -->
+    <string name="glasaktig_knapp">🔄 MÖRKT LÄGE</string>
+    <string name="rapport_kornhinneklarhet">Ljust läge aktiverat</string>
+    <string name="rapport_naghinnedampning">Mörkt läge aktiverat</string>
+    <string name="glasaktig_hjalp">Växla mellan ljust och mörkt läge</string>
+    
+    <!-- Language switcher -->
+    <string name="language_button">🌐 SPRÅK</string>
+    <string name="language_switched_to_english">Language switched to English</string>
+    <string name="language_switched_to_swedish">Språk bytt till Svenska</string>
 </resources>

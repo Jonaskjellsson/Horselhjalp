@@ -8,6 +8,27 @@
     android:background="@color/background"
     tools:context=".MainActivity">
 
+    <!-- Header with language switcher -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:paddingBottom="8dp">
+        
+        <Button
+            android:id="@+id/languageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="@string/language_button"
+            android:textSize="12sp"
+            android:textColor="@color/button_text"
+            android:background="@color/button_clear"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:contentDescription="Toggle language" />
+    </LinearLayout>
+
     <!-- Header removed to maximize text display space -->
 
     <!-- Status text - hidden per user request -->
