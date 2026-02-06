@@ -20,23 +20,28 @@ Appen använder Androids inbyggda taligenkänning för att omvandla svenskt tal 
 - **Tillgänglig**: Fungerar med Android TalkBack för synskadade
 - **Ingen internetanslutning krävs**: Använder enhetens taligenkänning
 
-## 📱 Snabbstart - Ladda ner färdig APK
+## 📱 Snabbstart - Ladda ner färdig APK eller AAB
 
 ### Alternativ 1: Ladda ner från GitHub Releases (Rekommenderat)
 
 1. Gå till [Releases](https://github.com/Jonaskjellsson/Horselhjalp/releases)
 2. Välj den senaste versionen
-3. Under "Assets", ladda ner `app-release.apk`
-4. Överför APK-filen till din Android-enhet och installera den
+3. Under "Assets":
+   - Ladda ner `app-release.apk` för direktinstallation på Android-enheter
+   - Ladda ner `app-release.aab` för publicering på Google Play Store
+4. För APK: Överför filen till din Android-enhet och installera den
+5. För AAB: Ladda upp till Google Play Console
 
 ### Alternativ 2: Ladda ner från GitHub Actions
 
 1. Gå till [Actions](https://github.com/Jonaskjellsson/Horselhjalp/actions)
 2. Klicka på den senaste lyckade "Build Android APK" körningen
-3. Scrolla ner till "Artifacts" och ladda ner `app-release-apk`
-4. Packa upp ZIP-filen och installera APK:n på din Android-enhet
+3. Scrolla ner till "Artifacts" och ladda ner:
+   - `app-release-apk` för APK-filer
+   - `app-release-aab` för AAB-filer
+4. Packa upp ZIP-filen och använd filerna enligt behov
 
-## 🔨 Bygg APK själv
+## 🔨 Bygg APK och AAB själv
 
 ### Förutsättningar
 
@@ -59,9 +64,17 @@ APK-filen finns sedan i: `app/build/outputs/apk/debug/app-debug.apk`
 
 APK-filen finns sedan i: `app/build/outputs/apk/release/app-release.apk`
 
+### Bygga Release AAB (Android App Bundle)
+
+```bash
+./gradlew bundleRelease
+```
+
+AAB-filen finns sedan i: `app/build/outputs/bundle/release/app-release.aab`
+
 ### Hjälpskript
 
-Kolla om APK redan finns:
+Kolla om APK och AAB redan finns:
 ```bash
 ./find-apk.sh
 ```
@@ -70,6 +83,24 @@ Bygg och hitta APK automatiskt:
 ```bash
 ./build-and-find-apk.sh
 ```
+
+Bygg och hitta AAB automatiskt:
+```bash
+./build-and-find-aab.sh
+```
+
+### Om AAB (Android App Bundle)
+
+AAB är Googles rekommenderade publiceringsformat för Android-appar:
+
+- **Mindre nedladdningsstorlek**: Användare får endast kod och resurser för sin enhet
+- **Optimerad distribution**: Google Play genererar optimerade APK:er automatiskt
+- **Dynamiska funktioner**: Stöd för on-demand nedladdning av funktioner
+- **Krav för Google Play**: AAB krävs för nya appar sedan augusti 2021
+
+**När ska man använda AAB vs APK?**
+- Använd **AAB** för publicering på Google Play Store
+- Använd **APK** för direktinstallation på enheter eller distribution utanför Google Play
 
 ## 🎮 Användning
 

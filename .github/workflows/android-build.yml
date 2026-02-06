@@ -68,10 +68,24 @@ jobs:
             -Pandroid.injected.signing.key.alias="${{ env.KEY_ALIAS }}" \
             -Pandroid.injected.signing.key.password="${{ env.KEY_PASSWORD }}"
 
+      - name: Build signed release AAB
+        if: steps.check_secrets.outputs.available == 'true'
+        run: |
+          ./gradlew bundleRelease \
+            -Pandroid.injected.signing.store.file=app/keystore.jks \
+            -Pandroid.injected.signing.store.password="${{ env.KEYSTORE_PASSWORD }}" \
+            -Pandroid.injected.signing.key.alias="${{ env.KEY_ALIAS }}" \
+            -Pandroid.injected.signing.key.password="${{ env.KEY_PASSWORD }}"
+
       - name: Build release APK with debug signing
         if: steps.check_secrets.outputs.available != 'true'
         run: |
           ./gradlew assembleRelease
+
+      - name: Build release AAB with debug signing
+        if: steps.check_secrets.outputs.available != 'true'
+        run: |
+          ./gradlew bundleRelease
 
       - name: Build debug APK
         run: |
@@ -82,6 +96,12 @@ jobs:
         with:
           name: app-release-apk
           path: app/build/outputs/apk/release/*.apk
+
+      - name: Upload release AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-aab
+          path: app/build/outputs/bundle/release/*.aab
 
       - name: Upload debug APK artifact
         uses: actions/upload-artifact@v4

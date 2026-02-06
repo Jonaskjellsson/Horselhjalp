@@ -29,15 +29,17 @@ get_file_size() {
 }
 
 echo "================================================"
-echo "  Hörselhjälp - Hitta APK-fil"
+echo "  Hörselhjälp - Hitta APK och AAB filer"
 echo "================================================"
 echo ""
 
 # Sökvägar
 DEBUG_APK="app/build/outputs/apk/debug/app-debug.apk"
 RELEASE_APK="app/build/outputs/apk/release/app-release.apk"
+RELEASE_AAB="app/build/outputs/bundle/release/app-release.aab"
 FULL_DEBUG_PATH="$(pwd)/$DEBUG_APK"
 FULL_RELEASE_PATH="$(pwd)/$RELEASE_APK"
+FULL_AAB_PATH="$(pwd)/$RELEASE_AAB"
 
 echo -e "${BLUE}Debug APK:${NC}"
 if [ -f "$DEBUG_APK" ]; then
@@ -66,6 +68,21 @@ else
 fi
 
 echo ""
+echo -e "${BLUE}Release AAB (Android App Bundle):${NC}"
+if [ -f "$RELEASE_AAB" ]; then
+    echo -e "  ${GREEN}✓ Finns!${NC}"
+    echo "  Sökväg: $FULL_AAB_PATH"
+    FILE_SIZE=$(get_file_size "$RELEASE_AAB")
+    echo "  Storlek: $FILE_SIZE"
+    echo "  Info: AAB är Googles rekommenderade format för Google Play"
+else
+    echo -e "  ${YELLOW}✗ Finns inte ännu${NC}"
+    echo "  Bygg med: ./gradlew bundleRelease"
+    echo "  Eller använd: ./build-and-find-aab.sh"
+    echo "  Kommer att skapas i: $FULL_AAB_PATH"
+fi
+
+echo ""
 echo "================================================"
 echo "Snabbkommandon:"
 echo "================================================"
@@ -73,8 +90,14 @@ echo ""
 echo "Bygg och hitta debug APK automatiskt:"
 echo "  ./build-and-find-apk.sh"
 echo ""
+echo "Bygg och hitta release AAB automatiskt:"
+echo "  ./build-and-find-aab.sh"
+echo ""
 echo "Bygg endast debug APK:"
 echo "  ./gradlew assembleDebug"
+echo ""
+echo "Bygg endast release AAB:"
+echo "  ./gradlew bundleRelease"
 echo ""
 echo "Öppna mappen med APK-filer (fungerar endast efter bygget):"
 echo "  xdg-open app/build/outputs/apk/debug/  # Linux"

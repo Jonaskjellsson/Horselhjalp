@@ -78,9 +78,22 @@ jobs:
             -Pandroid.injected.signing.key.alias="${{ env.KEY_ALIAS }}" \
             -Pandroid.injected.signing.key.password="${{ env.KEY_PASSWORD }}"
 
+      - name: Build signed release AAB
+        if: steps.check_secrets.outputs.available == 'true'
+        run: |
+          ./gradlew bundleRelease \
+            -Pandroid.injected.signing.store.file=app/keystore.jks \
+            -Pandroid.injected.signing.store.password="${{ env.KEYSTORE_PASSWORD }}" \
+            -Pandroid.injected.signing.key.alias="${{ env.KEY_ALIAS }}" \
+            -Pandroid.injected.signing.key.password="${{ env.KEY_PASSWORD }}"
+
       - name: Build release APK with debug signing
         if: steps.check_secrets.outputs.available != 'true'
         run: ./gradlew assembleRelease
+
+      - name: Build release AAB with debug signing
+        if: steps.check_secrets.outputs.available != 'true'
+        run: ./gradlew bundleRelease
 
       - name: Build debug APK
         run: ./gradlew assembleDebug
@@ -107,6 +120,7 @@ jobs:
           files: |
             app/build/outputs/apk/release/*.apk
             app/build/outputs/apk/debug/*.apk
+            app/build/outputs/bundle/release/*.aab
           body: |
             ## Hörselhjälp ${{ steps.get_tag.outputs.tag }}
             
@@ -116,17 +130,36 @@ jobs:
             - Filnamn: `app-debug.apk`
             - Använd denna version för testning och felsökning
             
-            **Release APK** (för produktion):
+            **Release APK** (för direktinstallation):
             - Filnamn: `app-release.apk`
             - Använd denna version för normal användning
+            - Ladda ner och installera direkt på din Android-enhet
+            
+            **Release AAB** (för Google Play):
+            - Filnamn: `app-release.aab`
+            - Android App Bundle - Googles rekommenderade format
+            - Använd denna för publicering på Google Play Store
+            - Kan inte installeras direkt på enheter (kräver Google Play eller bundletool)
+            
+            ### Om AAB (Android App Bundle)
+            
+            AAB är det nya standardformatet för app-distribution på Google Play:
+            - Mindre nedladdningsstorlek för slutanvändare
+            - Google Play genererar optimerade APK:er för varje enhetstyp
+            - Krävs för nya appar på Google Play (sedan augusti 2021)
             
             ### Hur man installerar
             
+            **För APK:**
             1. Ladda ner APK-filen från "Assets" nedan
             2. Överför filen till din Android-enhet
             3. Öppna filen på enheten
             4. Tillåt installation från okända källor om du blir ombedd
             5. Följ installationsinstruktionerna
+            
+            **För AAB:**
+            1. Ladda upp till Google Play Console för distribution
+            2. Eller använd bundletool för lokal testning
             
             ### Ändringslogg
             
