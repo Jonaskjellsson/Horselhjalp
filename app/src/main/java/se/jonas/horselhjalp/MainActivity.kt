@@ -24,7 +24,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var scrollView: ScrollView
     private lateinit var statusText: TextView
     private lateinit var glasaktigKnapp: Button
-    private lateinit var rubrikTextvy: TextView
     
     private var speechRecognizer: SpeechRecognizer? = null
     private var isListening = false
@@ -54,7 +53,6 @@ class MainActivity : AppCompatActivity() {
         scrollView = findViewById(R.id.scrollView)
         statusText = findViewById(R.id.statusText)
         glasaktigKnapp = findViewById(R.id.glasaktigKnapp)
-        rubrikTextvy = findViewById(R.id.rubrikTextvy)
         
         // Ladda sparad ögonmiljö med XOR-nyckel
         hamtaOgonmiljotillstand()
@@ -153,7 +151,6 @@ class MainActivity : AppCompatActivity() {
             rotvy.setBackgroundColor(grundfarg)
         }
         
-        rubrikTextvy.setTextColor(huvudtextfarg)
         statusText.setTextColor(bistexfarg)
         textDisplay.setTextColor(huvudtextfarg)
         scrollView.setBackgroundColor(textytafarg)
@@ -234,6 +231,10 @@ class MainActivity : AppCompatActivity() {
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
                     val text = matches[0]
+                    // Add three line breaks before each new speech session if there's existing text
+                    if (recognizedText.isNotEmpty()) {
+                        recognizedText.append("\n\n\n")
+                    }
                     recognizedText.append(text).append(" ")
                     textDisplay.text = recognizedText.toString()
                     
