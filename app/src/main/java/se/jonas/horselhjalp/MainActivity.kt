@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private var recognizedText = StringBuilder()
     private var currentLanguage = "sv-SE" // Default to Swedish
     private var isManualEditing = false // Flag to track if user is manually editing
+    private var isProgrammaticUpdate = false // Flag to track programmatic text updates
     
     // Custom persistence using XOR encoding to discourage manual preference editing
     private var ogonmiljotillstand = 0
@@ -110,7 +111,9 @@ class MainActivity : AppCompatActivity() {
         // Radera-knapp
         clearButton.setOnClickListener {
             recognizedText.clear()
+            isProgrammaticUpdate = true
             textDisplay.setText(getString(R.string.text_placeholder))
+            isProgrammaticUpdate = false
             statusText.text = getString(R.string.status_text_cleared)
             isManualEditing = false // Reset manual editing flag
         }
@@ -131,8 +134,8 @@ class MainActivity : AppCompatActivity() {
             
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 // Only mark as manual editing if the change was not programmatic
-                // We check if the text field has focus (user is actively editing)
-                if (textDisplay.hasFocus()) {
+                // We check if the text field has focus and it's not a programmatic update
+                if (textDisplay.hasFocus() && !isProgrammaticUpdate) {
                     isManualEditing = true
                 }
             }
@@ -320,7 +323,9 @@ class MainActivity : AppCompatActivity() {
                         recognizedText.append("\n\n\n")
                     }
                     recognizedText.append(text).append(" ")
+                    isProgrammaticUpdate = true
                     textDisplay.setText(recognizedText.toString())
+                    isProgrammaticUpdate = false
                     
                     // Scrolla ner automatiskt
                     scrollView.post {
@@ -349,7 +354,9 @@ class MainActivity : AppCompatActivity() {
                             }
                             append(matches[0] ?: "")
                         }
+                        isProgrammaticUpdate = true
                         textDisplay.setText(displayText)
+                        isProgrammaticUpdate = false
                     }
                 }
             }
