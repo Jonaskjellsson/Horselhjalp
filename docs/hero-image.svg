@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" style="font-family: 'Segoe UI', Arial, sans-serif;">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Main title and subtitle -->
+  <text x="600" y="120" text-anchor="middle" font-size="72" fill="#ffffff" font-weight="bold">Hörselhjälp</text>
+  <text x="600" y="170" text-anchor="middle" font-size="32" fill="#e0e0e0">Svenskt Tal till Text • För Hörsel- och Synnedsättning</text>
+  
+  <!-- Phone mockup -->
+  <g transform="translate(450, 220)">
+    <!-- Phone frame -->
+    <rect width="300" height="380" rx="25" fill="#1a1a1a"/>
+    <rect x="8" y="8" width="284" height="364" rx="20" fill="#ffffff"/>
+    
+    <!-- Status bar -->
+    <rect x="8" y="8" width="284" height="35" rx="20" fill="#f5f5f5"/>
+    <text x="150" y="30" text-anchor="middle" font-size="11" fill="#666">12:30</text>
+    
+    <!-- Language button -->
+    <rect x="210" y="50" width="70" height="25" rx="4" fill="#e3f2fd"/>
+    <text x="245" y="67" text-anchor="middle" font-size="10" fill="#1976d2">🇸🇪 SV</text>
+    
+    <!-- Text area -->
+    <rect x="20" y="85" width="260" height="200" rx="8" fill="#fafafa" stroke="#e0e0e0" stroke-width="2"/>
+    <text x="35" y="110" font-size="18" fill="#212121">
+      <tspan x="35" dy="0">Hej!</tspan>
+      <tspan x="35" dy="30">Välkommen till</tspan>
+      <tspan x="35" dy="30">Hörselhjälp.</tspan>
+      <tspan x="35" dy="35"></tspan>
+      <tspan x="35" dy="25">Tala på svenska</tspan>
+      <tspan x="35" dy="25">och se texten här.</tspan>
+    </text>
+    
+    <!-- Buttons -->
+    <rect x="20" y="300" width="80" height="45" rx="6" fill="#4caf50"/>
+    <text x="60" y="327" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">🎤 START</text>
+    
+    <rect x="110" y="300" width="80" height="45" rx="6" fill="#ff9800"/>
+    <text x="150" y="327" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">🗑️ RENSA</text>
+    
+    <rect x="200" y="300" width="80" height="45" rx="6" fill="#9c27b0"/>
+    <text x="240" y="327" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">🌙 TEMA</text>
+  </g>
+  
+  <!-- Features -->
+  <g transform="translate(50, 240)">
+    <!-- Feature 1 -->
+    <circle cx="20" cy="20" r="18" fill="#ffffff" opacity="0.2"/>
+    <text x="20" y="27" text-anchor="middle" font-size="24">🎤</text>
+    <text x="20" y="60" text-anchor="middle" font-size="16" fill="#ffffff" font-weight="600">Tal till Text</text>
+    <text x="20" y="80" text-anchor="middle" font-size="12" fill="#e0e0e0">Realtid</text>
+    
+    <!-- Feature 2 -->
+    <circle cx="20" cy="150" r="18" fill="#ffffff" opacity="0.2"/>
+    <text x="20" y="157" text-anchor="middle" font-size="24">👁️</text>
+    <text x="20" y="190" text-anchor="middle" font-size="16" fill="#ffffff" font-weight="600">Stora Bokstäver</text>
+    <text x="20" y="210" text-anchor="middle" font-size="12" fill="#e0e0e0">32sp storlek</text>
+    
+    <!-- Feature 3 -->
+    <circle cx="20" cy="280" r="18" fill="#ffffff" opacity="0.2"/>
+    <text x="20" y="287" text-anchor="middle" font-size="24">♿</text>
+    <text x="20" y="320" text-anchor="middle" font-size="16" fill="#ffffff" font-weight="600">Tillgänglig</text>
+    <text x="20" y="340" text-anchor="middle" font-size="12" fill="#e0e0e0">TalkBack</text>
+  </g>
+  
+  <g transform="translate(800, 240)">
+    <!-- Feature 4 -->
+    <circle cx="20" cy="20" r="18" fill="#ffffff" opacity="0.2"/>
+    <text x="20" y="27" text-anchor="middle" font-size="24">🇸🇪</text>
+    <text x="20" y="60" text-anchor="middle" font-size="16" fill="#ffffff" font-weight="600">Svenska & Engelska</text>
+    <text x="20" y="80" text-anchor="middle" font-size="12" fill="#e0e0e0">Båda språken</text>
+    
+    <!-- Feature 5 -->
+    <circle cx="20" cy="150" r="18" fill="#ffffff" opacity="0.2"/>
+    <text x="20" y="157" text-anchor="middle" font-size="24">🌙</text>
+    <text x="20" y="190" text-anchor="middle" font-size="16" fill="#ffffff" font-weight="600">Ljust & Mörkt</text>
+    <text x="20" y="210" text-anchor="middle" font-size="12" fill="#e0e0e0">Material 3</text>
+    
+    <!-- Feature 6 -->
+    <circle cx="20" cy="280" r="18" fill="#ffffff" opacity="0.2"/>
+    <text x="20" y="287" text-anchor="middle" font-size="24">🔒</text>
+    <text x="20" y="320" text-anchor="middle" font-size="16" fill="#ffffff" font-weight="600">Offline</text>
+    <text x="20" y="340" text-anchor="middle" font-size="12" fill="#e0e0e0">Privat & säker</text>
+  </g>
+  
+  <!-- Bottom text -->
+  <text x="600" y="600" text-anchor="middle" font-size="18" fill="#ffffff" opacity="0.9">Android 7.0+ • Open Source • Gratis</text>
+</svg>

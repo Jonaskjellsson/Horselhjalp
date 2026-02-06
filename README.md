@@ -1,5 +1,7 @@
 # Hörselhjälp - Svenskt Tal till Text
 
+![Hörselhjälp App](docs/hero-image.svg)
+
 En enkel och tillgänglig Android-applikation för hörselskadade och synskadade som omvandlar svenskt tal till text i realtid.
 
 ## 🎯 Syfte
@@ -79,6 +81,12 @@ Bygg och hitta APK automatiskt:
 4. **Se texten** - Din talade text visas direkt på skärmen
 5. **Tryck på "STOPPA"** - När du vill pausa inspelningen
 6. **Tryck på "RENSA TEXT"** - För att rensa skärmen
+
+### 📱 Appens gränssnitt
+
+![App Feature Image](docs/app-feature-image.svg)
+
+Appen har två lägen - ljust och mörkt - för optimal läsbarhet i olika miljöer. Se [fullständig funktionsöversikt](docs/app-feature-diagram.md) för mer detaljer.
 
 ## 🏗️ Teknisk information
 

@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 850" style="font-family: 'Segoe UI', Arial, sans-serif;">
+  <!-- Title -->
+  <text x="450" y="40" text-anchor="middle" font-size="32" fill="#333" font-weight="bold">Hörselhjälp - Svenskt Tal till Text</text>
+  <text x="450" y="70" text-anchor="middle" font-size="16" fill="#666">För hörselskadade och synskadade • Realtidsöversättning • Stora bokstäver</text>
+  
+  <!-- Light mode phone -->
+  <g id="light-mode">
+    <!-- Phone frame -->
+    <rect x="50" y="100" width="360" height="700" rx="30" fill="#1a1a1a"/>
+    <rect x="60" y="110" width="340" height="680" rx="25" fill="#ffffff"/>
+    
+    <!-- Status bar -->
+    <rect x="60" y="110" width="340" height="50" rx="25" fill="#f8f9fa"/>
+    <text x="230" y="143" text-anchor="middle" font-size="14" fill="#333">☀️ Ljust läge</text>
+    
+    <!-- Language button -->
+    <rect x="310" y="170" width="80" height="30" rx="5" fill="#e3f2fd"/>
+    <text x="350" y="190" text-anchor="middle" font-size="11" fill="#1976d2">🇸🇪 Svenska</text>
+    
+    <!-- Text display area -->
+    <rect x="75" y="210" width="310" height="420" rx="12" fill="#ffffff" stroke="#e0e0e0" stroke-width="3"/>
+    
+    <!-- Text content -->
+    <text x="90" y="250" font-size="24" fill="#212121" font-weight="400">
+      <tspan x="90" dy="0">Hej! Välkommen</tspan>
+      <tspan x="90" dy="38">till Hörselhjälp.</tspan>
+      <tspan x="90" dy="55"></tspan>
+      <tspan x="90" dy="38">Tala på svenska</tspan>
+      <tspan x="90" dy="38">och se texten</tspan>
+      <tspan x="90" dy="38">visas här med</tspan>
+      <tspan x="90" dy="38">stora bokstäver.</tspan>
+    </text>
+    
+    <!-- Buttons -->
+    <rect x="75" y="650" width="95" height="55" rx="8" fill="#4caf50"/>
+    <text x="122.5" y="682" text-anchor="middle" font-size="13" fill="#ffffff" font-weight="bold">🎤 START</text>
+    
+    <rect x="182.5" y="650" width="95" height="55" rx="8" fill="#ff9800"/>
+    <text x="230" y="682" text-anchor="middle" font-size="13" fill="#ffffff" font-weight="bold">🗑️ RENSA</text>
+    
+    <rect x="290" y="650" width="95" height="55" rx="8" fill="#9c27b0"/>
+    <text x="337.5" y="682" text-anchor="middle" font-size="13" fill="#ffffff" font-weight="bold">🌙 TEMA</text>
+    
+    <!-- Label -->
+    <text x="230" y="750" text-anchor="middle" font-size="14" fill="#1976d2" font-weight="bold">Ljust läge (Standard)</text>
+  </g>
+  
+  <!-- Dark mode phone -->
+  <g id="dark-mode">
+    <!-- Phone frame -->
+    <rect x="490" y="100" width="360" height="700" rx="30" fill="#000000"/>
+    <rect x="500" y="110" width="340" height="680" rx="25" fill="#121212"/>
+    
+    <!-- Status bar -->
+    <rect x="500" y="110" width="340" height="50" rx="25" fill="#1f1f1f"/>
+    <text x="670" y="143" text-anchor="middle" font-size="14" fill="#e0e0e0">🌙 Mörkt läge</text>
+    
+    <!-- Language button -->
+    <rect x="750" y="170" width="80" height="30" rx="5" fill="#1e3a5f"/>
+    <text x="790" y="190" text-anchor="middle" font-size="11" fill="#64b5f6">🇸🇪 Svenska</text>
+    
+    <!-- Text display area -->
+    <rect x="515" y="210" width="310" height="420" rx="12" fill="#1e1e1e" stroke="#424242" stroke-width="3"/>
+    
+    <!-- Text content -->
+    <text x="530" y="250" font-size="24" fill="#e0e0e0" font-weight="400">
+      <tspan x="530" dy="0">Hej! Välkommen</tspan>
+      <tspan x="530" dy="38">till Hörselhjälp.</tspan>
+      <tspan x="530" dy="55"></tspan>
+      <tspan x="530" dy="38">Mörkt läge är</tspan>
+      <tspan x="530" dy="38">behagligt för</tspan>
+      <tspan x="530" dy="38">ögonen i dunkla</tspan>
+      <tspan x="530" dy="38">miljöer.</tspan>
+    </text>
+    
+    <!-- Buttons -->
+    <rect x="515" y="650" width="95" height="55" rx="8" fill="#66bb6a"/>
+    <text x="562.5" y="682" text-anchor="middle" font-size="13" fill="#000000" font-weight="bold">🎤 START</text>
+    
+    <rect x="622.5" y="650" width="95" height="55" rx="8" fill="#ffa726"/>
+    <text x="670" y="682" text-anchor="middle" font-size="13" fill="#000000" font-weight="bold">🗑️ RENSA</text>
+    
+    <rect x="730" y="650" width="95" height="55" rx="8" fill="#ab47bc"/>
+    <text x="777.5" y="682" text-anchor="middle" font-size="13" fill="#ffffff" font-weight="bold">☀️ TEMA</text>
+    
+    <!-- Label -->
+    <text x="670" y="750" text-anchor="middle" font-size="14" fill="#64b5f6" font-weight="bold">Mörkt läge (Tillval)</text>
+  </g>
+  
+  <!-- Feature highlights -->
+  <g id="features">
+    <!-- Feature 1 -->
+    <circle cx="150" cy="820" r="15" fill="#4caf50"/>
+    <text x="180" y="827" font-size="14" fill="#333" font-weight="500">Realtids tal-till-text på svenska & engelska</text>
+    
+    <!-- Feature 2 -->
+    <circle cx="480" cy="820" r="15" fill="#2196f3"/>
+    <text x="510" y="827" font-size="14" fill="#333" font-weight="500">Stora bokstäver & hög kontrast för tillgänglighet</text>
+  </g>
+</svg>
