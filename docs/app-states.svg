@@ -1,0 +1,188 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" style="font-family: 'Segoe UI', Arial, sans-serif;">
+  <!-- Title -->
+  <text x="550" y="30" text-anchor="middle" font-size="28" fill="#333" font-weight="bold">Hörselhjälp - Appens olika tillstånd</text>
+  
+  <!-- State 1: Idle -->
+  <g id="state1">
+    <text x="150" y="70" text-anchor="middle" font-size="18" fill="#666" font-weight="bold">1. Redo att starta</text>
+    
+    <!-- Phone -->
+    <rect x="30" y="90" width="240" height="520" rx="20" fill="#1a1a1a"/>
+    <rect x="40" y="100" width="220" height="500" rx="15" fill="#ffffff"/>
+    
+    <!-- Header -->
+    <rect x="40" y="100" width="220" height="35" rx="15" fill="#f5f5f5"/>
+    <text x="150" y="122" text-anchor="middle" font-size="11" fill="#666">🕐 12:30</text>
+    
+    <!-- Language -->
+    <rect x="195" y="145" width="55" height="22" rx="4" fill="#e3f2fd"/>
+    <text x="222" y="160" text-anchor="middle" font-size="9" fill="#1976d2">🇸🇪 SV</text>
+    
+    <!-- Text area -->
+    <rect x="50" y="175" width="200" height="310" rx="8" fill="#fafafa" stroke="#e0e0e0" stroke-width="2"/>
+    <text x="150" y="220" text-anchor="middle" font-size="14" fill="#999">Redo att börja...</text>
+    <text x="150" y="320" text-anchor="middle" font-size="40" fill="#ccc">🎤</text>
+    <text x="150" y="360" text-anchor="middle" font-size="12" fill="#999">Tryck på START TAL</text>
+    <text x="150" y="380" text-anchor="middle" font-size="12" fill="#999">för att börja</text>
+    
+    <!-- Buttons -->
+    <rect x="50" y="500" width="60" height="40" rx="6" fill="#4caf50"/>
+    <text x="80" y="524" text-anchor="middle" font-size="10" fill="#ffffff" font-weight="bold">🎤 START</text>
+    
+    <rect x="120" y="500" width="60" height="40" rx="6" fill="#9e9e9e"/>
+    <text x="150" y="524" text-anchor="middle" font-size="10" fill="#ffffff" font-weight="bold">RENSA</text>
+    
+    <rect x="190" y="500" width="60" height="40" rx="6" fill="#9c27b0"/>
+    <text x="220" y="524" text-anchor="middle" font-size="10" fill="#ffffff" font-weight="bold">🌙 TEMA</text>
+    
+    <!-- Status -->
+    <circle cx="150" cy="630" r="6" fill="#4caf50"/>
+    <text x="160" y="635" font-size="11" fill="#666">Redo</text>
+  </g>
+  
+  <!-- State 2: Listening -->
+  <g id="state2">
+    <text x="430" y="70" text-anchor="middle" font-size="18" fill="#666" font-weight="bold">2. Lyssnar på tal</text>
+    
+    <!-- Phone -->
+    <rect x="310" y="90" width="240" height="520" rx="20" fill="#1a1a1a"/>
+    <rect x="320" y="100" width="220" height="500" rx="15" fill="#ffffff"/>
+    
+    <!-- Header -->
+    <rect x="320" y="100" width="220" height="35" rx="15" fill="#f5f5f5"/>
+    <text x="430" y="122" text-anchor="middle" font-size="11" fill="#666">🕐 12:30</text>
+    
+    <!-- Language -->
+    <rect x="475" y="145" width="55" height="22" rx="4" fill="#e3f2fd"/>
+    <text x="502" y="160" text-anchor="middle" font-size="9" fill="#1976d2">🇸🇪 SV</text>
+    
+    <!-- Text area with partial text -->
+    <rect x="330" y="175" width="200" height="310" rx="8" fill="#fafafa" stroke="#ff5722" stroke-width="3"/>
+    <text x="340" y="200" font-size="16" fill="#212121" font-weight="400">
+      <tspan x="340" dy="0">Hej!</tspan>
+      <tspan x="340" dy="30">Välkommen till</tspan>
+      <tspan x="340" dy="30">Hörselhjälp.</tspan>
+    </text>
+    
+    <!-- Listening animation -->
+    <circle cx="430" cy="350" r="30" fill="#ff5722" opacity="0.2"/>
+    <circle cx="430" cy="350" r="20" fill="#ff5722" opacity="0.4"/>
+    <circle cx="430" cy="350" r="10" fill="#ff5722"/>
+    <text x="430" y="360" text-anchor="middle" font-size="25" fill="#ffffff">🎤</text>
+    
+    <text x="430" y="420" text-anchor="middle" font-size="11" fill="#ff5722" font-weight="bold">🔴 LYSSNAR...</text>
+    
+    <!-- Buttons -->
+    <rect x="330" y="500" width="60" height="40" rx="6" fill="#f44336"/>
+    <text x="360" y="524" text-anchor="middle" font-size="10" fill="#ffffff" font-weight="bold">⏹️ STOPP</text>
+    
+    <rect x="400" y="500" width="60" height="40" rx="6" fill="#9e9e9e"/>
+    <text x="430" y="524" text-anchor="middle" font-size="10" fill="#ffffff" font-weight="bold">RENSA</text>
+    
+    <rect x="470" y="500" width="60" height="40" rx="6" fill="#9c27b0"/>
+    <text x="500" y="524" text-anchor="middle" font-size="10" fill="#ffffff" font-weight="bold">🌙 TEMA</text>
+    
+    <!-- Status -->
+    <circle cx="430" cy="630" r="6" fill="#ff5722"/>
+    <text x="440" y="635" font-size="11" fill="#666">Lyssnar aktivt</text>
+  </g>
+  
+  <!-- State 3: Text Display -->
+  <g id="state3">
+    <text x="710" y="70" text-anchor="middle" font-size="18" fill="#666" font-weight="bold">3. Text visas</text>
+    
+    <!-- Phone -->
+    <rect x="590" y="90" width="240" height="520" rx="20" fill="#1a1a1a"/>
+    <rect x="600" y="100" width="220" height="500" rx="15" fill="#ffffff"/>
+    
+    <!-- Header -->
+    <rect x="600" y="100" width="220" height="35" rx="15" fill="#f5f5f5"/>
+    <text x="710" y="122" text-anchor="middle" font-size="11" fill="#666">🕐 12:31</text>
+    
+    <!-- Language -->
+    <rect x="755" y="145" width="55" height="22" rx="4" fill="#e3f2fd"/>
+    <text x="782" y="160" text-anchor="middle" font-size="9" fill="#1976d2">🇸🇪 SV</text>
+    
+    <!-- Text area with full text -->
+    <rect x="610" y="175" width="200" height="310" rx="8" fill="#fafafa" stroke="#4caf50" stroke-width="3"/>
+    <text x="620" y="200" font-size="16" fill="#212121" font-weight="400">
+      <tspan x="620" dy="0">Hej!</tspan>
+      <tspan x="620" dy="28">Välkommen till</tspan>
+      <tspan x="620" dy="28">Hörselhjälp.</tspan>
+      <tspan x="620" dy="35"></tspan>
+      <tspan x="620" dy="28">Den här appen</tspan>
+      <tspan x="620" dy="28">hjälper dig att</tspan>
+      <tspan x="620" dy="28">omvandla tal till</tspan>
+      <tspan x="620" dy="28">text i realtid!</tspan>
+    </text>
+    
+    <!-- Success indicator -->
+    <circle cx="710" cy="410" r="15" fill="#4caf50"/>
+    <text x="710" y="418" text-anchor="middle" font-size="18" fill="#ffffff">✓</text>
+    <text x="710" y="445" text-anchor="middle" font-size="11" fill="#4caf50" font-weight="bold">Text igenkänd</text>
+    
+    <!-- Buttons -->
+    <rect x="610" y="500" width="60" height="40" rx="6" fill="#4caf50"/>
+    <text x="640" y="524" text-anchor="middle" font-size="10" fill="#ffffff" font-weight="bold">🎤 START</text>
+    
+    <rect x="680" y="500" width="60" height="40" rx="6" fill="#ff9800"/>
+    <text x="710" y="524" text-anchor="middle" font-size="10" fill="#ffffff" font-weight="bold">🗑️ RENSA</text>
+    
+    <rect x="750" y="500" width="60" height="40" rx="6" fill="#9c27b0"/>
+    <text x="780" y="524" text-anchor="middle" font-size="10" fill="#ffffff" font-weight="bold">🌙 TEMA</text>
+    
+    <!-- Status -->
+    <circle cx="710" cy="630" r="6" fill="#4caf50"/>
+    <text x="720" y="635" font-size="11" fill="#666">Redo för mer</text>
+  </g>
+  
+  <!-- Dark mode example -->
+  <g id="dark-mode-example">
+    <text x="990" y="70" text-anchor="middle" font-size="18" fill="#666" font-weight="bold">4. Mörkt läge</text>
+    
+    <!-- Phone -->
+    <rect x="870" y="90" width="240" height="520" rx="20" fill="#000000"/>
+    <rect x="880" y="100" width="220" height="500" rx="15" fill="#121212"/>
+    
+    <!-- Header -->
+    <rect x="880" y="100" width="220" height="35" rx="15" fill="#1f1f1f"/>
+    <text x="990" y="122" text-anchor="middle" font-size="11" fill="#e0e0e0">🕐 12:31</text>
+    
+    <!-- Language -->
+    <rect x="1035" y="145" width="55" height="22" rx="4" fill="#1e3a5f"/>
+    <text x="1062" y="160" text-anchor="middle" font-size="9" fill="#64b5f6">🇸🇪 SV</text>
+    
+    <!-- Text area with text (dark) -->
+    <rect x="890" y="175" width="200" height="310" rx="8" fill="#1e1e1e" stroke="#424242" stroke-width="3"/>
+    <text x="900" y="200" font-size="16" fill="#e0e0e0" font-weight="400">
+      <tspan x="900" dy="0">Hej!</tspan>
+      <tspan x="900" dy="28">Välkommen till</tspan>
+      <tspan x="900" dy="28">Hörselhjälp.</tspan>
+      <tspan x="900" dy="35"></tspan>
+      <tspan x="900" dy="28">Mörkt läge är</tspan>
+      <tspan x="900" dy="28">behagligt för</tspan>
+      <tspan x="900" dy="28">ögonen i dunkla</tspan>
+      <tspan x="900" dy="28">miljöer.</tspan>
+    </text>
+    
+    <!-- Moon icon -->
+    <text x="990" y="440" text-anchor="middle" font-size="30" fill="#bb86fc">🌙</text>
+    
+    <!-- Buttons -->
+    <rect x="890" y="500" width="60" height="40" rx="6" fill="#66bb6a"/>
+    <text x="920" y="524" text-anchor="middle" font-size="10" fill="#000000" font-weight="bold">🎤 START</text>
+    
+    <rect x="960" y="500" width="60" height="40" rx="6" fill="#ffa726"/>
+    <text x="990" y="524" text-anchor="middle" font-size="10" fill="#000000" font-weight="bold">🗑️ RENSA</text>
+    
+    <rect x="1030" y="500" width="60" height="40" rx="6" fill="#ab47bc"/>
+    <text x="1060" y="524" text-anchor="middle" font-size="10" fill="#ffffff" font-weight="bold">☀️ TEMA</text>
+    
+    <!-- Status -->
+    <circle cx="990" cy="630" r="6" fill="#bb86fc"/>
+    <text x="1000" y="635" font-size="11" fill="#999">Mörkt läge</text>
+  </g>
+  
+  <!-- Bottom features -->
+  <text x="550" y="680" text-anchor="middle" font-size="14" fill="#666">✨ Stora bokstäver • Hög kontrast • TalkBack-kompatibel • Svenska & Engelska • Offline</text>
+</svg>

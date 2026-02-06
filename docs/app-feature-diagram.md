@@ -1,5 +1,7 @@
 # Hörselhjälp - Funktionsöversikt
 
+![Usage Flowchart](usage-flowchart.svg)
+
 ## Appens huvudfunktioner illustrerade
 
 ```

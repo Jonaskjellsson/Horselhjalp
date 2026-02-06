@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" style="font-family: 'Segoe UI', Arial, sans-serif;">
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" font-size="24" fill="#333" font-weight="bold">Hörselhjälp - Användningsflöde</text>
+  
+  <!-- Step 1: Start -->
+  <g id="step1">
+    <rect x="300" y="60" width="200" height="60" rx="10" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
+    <text x="400" y="85" text-anchor="middle" font-size="16" fill="#ffffff" font-weight="bold">1. Öppna Appen</text>
+    <text x="400" y="105" text-anchor="middle" font-size="12" fill="#ffffff">Starta Hörselhjälp</text>
+  </g>
+  
+  <!-- Arrow -->
+  <path d="M 400 120 L 400 150" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- Step 2: Permission -->
+  <g id="step2">
+    <rect x="300" y="150" width="200" height="60" rx="10" fill="#ff9800" stroke="#f57c00" stroke-width="2"/>
+    <text x="400" y="175" text-anchor="middle" font-size="16" fill="#ffffff" font-weight="bold">2. Ge Tillstånd</text>
+    <text x="400" y="195" text-anchor="middle" font-size="12" fill="#ffffff">Mikrofon (endast första gången)</text>
+  </g>
+  
+  <!-- Arrow -->
+  <path d="M 400 210 L 400 240" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- Step 3: Start Speech -->
+  <g id="step3">
+    <rect x="300" y="240" width="200" height="60" rx="10" fill="#2196f3" stroke="#1565c0" stroke-width="2"/>
+    <text x="400" y="265" text-anchor="middle" font-size="16" fill="#ffffff" font-weight="bold">3. Tryck "STARTA TAL"</text>
+    <text x="400" y="285" text-anchor="middle" font-size="12" fill="#ffffff">Börja lyssna på tal</text>
+  </g>
+  
+  <!-- Arrow -->
+  <path d="M 400 300 L 400 330" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- Step 4: Speak -->
+  <g id="step4">
+    <rect x="300" y="330" width="200" height="60" rx="10" fill="#9c27b0" stroke="#6a1b9a" stroke-width="2"/>
+    <text x="400" y="355" text-anchor="middle" font-size="16" fill="#ffffff" font-weight="bold">4. Tala på Svenska/Engelska</text>
+    <text x="400" y="375" text-anchor="middle" font-size="12" fill="#ffffff">🎤 Tal spelas in</text>
+  </g>
+  
+  <!-- Arrow -->
+  <path d="M 400 390 L 400 420" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- Step 5: View Text -->
+  <g id="step5">
+    <rect x="300" y="420" width="200" height="60" rx="10" fill="#00bcd4" stroke="#0097a7" stroke-width="2"/>
+    <text x="400" y="445" text-anchor="middle" font-size="16" fill="#ffffff" font-weight="bold">5. Se Texten</text>
+    <text x="400" y="465" text-anchor="middle" font-size="12" fill="#ffffff">📝 Realtidsvisning, stora bokstäver</text>
+  </g>
+  
+  <!-- Branch arrows -->
+  <path d="M 400 480 L 200 520" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 400 480 L 600 520" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- Option A: Clear -->
+  <g id="optionA">
+    <rect x="50" y="520" width="180" height="60" rx="10" fill="#f44336" stroke="#c62828" stroke-width="2"/>
+    <text x="140" y="545" text-anchor="middle" font-size="14" fill="#ffffff" font-weight="bold">Tryck "RENSA TEXT"</text>
+    <text x="140" y="565" text-anchor="middle" font-size="11" fill="#ffffff">Börja om från början</text>
+  </g>
+  
+  <!-- Option B: Continue -->
+  <g id="optionB">
+    <rect x="570" y="520" width="180" height="60" rx="10" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
+    <text x="660" y="545" text-anchor="middle" font-size="14" fill="#ffffff" font-weight="bold">Fortsätt Lyssna</text>
+    <text x="660" y="565" text-anchor="middle" font-size="11" fill="#ffffff">Auto-återstart efter paus</text>
+  </g>
+  
+  <!-- Arrow definitions -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#666"/>
+    </marker>
+  </defs>
+  
+  <!-- Side features -->
+  <g id="features">
+    <text x="50" y="100" font-size="12" fill="#666">✓ Två språk: 🇸🇪 🇬🇧</text>
+    <text x="50" y="120" font-size="12" fill="#666">✓ Ljust & mörkt tema</text>
+    <text x="50" y="140" font-size="12" fill="#666">✓ TalkBack-kompatibel</text>
+    
+    <text x="620" y="100" font-size="12" fill="#666">✓ Stora bokstäver (32sp)</text>
+    <text x="620" y="120" font-size="12" fill="#666">✓ Hög kontrast</text>
+    <text x="620" y="140" font-size="12" fill="#666">✓ Offline-funktion</text>
+  </g>
+</svg>
