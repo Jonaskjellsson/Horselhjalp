@@ -86,7 +86,13 @@ Bygg och hitta APK automatiskt:
 
 ![App Feature Image](docs/app-feature-image.svg)
 
-Appen har två lägen - ljust och mörkt - för optimal läsbarhet i olika miljöer. Se [fullständig funktionsöversikt](docs/app-feature-diagram.md) för mer detaljer.
+Appen har två lägen - ljust och mörkt - för optimal läsbarhet i olika miljöer. 
+
+**Mer visuell dokumentation:**
+- 📊 [Fullständig funktionsöversikt](docs/app-feature-diagram.md)
+- 🔄 [Användningsflöde](docs/usage-flowchart.svg)
+- 📱 [Appens olika tillstånd](docs/app-states.svg)
+- 🎨 [Alla visuella resurser](docs/README.md)
 
 ## 🏗️ Teknisk information
 
