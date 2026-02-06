@@ -8,20 +8,7 @@
     android:background="@color/background"
     tools:context=".MainActivity">
 
-    <!-- Header -->
-    <TextView
-        android:id="@+id/rubrikTextvy"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:textSize="42sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
-        android:gravity="center"
-        android:paddingTop="22dp"
-        android:paddingBottom="22dp"
-        android:lineSpacingMultiplier="1.35"
-        android:contentDescription="@string/app_name" />
+    <!-- Header removed to maximize text display space -->
 
     <!-- Status text - hidden per user request -->
     <TextView
@@ -59,47 +46,53 @@
             android:contentDescription="Igenkänd text" />
     </ScrollView>
 
-    <!-- Control buttons -->
+    <!-- Control buttons - horizontal layout -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:weightSum="3">
 
-        <!-- Microphone button - reduced size -->
+        <!-- Microphone button - compact for horizontal layout -->
         <Button
             android:id="@+id/micButton"
-            android:layout_width="match_parent"
-            android:layout_height="65dp"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
             android:text="@string/button_start"
-            android:textSize="20sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="@color/button_text"
             android:background="@color/button_start"
-            android:layout_marginBottom="12dp"
+            android:layout_marginEnd="4dp"
             android:contentDescription="Starta eller stoppa taligenkänning" />
 
-        <!-- Clear button - reduced size -->
+        <!-- Clear button - compact for horizontal layout -->
         <Button
             android:id="@+id/clearButton"
-            android:layout_width="match_parent"
-            android:layout_height="55dp"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
             android:text="@string/button_clear"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:textColor="@color/button_text"
             android:background="@color/button_clear"
-            android:layout_marginBottom="12dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
             android:contentDescription="Rensa text" />
         
-        <!-- Glasaktighetsvaxlare button - reduced size -->
+        <!-- Glasaktighetsvaxlare button - compact for horizontal layout -->
         <Button
             android:id="@+id/glasaktigKnapp"
-            android:layout_width="match_parent"
-            android:layout_height="55dp"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
             android:text="@string/glasaktig_knapp"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:textColor="@color/button_text"
             android:background="@color/glasaktighet_kornhinna"
+            android:layout_marginStart="4dp"
             android:contentDescription="@string/glasaktig_hjalp" />
     </LinearLayout>
 
