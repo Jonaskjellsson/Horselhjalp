@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import java.util.Locale
 import android.content.res.Configuration
+import com.google.android.material.color.DynamicColors
 
 class MainActivity : AppCompatActivity() {
 
@@ -47,6 +48,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Apply Material 3 dynamic colors (Android 12+)
+        // This enables theming based on the user's wallpaper
+        DynamicColors.applyToActivityIfAvailable(this)
+        
         setContentView(R.layout.activity_main)
 
         // Hitta vyer

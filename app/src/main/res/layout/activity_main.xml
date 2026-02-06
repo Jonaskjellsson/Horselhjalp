@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,7 +8,7 @@
     android:padding="16dp"
     android:background="@color/background"
     tools:context=".MainActivity">
-
+    
     <!-- Header with language switcher -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,16 +17,16 @@
         android:gravity="end"
         android:paddingBottom="8dp">
         
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/languageButton"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:text="@string/language_button"
             android:textSize="12sp"
-            android:textColor="@color/button_text"
-            android:background="@color/button_clear"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
+            app:backgroundTint="@color/button_clear"
+            style="@style/Widget.Material3.Button.TextButton"
             android:contentDescription="Toggle language" />
     </LinearLayout>
 
@@ -75,8 +76,8 @@
         android:gravity="center"
         android:weightSum="3">
 
-        <!-- Microphone button - compact for horizontal layout -->
-        <Button
+        <!-- Microphone button - Material 3 -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/micButton"
             android:layout_width="0dp"
             android:layout_height="50dp"
@@ -84,36 +85,36 @@
             android:text="@string/button_start"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="@color/button_text"
-            android:background="@color/button_start"
             android:layout_marginEnd="4dp"
+            app:backgroundTint="@color/button_start"
+            style="@style/Widget.Material3.Button.Icon"
             android:contentDescription="Starta eller stoppa taligenkänning" />
 
-        <!-- Clear button - compact for horizontal layout -->
-        <Button
+        <!-- Clear button - Material 3 -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/clearButton"
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
             android:text="@string/button_clear"
             android:textSize="14sp"
-            android:textColor="@color/button_text"
-            android:background="@color/button_clear"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
+            app:backgroundTint="@color/button_clear"
+            style="@style/Widget.Material3.Button"
             android:contentDescription="Rensa text" />
         
-        <!-- Glasaktighetsvaxlare button - compact for horizontal layout -->
-        <Button
+        <!-- Glasaktighetsvaxlare button - Material 3 -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/glasaktigKnapp"
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
             android:text="@string/glasaktig_knapp"
             android:textSize="14sp"
-            android:textColor="@color/button_text"
-            android:background="@color/glasaktighet_kornhinna"
             android:layout_marginStart="4dp"
+            app:backgroundTint="@color/glasaktighet_kornhinna"
+            style="@style/Widget.Material3.Button.TonalButton"
             android:contentDescription="@string/glasaktig_hjalp" />
     </LinearLayout>
 
