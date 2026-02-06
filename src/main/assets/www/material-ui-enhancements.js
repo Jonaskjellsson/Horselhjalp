@@ -61,8 +61,9 @@
         const textArea = document.querySelector('[data-testid="text-display-area"]');
         if (textArea) {
             const observer = new MutationObserver(() => {
-                const hasText = textArea.textContent.trim() && 
-                              !textArea.textContent.includes('Tryck på mikrofonen');
+                const text = textArea.textContent.trim();
+                // Check if there's actual content (more than 10 characters and has non-whitespace)
+                const hasText = text.length > 10 && /\S{3,}/.test(text);
                 copyBtn.disabled = !hasText;
             });
             observer.observe(textArea, { childList: true, subtree: true, characterData: true });
@@ -172,18 +173,29 @@
             return;
         }
         
+        // Status text constants
+        const STATUS_TEXTS = {
+            LISTENING: 'Lyssnar...',
+            RECOGNIZING: 'Känner igen tal...'
+        };
+        
         // Observe status text changes
         const observer = new MutationObserver(() => {
-            const status = micStatus.textContent.trim();
+            const status = micStatus.textContent.trim().toUpperCase();
             const progressIndicator = window.progressIndicator;
             
             if (progressIndicator) {
-                if (status === 'LYSSNAR' || status === 'TALAR') {
+                // Check if microphone is active by checking if button is not disabled
+                const isActive = !micButton.disabled && micButton.getAttribute('aria-label') !== 'Starta inspelning';
+                
+                if (isActive) {
                     progressIndicator.style.display = 'flex';
-                    if (status === 'TALAR') {
-                        progressIndicator.querySelector('.progress-text').textContent = 'Känner igen tal...';
+                    // Update text based on status
+                    const progressText = progressIndicator.querySelector('.progress-text');
+                    if (status.includes('TAL') || status.includes('SPEAK')) {
+                        progressText.textContent = STATUS_TEXTS.RECOGNIZING;
                     } else {
-                        progressIndicator.querySelector('.progress-text').textContent = 'Lyssnar...';
+                        progressText.textContent = STATUS_TEXTS.LISTENING;
                     }
                 } else {
                     progressIndicator.style.display = 'none';
@@ -192,5 +204,6 @@
         });
         
         observer.observe(micStatus, { childList: true, characterData: true, subtree: true });
+        observer.observe(micButton, { attributes: true, attributeFilter: ['disabled', 'aria-label'] });
     }
 })();
