@@ -270,6 +270,22 @@ class MainActivity : AppCompatActivity() {
         recreate()
     }
 
+    // Helper method to disable text editing during listening
+    private fun disableTextEditing() {
+        textDisplay.isFocusable = false
+        textDisplay.isFocusableInTouchMode = false
+        textDisplay.isClickable = true
+        textDisplay.isLongClickable = true
+        textDisplay.setTextIsSelectable(true)
+    }
+
+    // Helper method to enable text editing after listening
+    private fun enableTextEditing() {
+        textDisplay.isFocusable = true
+        textDisplay.isFocusableInTouchMode = true
+        textDisplay.setTextIsSelectable(true)
+    }
+
     private fun setupSpeechRecognizer() {
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
         speechRecognizer?.setRecognitionListener(object : RecognitionListener {
@@ -310,9 +326,7 @@ class MainActivity : AppCompatActivity() {
                 isListening = false
                 
                 // Re-enable editing after error
-                textDisplay.isFocusable = true
-                textDisplay.isFocusableInTouchMode = true
-                textDisplay.setTextIsSelectable(true)
+                enableTextEditing()
                 
                 updateMicButton()
                 
@@ -346,9 +360,7 @@ class MainActivity : AppCompatActivity() {
                 isListening = false
                 
                 // Re-enable editing after final results
-                textDisplay.isFocusable = true
-                textDisplay.isFocusableInTouchMode = true
-                textDisplay.setTextIsSelectable(true)
+                enableTextEditing()
                 
                 updateMicButton()
             }
@@ -403,11 +415,7 @@ class MainActivity : AppCompatActivity() {
         isManualEditing = false
         
         // Make textDisplay non-editable during listening but keep it selectable for copying
-        textDisplay.isFocusable = false
-        textDisplay.isFocusableInTouchMode = false
-        textDisplay.isClickable = true
-        textDisplay.isLongClickable = true
-        textDisplay.setTextIsSelectable(true)
+        disableTextEditing()
         
         speechRecognizer?.startListening(intent)
         isListening = true
@@ -420,9 +428,7 @@ class MainActivity : AppCompatActivity() {
         isListening = false
         
         // Re-enable editing after listening stops
-        textDisplay.isFocusable = true
-        textDisplay.isFocusableInTouchMode = true
-        textDisplay.setTextIsSelectable(true)
+        enableTextEditing()
         
         updateMicButton()
         statusText.text = getString(R.string.status_stopped)
