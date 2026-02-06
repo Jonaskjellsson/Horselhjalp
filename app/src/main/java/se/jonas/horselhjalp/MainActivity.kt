@@ -8,9 +8,12 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import android.text.TextWatcher
+import android.text.Editable
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -20,7 +23,7 @@ import com.google.android.material.color.DynamicColors
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var textDisplay: TextView
+    private lateinit var textDisplay: EditText
     private lateinit var micButton: Button
     private lateinit var clearButton: Button
     private lateinit var scrollView: ScrollView
@@ -32,6 +35,8 @@ class MainActivity : AppCompatActivity() {
     private var isListening = false
     private var recognizedText = StringBuilder()
     private var currentLanguage = "sv-SE" // Default to Swedish
+    private var isManualEditing = false // Flag to track if user is manually editing
+    private var isProgrammaticUpdate = false // Flag to track programmatic text updates
     
     // Custom persistence using XOR encoding to discourage manual preference editing
     private var ogonmiljotillstand = 0
@@ -106,8 +111,11 @@ class MainActivity : AppCompatActivity() {
         // Radera-knapp
         clearButton.setOnClickListener {
             recognizedText.clear()
-            textDisplay.text = getString(R.string.text_placeholder)
+            isProgrammaticUpdate = true
+            textDisplay.setText(getString(R.string.text_placeholder))
+            isProgrammaticUpdate = false
             statusText.text = getString(R.string.status_text_cleared)
+            isManualEditing = false // Reset manual editing flag
         }
         
         // Glasaktighetsvaxlare knapp - unique toggle logic
@@ -119,6 +127,21 @@ class MainActivity : AppCompatActivity() {
         languageButton.setOnClickListener {
             toggleLanguage()
         }
+        
+        // Add TextWatcher to detect manual editing
+        textDisplay.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Only mark as manual editing if the change was not programmatic
+                // We check if the text field has focus and it's not a programmatic update
+                if (textDisplay.hasFocus() && !isProgrammaticUpdate) {
+                    isManualEditing = true
+                }
+            }
+            
+            override fun afterTextChanged(s: Editable?) {}
+        })
     }
     
     // XOR-based persistence
@@ -300,7 +323,9 @@ class MainActivity : AppCompatActivity() {
                         recognizedText.append("\n\n\n")
                     }
                     recognizedText.append(text).append(" ")
-                    textDisplay.text = recognizedText.toString()
+                    isProgrammaticUpdate = true
+                    textDisplay.setText(recognizedText.toString())
+                    isProgrammaticUpdate = false
                     
                     // Scrolla ner automatiskt
                     scrollView.post {
@@ -316,7 +341,23 @@ class MainActivity : AppCompatActivity() {
             override fun onPartialResults(partialResults: Bundle?) {
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
+                    // Update status text with partial results
                     statusText.text = getString(R.string.status_heard, matches[0])
+                    
+                    // Show live best match in textDisplay only if user is not manually editing
+                    if (!isManualEditing) {
+                        // Build the display text without clearing the entire EditText
+                        val displayText = buildString {
+                            append(recognizedText.toString())
+                            if (recognizedText.isNotEmpty()) {
+                                append("\n\n\n")
+                            }
+                            append(matches[0] ?: "")
+                        }
+                        isProgrammaticUpdate = true
+                        textDisplay.setText(displayText)
+                        isProgrammaticUpdate = false
+                    }
                 }
             }
 
@@ -343,6 +384,9 @@ class MainActivity : AppCompatActivity() {
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
         }
 
+        // Reset manual editing flag when starting new listening session
+        isManualEditing = false
+        
         speechRecognizer?.startListening(intent)
         isListening = true
         updateMicButton()

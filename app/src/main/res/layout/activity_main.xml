@@ -56,7 +56,7 @@
         android:padding="16dp"
         android:layout_marginBottom="16dp">
 
-        <TextView
+        <EditText
             android:id="@+id/textDisplay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -65,7 +65,10 @@
             android:textColor="@color/text_primary"
             android:lineSpacingExtra="14dp"
             android:lineSpacingMultiplier="1.5"
-            android:contentDescription="Igenkänd text" />
+            android:background="@android:color/transparent"
+            android:inputType="textMultiLine|textCapSentences"
+            android:gravity="top|start"
+            android:contentDescription="Fält för igenkänd text" />
     </ScrollView>
 
     <!-- Control buttons - horizontal layout -->
