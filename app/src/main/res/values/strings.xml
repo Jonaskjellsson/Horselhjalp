@@ -63,7 +63,7 @@
     <string name="accessibility_clear_button">Rensa text</string>
     <string name="accessibility_theme_button">Växla mellan ljust och mörkt läge</string>
     <string name="accessibility_font_size_small">Liten textstorlek</string>
-    <string name="accessibility_font_size_medium">Medium textstorlek</string>
+    <string name="accessibility_font_size_medium">Normal textstorlek</string>
     <string name="accessibility_font_size_large">Stor textstorlek</string>
     <string name="accessibility_font_size_extra_large">Extra stor textstorlek</string>
 </resources>
