@@ -32,6 +32,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statusText: TextView
     private lateinit var glasaktigKnapp: Button
     private lateinit var languageButton: Button
+    private lateinit var fontSizeSmallButton: Button
+    private lateinit var fontSizeMediumButton: Button
+    private lateinit var fontSizeLargeButton: Button
+    private lateinit var fontSizeExtraLargeButton: Button
     
     private var speechRecognizer: SpeechRecognizer? = null
     @Volatile private var isListening = false
@@ -40,6 +44,15 @@ class MainActivity : AppCompatActivity() {
     private var isManualEditing = false // Flag to track if user is manually editing
     private var isProgrammaticUpdate = false // Flag to track programmatic text updates
     @Volatile private var isDestroyed = false // Flag to track if activity is being destroyed
+    
+    // Font size settings
+    private enum class FontSize(val textSize: Float, val statusSize: Float) {
+        SMALL(24f, 20f),
+        MEDIUM(32f, 26f),
+        LARGE(40f, 32f),
+        EXTRA_LARGE(48f, 38f)
+    }
+    private var currentFontSize = FontSize.MEDIUM // Default to medium (32sp - original size)
     
     // Auto-pause after silence variables
     private var silenceStartTime: Long? = null
@@ -92,6 +105,10 @@ class MainActivity : AppCompatActivity() {
         statusText = findViewById(R.id.statusText)
         glasaktigKnapp = findViewById(R.id.glasaktigKnapp)
         languageButton = findViewById(R.id.languageButton)
+        fontSizeSmallButton = findViewById(R.id.fontSizeSmallButton)
+        fontSizeMediumButton = findViewById(R.id.fontSizeMediumButton)
+        fontSizeLargeButton = findViewById(R.id.fontSizeLargeButton)
+        fontSizeExtraLargeButton = findViewById(R.id.fontSizeExtraLargeButton)
         
         // Make textDisplay always selectable for copying
         textDisplay.setTextIsSelectable(true)
@@ -103,8 +120,14 @@ class MainActivity : AppCompatActivity() {
         // Ladda sparat språk
         loadLanguage()
         
+        // Ladda sparad textstorlek
+        loadFontSize()
+        
         // Update language button text to show current language
         updateLanguageButtonText()
+        
+        // Apply font size
+        applyFontSize()
 
         // Kontrollera om taligenkänning är tillgänglig
         if (!SpeechRecognizer.isRecognitionAvailable(this)) {
@@ -156,6 +179,23 @@ class MainActivity : AppCompatActivity() {
         // Language button
         languageButton.setOnClickListener {
             toggleLanguage()
+        }
+        
+        // Font size buttons
+        fontSizeSmallButton.setOnClickListener {
+            setFontSize(FontSize.SMALL)
+        }
+        
+        fontSizeMediumButton.setOnClickListener {
+            setFontSize(FontSize.MEDIUM)
+        }
+        
+        fontSizeLargeButton.setOnClickListener {
+            setFontSize(FontSize.LARGE)
+        }
+        
+        fontSizeExtraLargeButton.setOnClickListener {
+            setFontSize(FontSize.EXTRA_LARGE)
         }
         
         // Add TextWatcher to detect manual editing
@@ -305,6 +345,60 @@ class MainActivity : AppCompatActivity() {
         
         // Recreate activity to apply language changes to all views
         recreate()
+    }
+    
+    // Font size management
+    private fun loadFontSize() {
+        val sparning = getSharedPreferences("horsel_interna", MODE_PRIVATE)
+        val savedSize = sparning.getString("font_size", "MEDIUM") ?: "MEDIUM"
+        currentFontSize = try {
+            FontSize.valueOf(savedSize)
+        } catch (e: IllegalArgumentException) {
+            FontSize.MEDIUM
+        }
+    }
+    
+    private fun saveFontSize() {
+        val sparning = getSharedPreferences("horsel_interna", MODE_PRIVATE)
+        sparning.edit().putString("font_size", currentFontSize.name).apply()
+    }
+    
+    private fun setFontSize(size: FontSize) {
+        currentFontSize = size
+        saveFontSize()
+        applyFontSize()
+        
+        Toast.makeText(this, getString(R.string.font_size_changed), Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun applyFontSize() {
+        // Apply font size to text display
+        textDisplay.textSize = currentFontSize.textSize
+        
+        // Apply proportional font size to status text
+        statusText.textSize = currentFontSize.statusSize
+        
+        // Update button visual feedback
+        updateFontSizeButtons()
+    }
+    
+    private fun updateFontSizeButtons() {
+        // Reset all buttons to inactive state
+        val inactiveColor = ContextCompat.getColorStateList(this, R.color.font_size_inactive)
+        val activeColor = ContextCompat.getColorStateList(this, R.color.font_size_active)
+        
+        fontSizeSmallButton.setTextColor(inactiveColor)
+        fontSizeMediumButton.setTextColor(inactiveColor)
+        fontSizeLargeButton.setTextColor(inactiveColor)
+        fontSizeExtraLargeButton.setTextColor(inactiveColor)
+        
+        // Highlight the active button
+        when (currentFontSize) {
+            FontSize.SMALL -> fontSizeSmallButton.setTextColor(activeColor)
+            FontSize.MEDIUM -> fontSizeMediumButton.setTextColor(activeColor)
+            FontSize.LARGE -> fontSizeLargeButton.setTextColor(activeColor)
+            FontSize.EXTRA_LARGE -> fontSizeExtraLargeButton.setTextColor(activeColor)
+        }
     }
 
     // Helper method to disable text editing during listening

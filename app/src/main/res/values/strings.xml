@@ -49,9 +49,21 @@
     <string name="language_switched_to_english">Language switched to English</string>
     <string name="language_switched_to_swedish">Språk bytt till Svenska</string>
     
+    <!-- Font size controls -->
+    <string name="font_size_label">Textstorlek:</string>
+    <string name="font_size_small">A-</string>
+    <string name="font_size_medium">A</string>
+    <string name="font_size_large">A+</string>
+    <string name="font_size_extra_large">A++</string>
+    <string name="font_size_changed">Textstorlek ändrad</string>
+    
     <!-- Accessibility descriptions -->
     <string name="accessibility_language_button">Växla språk mellan svenska och engelska</string>
     <string name="accessibility_mic_button">Starta eller stoppa taligenkänning</string>
     <string name="accessibility_clear_button">Rensa text</string>
     <string name="accessibility_theme_button">Växla mellan ljust och mörkt läge</string>
+    <string name="accessibility_font_size_small">Liten textstorlek</string>
+    <string name="accessibility_font_size_medium">Medium textstorlek</string>
+    <string name="accessibility_font_size_large">Stor textstorlek</string>
+    <string name="accessibility_font_size_extra_large">Extra stor textstorlek</string>
 </resources>
