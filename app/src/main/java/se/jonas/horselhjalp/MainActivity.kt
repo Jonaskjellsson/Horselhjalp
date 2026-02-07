@@ -34,11 +34,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var languageButton: Button
     
     private var speechRecognizer: SpeechRecognizer? = null
-    private var isListening = false
+    @Volatile private var isListening = false
     private var recognizedText = StringBuilder()
     private var currentLanguage = "sv-SE" // Default to Swedish
     private var isManualEditing = false // Flag to track if user is manually editing
     private var isProgrammaticUpdate = false // Flag to track programmatic text updates
+    @Volatile private var isDestroyed = false // Flag to track if activity is being destroyed
     
     // Auto-pause after silence variables
     private var silenceStartTime: Long? = null
@@ -324,6 +325,8 @@ class MainActivity : AppCompatActivity() {
     
     // Check silence duration and auto-pause if needed
     private fun checkSilenceDuration() {
+        if (isDestroyed) return
+        
         val currentSilenceStart = silenceStartTime
         if (currentSilenceStart != null) {
             val currentTime = System.currentTimeMillis()
@@ -334,9 +337,9 @@ class MainActivity : AppCompatActivity() {
                 silenceStartTime = null
                 
                 // Restart automatically after a short delay if not manually stopped
-                if (!manuallyStopped) {
+                if (!manuallyStopped && !isDestroyed) {
                     val restartRunnable = Runnable {
-                        if (!manuallyStopped && !isListening) {
+                        if (!manuallyStopped && !isListening && !isDestroyed) {
                             startListening()
                         }
                     }
@@ -348,13 +351,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupSpeechRecognizer() {
+        // Clean up any existing recognizer first
+        try {
+            speechRecognizer?.destroy()
+        } catch (e: Exception) {
+            // Ignore exceptions during cleanup
+        }
+        
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
         speechRecognizer?.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {
+                if (isDestroyed) return
                 statusText.text = getString(R.string.status_listening)
             }
 
             override fun onBeginningOfSpeech() {
+                if (isDestroyed) return
                 statusText.text = getString(R.string.status_speech_detected)
             }
 
@@ -380,6 +392,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onError(error: Int) {
+                if (isDestroyed) return
+                
                 val errorMessage = when (error) {
                     SpeechRecognizer.ERROR_AUDIO -> getString(R.string.error_audio)
                     SpeechRecognizer.ERROR_CLIENT -> getString(R.string.error_client)
@@ -398,6 +412,7 @@ class MainActivity : AppCompatActivity() {
                 
                 // Stop silence check handler
                 silenceCheckHandler.removeCallbacks(silenceCheckRunnable)
+                autoRestartRunnable?.let { silenceCheckHandler.removeCallbacks(it) }
                 
                 // Re-enable editing after error
                 enableTextEditing()
@@ -412,6 +427,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onResults(results: Bundle?) {
+                if (isDestroyed) return
+                
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
                     val text = matches[0]
@@ -436,6 +453,7 @@ class MainActivity : AppCompatActivity() {
                 
                 // Stop silence check handler
                 silenceCheckHandler.removeCallbacks(silenceCheckRunnable)
+                autoRestartRunnable?.let { silenceCheckHandler.removeCallbacks(it) }
                 
                 // Re-enable editing after final results
                 enableTextEditing()
@@ -444,6 +462,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onPartialResults(partialResults: Bundle?) {
+                if (isDestroyed) return
+                
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
                     // Update status text with partial results
@@ -473,6 +493,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startListening() {
+        // Prevent starting if already listening or if activity is being destroyed
+        if (isListening || isDestroyed) {
+            return
+        }
+        
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.RECORD_AUDIO
@@ -480,6 +505,11 @@ class MainActivity : AppCompatActivity() {
         ) {
             requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
             return
+        }
+        
+        // Ensure we have a valid SpeechRecognizer instance
+        if (speechRecognizer == null) {
+            setupSpeechRecognizer()
         }
 
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
@@ -496,33 +526,60 @@ class MainActivity : AppCompatActivity() {
         silenceStartTime = null
         manuallyStopped = false
         
+        // Set listening flag BEFORE starting recognizer to prevent race conditions
+        isListening = true
+        updateMicButton()
+        statusText.text = getString(R.string.status_preparing)
+        
         // Start silence check handler
         silenceCheckHandler.postDelayed(silenceCheckRunnable, SILENCE_CHECK_INTERVAL_MS)
         
         // Make textDisplay non-editable during listening but keep it selectable for copying
         disableTextEditing()
         
-        speechRecognizer?.startListening(intent)
-        isListening = true
-        updateMicButton()
-        statusText.text = getString(R.string.status_preparing)
+        try {
+            speechRecognizer?.startListening(intent)
+        } catch (e: Exception) {
+            // If starting fails, reset state
+            isListening = false
+            updateMicButton()
+            statusText.text = getString(R.string.error_unknown)
+            enableTextEditing()
+            silenceCheckHandler.removeCallbacks(silenceCheckRunnable)
+        }
     }
 
     private fun stopListening() {
-        speechRecognizer?.stopListening()
+        // Save destroyed state for checking
+        val wasDestroyed = isDestroyed
+        
+        // Prevent stopping if not listening
+        if (!isListening) {
+            return
+        }
+        
         isListening = false
         manuallyStopped = true
         silenceStartTime = null
         
-        // Stop silence check handler
+        // Stop silence check handler - remove ALL callbacks
         silenceCheckHandler.removeCallbacks(silenceCheckRunnable)
         autoRestartRunnable?.let { silenceCheckHandler.removeCallbacks(it) }
         
-        // Re-enable editing after listening stops
-        enableTextEditing()
+        // Only update UI if activity is not being destroyed
+        if (!wasDestroyed) {
+            // Re-enable editing after listening stops
+            enableTextEditing()
+            
+            updateMicButton()
+            statusText.text = getString(R.string.status_stopped)
+        }
         
-        updateMicButton()
-        statusText.text = getString(R.string.status_stopped)
+        try {
+            speechRecognizer?.stopListening()
+        } catch (e: Exception) {
+            // Ignore exceptions when stopping
+        }
     }
 
     private fun updateMicButton() {
@@ -537,8 +594,20 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        silenceCheckHandler.removeCallbacks(silenceCheckRunnable)
-        autoRestartRunnable?.let { silenceCheckHandler.removeCallbacks(it) }
-        speechRecognizer?.destroy()
+        
+        // Set destroyed flag first to prevent callbacks from executing
+        isDestroyed = true
+        isListening = false
+        
+        // Remove all pending callbacks before destroying
+        silenceCheckHandler.removeCallbacksAndMessages(null)
+        
+        // Destroy speech recognizer
+        try {
+            speechRecognizer?.destroy()
+            speechRecognizer = null
+        } catch (e: Exception) {
+            // Ignore exceptions during cleanup
+        }
     }
 }
