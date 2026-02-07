@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statusText: TextView
     private lateinit var glasaktigKnapp: Button
     private lateinit var languageButton: Button
+    private lateinit var fontSizeButton: Button
     
     private var speechRecognizer: SpeechRecognizer? = null
     @Volatile private var isListening = false
@@ -57,12 +58,16 @@ class MainActivity : AppCompatActivity() {
     
     // Custom persistence using XOR encoding to discourage manual preference editing
     private var ogonmiljotillstand = 0
+    private var textstorleksindex = 1 // Default to medium (32sp), index 0-3 for 24sp, 32sp, 40sp, 48sp
     
     companion object {
         private const val SILENCE_CHECK_INTERVAL_MS = 500L
         private const val SILENCE_THRESHOLD_MS = 5000L
         private const val AUTO_RESTART_DELAY_MS = 1000L
         private const val SILENCE_RMS_THRESHOLD_DB = -40f
+        
+        // Font size options in sp
+        private val FONT_SIZES = arrayOf(24f, 32f, 40f, 48f)
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -92,6 +97,7 @@ class MainActivity : AppCompatActivity() {
         statusText = findViewById(R.id.statusText)
         glasaktigKnapp = findViewById(R.id.glasaktigKnapp)
         languageButton = findViewById(R.id.languageButton)
+        fontSizeButton = findViewById(R.id.fontSizeButton)
         
         // Make textDisplay always selectable for copying
         textDisplay.setTextIsSelectable(true)
@@ -99,6 +105,10 @@ class MainActivity : AppCompatActivity() {
         // Ladda sparad ögonmiljö med XOR-nyckel
         hamtaOgonmiljotillstand()
         tillampaNuvarandeOgonmiljo()
+        
+        // Ladda sparad textstorlek
+        hamtaTextstorleksindex()
+        tillampaNuvarandeTextstorlek()
         
         // Ladda sparat språk
         loadLanguage()
@@ -156,6 +166,11 @@ class MainActivity : AppCompatActivity() {
         // Language button
         languageButton.setOnClickListener {
             toggleLanguage()
+        }
+        
+        // Font size button
+        fontSizeButton.setOnClickListener {
+            vaxlaTextstorlek()
         }
         
         // Add TextWatcher to detect manual editing
@@ -305,6 +320,45 @@ class MainActivity : AppCompatActivity() {
         
         // Recreate activity to apply language changes to all views
         recreate()
+    }
+    
+    // Font size functionality
+    private fun hamtaTextstorleksindex() {
+        val sparning = getSharedPreferences("horsel_interna", MODE_PRIVATE)
+        // Default stored value 0x2B decodes to index 1 (32sp)
+        val kodadVarde = sparning.getInt("textstorlek_xor", 0x2B)
+        textstorleksindex = kodadVarde xor 0x2A
+        // Ensure index is valid (0-3)
+        if (textstorleksindex !in 0..3) {
+            textstorleksindex = 1
+        }
+    }
+    
+    private fun sparaTextstorleksindex() {
+        val sparning = getSharedPreferences("horsel_interna", MODE_PRIVATE)
+        val kodatVarde = textstorleksindex xor 0x2A
+        sparning.edit().putInt("textstorlek_xor", kodatVarde).apply()
+    }
+    
+    private fun vaxlaTextstorlek() {
+        // Cycle through font sizes: 0 -> 1 -> 2 -> 3 -> 0
+        textstorleksindex = (textstorleksindex + 1) % FONT_SIZES.size
+        tillampaNuvarandeTextstorlek()
+        sparaTextstorleksindex()
+        
+        val meddelande = when (textstorleksindex) {
+            0 -> getString(R.string.font_size_small)
+            1 -> getString(R.string.font_size_medium)
+            2 -> getString(R.string.font_size_large)
+            3 -> getString(R.string.font_size_extra_large)
+            else -> getString(R.string.font_size_medium)
+        }
+        Toast.makeText(this, meddelande, Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun tillampaNuvarandeTextstorlek() {
+        val textSize = FONT_SIZES[textstorleksindex]
+        textDisplay.textSize = textSize
     }
 
     // Helper method to disable text editing during listening
