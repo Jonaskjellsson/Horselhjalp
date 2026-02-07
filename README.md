@@ -1,24 +1,24 @@
 # Hörselhjälp - Svenskt Tal till Text
 
-En enkel och tillgänglig Android-applikation för hörselskadade och synskadade som omvandlar svenskt tal till text i realtid.
+En enkel och tillgänglig Android-app för personer med hörselnedsättning. Appen omvandlar tal till text i realtid.
 
-## 🎯 Syfte
+## 🎯 Vem är appen för?
 
-Denna app är speciellt utformad för personer med:
-- Hörselnedsättning
-- Synnedsättning
-- Personer som behöver textning av tal
+Denna app är speciellt utformad för:
+- Personer med hörselnedsättning
+- Personer med synnedsättning
+- Alla som behöver textning av tal
 
-Appen använder Androids inbyggda taligenkänning för att omvandla svenskt tal till text som visas med stora, lättlästa bokstäver på skärmen.
+Appen använder Androids inbyggda taligenkänning för att omvandla tal till text med stora, lättlästa bokstäver.
 
 ## ✨ Funktioner
 
-- **Svenskt tal till text**: Omvandlar svenska tal till text i realtid
-- **Stora, lättlästa bokstäver**: Text visas i stora storlekar för bättre läsbarhet
-- **Hög kontrast**: Svart text på vit bakgrund för optimal läsbarhet
-- **Enkel användning**: Stora knappar och tydlig design
+- **Tal till text i realtid**: Omvandlar svenskt eller engelskt tal till text direkt
+- **Stora bokstäver**: Text visas i stora storlekar (32sp) för bättre läsbarhet
+- **Hög kontrast**: Svart text på vit bakgrund ger optimal läsbarhet
+- **Enkla knappar**: Stora knappar med tydliga symboler
 - **Tillgänglig**: Fungerar med Android TalkBack för synskadade
-- **Ingen internetanslutning krävs**: Använder enhetens taligenkänning
+- **Offline-läge**: Fungerar utan internet efter att språkdata laddats ner första gången
 
 ## 📱 Snabbstart - Ladda ner färdig APK
 
@@ -71,23 +71,25 @@ Bygg och hitta APK automatiskt:
 ./build-and-find-apk.sh
 ```
 
-## 🎮 Användning
+## 🎮 Så här använder du appen
 
 1. **Starta appen** - Öppna Hörselhjälp på din Android-enhet
-2. **Ge tillstånd** - Tillåt appen att använda mikrofonen (första gången)
-3. **Tryck på "STARTA TAL"** - Börja tala på svenska
-4. **Se texten** - Din talade text visas direkt på skärmen
-5. **Tryck på "STOPPA"** - När du vill pausa inspelningen
-6. **Tryck på "RENSA TEXT"** - För att rensa skärmen
+2. **Ge tillstånd** - Tillåt appen att använda mikrofonen (första gången du startar)
+3. **Tryck på "🎤 STARTA TAL"** - Börja tala på svenska eller engelska
+4. **Se texten** - Din talade text visas direkt på skärmen med stora bokstäver
+5. **Tryck på "🛑 STOPPA"** - När du vill pausa inspelningen
+6. **Tryck på "🗑️ RENSA TEXT"** - För att rensa hela skärmen
+7. **Tryck på "🔄 LÄGEVÄXLING"** - För att byta mellan ljust och mörkt läge
+8. **Tryck på "🌐 SPRÅK"** - För att växla mellan svenska och engelska
 
 ## 🏗️ Teknisk information
 
-### Arkitektur
+### Teknologi
 
-- **Native Kotlin implementation**: Ingen WebView, endast ren Android-kod
+- **Kotlin**: Modern Android-utveckling
 - **Android SpeechRecognizer API**: Använder enhetens inbyggda taligenkänning
-- **Material Design**: Enkelt och tillgängligt gränssnitt
-- **Svenska språket**: Konfigurerad för svensk taligenkänning (sv-SE)
+- **Material Design 3**: Modernt och tillgängligt gränssnitt
+- **Språkstöd**: Svenska (sv-SE) och Engelska (en-US)
 
 ### Projektstruktur
 
@@ -113,36 +115,41 @@ Hörselhjälp/
 
 ## ♿ Tillgänglighet
 
-Appen är utformad för att vara maximalt tillgänglig:
+Appen är utformad för maximal tillgänglighet:
 
-- **Stora textstorlekar**: 24sp-32sp för optimal läsbarhet
-- **Hög kontrast**: Svart text på vit bakgrund
-- **TalkBack-kompatibel**: Alla element har contentDescription
-- **Stora knappar**: 60-80dp höjd för enkel tryckning
+- **Stora textstorlekar**: 32sp för huvudtext, 26sp för status
+- **Hög kontrast**: Svart text på vit bakgrund (ljust läge)
+- **Mörkt läge**: Vit text på svart bakgrund för ögonkomfort
+- **TalkBack-stöd**: Alla element har beskrivningar för skärmläsare
+- **Stora knappar**: 50dp höjd för enkel tryckning
+- **Tydliga symboler**: Alla knappar har emoji-ikoner för visuell vägledning
 - **Tydlig feedback**: Statusmeddelanden visar vad som händer
 
 ## 🔧 Felsökning
 
-### "Taligenkänning är inte tillgänglig"
+### Problem: "Taligenkänning är inte tillgänglig"
 
-Om du får detta meddelande:
+**Lösning:**
 1. Kontrollera att din Android-enhet har Google-appen installerad
 2. Kontrollera att svenska språket är installerat i Google-appen
-3. Gå till Inställningar → Appar → Google → Behörigheter och aktivera mikrofon
+3. Gå till: **Inställningar → Appar → Google → Behörigheter** och aktivera mikrofon
 
-### "Mikrofon-tillstånd krävs"
+### Problem: "Mikrofon-tillstånd krävs"
 
+**Lösning:**
 Appen behöver tillgång till mikrofonen för att fungera:
-1. Gå till Inställningar → Appar → Hörselhjälp
-2. Tryck på Behörigheter
-3. Aktivera Mikrofon
+1. Gå till: **Inställningar → Appar → Hörselhjälp**
+2. Tryck på **Behörigheter**
+3. Aktivera **Mikrofon**
 
-### Taligenkänningen fungerar inte
+### Problem: Taligenkänningen fungerar inte
 
-1. Kontrollera att du har internetanslutning (vissa enheter kräver det första gången)
+**Möjliga lösningar:**
+1. Kontrollera att du har internetanslutning (kan krävas första gången)
 2. Tala tydligt och inte för snabbt
 3. Kontrollera att det inte är för mycket bakgrundsljud
-4. Starta om appen
+4. Håll telefonen närmare din mun
+5. Starta om appen
 
 ## 📄 Licens
 
