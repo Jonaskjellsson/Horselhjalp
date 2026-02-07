@@ -17,6 +17,8 @@
     <color name="button_stop">#F44336</color>
     <color name="button_clear">#FF9800</color>
     <color name="button_text">#FFFFFF</color>
+    <color name="font_size_active">#0061A4</color>
+    <color name="font_size_inactive">#73777F</color>
     
     <!-- Glasaktighetsvaxlare (vitreous humor switcher) -->
     <color name="glasaktighet_kornhinna">#0749A8</color>

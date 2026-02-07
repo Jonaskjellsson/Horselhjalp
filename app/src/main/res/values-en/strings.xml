@@ -49,9 +49,21 @@
     <string name="language_switched_to_english">Language switched to English</string>
     <string name="language_switched_to_swedish">Språk bytt till Svenska</string>
     
+    <!-- Font size controls -->
+    <string name="font_size_label">Font size:</string>
+    <string name="font_size_small">A-</string>
+    <string name="font_size_medium">A</string>
+    <string name="font_size_large">A+</string>
+    <string name="font_size_extra_large">A++</string>
+    <string name="font_size_changed">Font size changed</string>
+    
     <!-- Accessibility descriptions -->
     <string name="accessibility_language_button">Toggle language between Swedish and English</string>
     <string name="accessibility_mic_button">Start or stop speech recognition</string>
     <string name="accessibility_clear_button">Clear text</string>
     <string name="accessibility_theme_button">Toggle between light and dark mode</string>
+    <string name="accessibility_font_size_small">Small font size</string>
+    <string name="accessibility_font_size_medium">Medium font size</string>
+    <string name="accessibility_font_size_large">Large font size</string>
+    <string name="accessibility_font_size_extra_large">Extra large font size</string>
 </resources>
