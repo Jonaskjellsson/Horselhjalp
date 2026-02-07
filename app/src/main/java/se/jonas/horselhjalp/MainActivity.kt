@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
     private var currentLanguage = "sv-SE" // Default to Swedish
     private var isManualEditing = false // Flag to track if user is manually editing
     private var isProgrammaticUpdate = false // Flag to track programmatic text updates
-    private var isDestroyed = false // Flag to track if activity is being destroyed
+    @Volatile private var isDestroyed = false // Flag to track if activity is being destroyed
     
     // Auto-pause after silence variables
     private var silenceStartTime: Long? = null
@@ -77,9 +77,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        // Reset destroyed flag
-        isDestroyed = false
         
         // Apply Material 3 dynamic colors (Android 12+)
         // This enables theming based on the user's wallpaper
@@ -355,7 +352,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupSpeechRecognizer() {
         // Clean up any existing recognizer first
-        speechRecognizer?.destroy()
+        try {
+            speechRecognizer?.destroy()
+        } catch (e: Exception) {
+            // Ignore exceptions during cleanup
+        }
         
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
         speechRecognizer?.setRecognitionListener(object : RecognitionListener {
@@ -549,8 +550,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopListening() {
-        // Prevent stopping if not listening or if activity is being destroyed
-        if (!isListening || isDestroyed) {
+        // Save destroyed state for checking
+        val wasDestroyed = isDestroyed
+        
+        // Prevent stopping if not listening
+        if (!isListening) {
             return
         }
         
@@ -562,11 +566,14 @@ class MainActivity : AppCompatActivity() {
         silenceCheckHandler.removeCallbacks(silenceCheckRunnable)
         autoRestartRunnable?.let { silenceCheckHandler.removeCallbacks(it) }
         
-        // Re-enable editing after listening stops
-        enableTextEditing()
-        
-        updateMicButton()
-        statusText.text = getString(R.string.status_stopped)
+        // Only update UI if activity is not being destroyed
+        if (!wasDestroyed) {
+            // Re-enable editing after listening stops
+            enableTextEditing()
+            
+            updateMicButton()
+            statusText.text = getString(R.string.status_stopped)
+        }
         
         try {
             speechRecognizer?.stopListening()
