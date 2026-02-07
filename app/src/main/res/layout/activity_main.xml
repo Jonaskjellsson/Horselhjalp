@@ -9,13 +9,26 @@
     android:background="@color/background"
     tools:context=".MainActivity">
     
-    <!-- Header with language switcher -->
+    <!-- Header with language and font size buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="end"
         android:paddingBottom="8dp">
+        
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/fontSizeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="@string/font_size_button"
+            android:textSize="12sp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_marginEnd="4dp"
+            app:backgroundTint="@color/button_clear"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:contentDescription="@string/accessibility_font_size_button" />
         
         <com.google.android.material.button.MaterialButton
             android:id="@+id/languageButton"
