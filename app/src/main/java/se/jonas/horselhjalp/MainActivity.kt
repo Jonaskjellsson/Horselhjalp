@@ -325,7 +325,7 @@ class MainActivity : AppCompatActivity() {
     // Font size functionality
     private fun hamtaTextstorleksindex() {
         val sparning = getSharedPreferences("horsel_interna", MODE_PRIVATE)
-        // Default stored value 0x2B decodes to index 1 (32sp)
+        // Default stored value 0x2B (which XORs with 0x2A to give index 1 = 32sp)
         val kodadVarde = sparning.getInt("textstorlek_xor", 0x2B)
         textstorleksindex = kodadVarde xor 0x2A
         // Ensure index is valid (0-3)
@@ -346,12 +346,12 @@ class MainActivity : AppCompatActivity() {
         tillampaNuvarandeTextstorlek()
         sparaTextstorleksindex()
         
+        // hamtaTextstorleksindex ensures textstorleksindex is always 0-3
         val meddelande = when (textstorleksindex) {
             0 -> getString(R.string.font_size_small)
             1 -> getString(R.string.font_size_medium)
             2 -> getString(R.string.font_size_large)
-            3 -> getString(R.string.font_size_extra_large)
-            else -> getString(R.string.font_size_medium)
+            else -> getString(R.string.font_size_extra_large) // index 3
         }
         Toast.makeText(this, meddelande, Toast.LENGTH_SHORT).show()
     }
