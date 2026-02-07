@@ -18,7 +18,7 @@ Appen använder Androids inbyggda taligenkänning för att omvandla tal till tex
 - **Hög kontrast**: Svart text på vit bakgrund ger optimal läsbarhet
 - **Enkla knappar**: Stora knappar med tydliga symboler
 - **Tillgänglig**: Fungerar med Android TalkBack för synskadade
-- **Fungerar offline**: Använder enhetens inbyggda taligenkänning (ingen internetanslutning krävs efter första användningen)
+- **Offline-läge**: Fungerar utan internet efter att språkdata laddats ner första gången
 
 ## 📱 Snabbstart - Ladda ner färdig APK
 

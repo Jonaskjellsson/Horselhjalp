@@ -18,7 +18,7 @@
     <string name="error_client">Fel i taligenkänning. Försök igen</string>
     <string name="error_permissions">Mikrofon-tillstånd saknas. Ge behörighet i inställningar</string>
     <string name="error_network">Internet krävs. Kontrollera anslutningen</string>
-    <string name="error_network_timeout">Internet är för långsamt. Försök igen</string>
+    <string name="error_network_timeout">Anslutningen tog för lång tid. Försök igen</string>
     <string name="error_no_match">Inget tal hittades. Tala tydligare</string>
     <string name="error_busy">Taligenkänning är upptagen. Vänta ett ögonblick</string>
     <string name="error_server">Serverfel. Försök igen senare</string>

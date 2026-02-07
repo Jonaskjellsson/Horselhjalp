@@ -18,7 +18,7 @@
     <string name="error_client">Speech recognition error. Try again</string>
     <string name="error_permissions">Microphone permission missing. Grant permission in settings</string>
     <string name="error_network">Internet required. Check connection</string>
-    <string name="error_network_timeout">Internet too slow. Try again</string>
+    <string name="error_network_timeout">Connection timed out. Try again</string>
     <string name="error_no_match">No speech found. Speak more clearly</string>
     <string name="error_busy">Speech recognition busy. Wait a moment</string>
     <string name="error_server">Server error. Try again later</string>
