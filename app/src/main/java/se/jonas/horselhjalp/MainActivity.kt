@@ -562,6 +562,7 @@ class MainActivity : AppCompatActivity() {
 
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
+                    // Rengör partial – samma som i onResults
                     val partialText = matches[0]?.replace(Regex("\\s+"), " ")?.trim() ?: ""
                     if (partialText.isBlank()) return
 
@@ -572,20 +573,22 @@ class MainActivity : AppCompatActivity() {
                     currentUtterance.append(partialText)
 
                     if (!isManualEditing && partialText.isNotEmpty()) {
+                        // Bygg display: full permanent text + space (om behövs) + NYASTE partial (inte append!)
                         val displayText = buildString {
                             val prev = recognizedText.toString()
                             append(prev)
-                            // Lägg till space ENDAST om det behövs (inte alltid)
-                            if (prev.isNotEmpty() && !prev.endsWith(" ")) {
+                            // Lägg till space ENDAST om prev inte slutar med space och partial börjar med ord
+                            if (prev.isNotEmpty() && !prev.endsWith(" ") && !partialText.startsWith(" ")) {
                                 append(" ")
                             }
                             append(partialText)
                         }
+
                         isProgrammaticUpdate = true
                         textDisplay.setText(displayText)
                         isProgrammaticUpdate = false
 
-                        // Scrolla ner live
+                        // Scrolla ner för live-känsla
                         scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
                     }
                 }
