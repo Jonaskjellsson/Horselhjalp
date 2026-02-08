@@ -566,10 +566,11 @@ class MainActivity : AppCompatActivity() {
                 if (!matches.isNullOrEmpty()) {
                     val partialText = matches[0]?.replace(Regex("\\s+"), " ")?.trim() ?: ""
                     if (partialText.isNotBlank()) {
-                        // Visa BARA i statusText för live-feedback – INGEN uppdatering av textDisplay!
+                        // Visa bara i status-fältet live – INGEN uppdatering av huvudtexten!
                         statusText.text = getString(R.string.status_heard, partialText)
                     }
                 }
+                // Inget mer – ingen textDisplay.setText här längre!
             }
 
             override fun onEvent(eventType: Int, params: Bundle?) {
@@ -607,6 +608,11 @@ class MainActivity : AppCompatActivity() {
 
         // Reset manual editing flag when starting new listening session
         isManualEditing = false
+        
+        // Säkerställ att ny session triggas om det finns tidigare text
+        if (recognizedText.isNotEmpty()) {
+            isNewRecordingSession = true
+        }
         
         // Reset silence detection
         silenceStartTime = null
@@ -671,6 +677,8 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             // Ignore exceptions when stopping
         }
+        
+        isNewRecordingSession = true
     }
 
     private fun updateMicButton() {
