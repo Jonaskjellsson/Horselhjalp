@@ -471,11 +471,13 @@ class MainActivity : AppCompatActivity() {
                 if (isDestroyed) return
                 
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                if (!matches.isNullOrEmpty()) {
-                    val partial = matches[0]?.replace(MULTIPLE_SPACES_REGEX, " ")?.trim() ?: ""
-                    // Only update if the partial text has meaningfully changed
-                    if (partial.isNotBlank() && partial != lastPartialText) {
-                        lastPartialText = partial
+                val firstMatch = matches?.get(0) ?: ""
+                
+                // Only process if the partial text has changed (avoid unnecessary string operations)
+                if (firstMatch.isNotBlank() && firstMatch != lastPartialText) {
+                    val partial = firstMatch.replace(MULTIPLE_SPACES_REGEX, " ").trim()
+                    if (partial.isNotBlank()) {
+                        lastPartialText = firstMatch
                         statusText.text = getString(R.string.status_heard, partial)
                     }
                 }
@@ -543,7 +545,8 @@ class MainActivity : AppCompatActivity() {
             return
         }
         
-        // Set isNewSession for next recording (after manual stop)
+        // Set isNewSession for next recording to create paragraph break
+        // Only set if we have recognized text (otherwise there's nothing to separate)
         if (recognizedText.isNotEmpty()) {
             isNewSession = true
         }
