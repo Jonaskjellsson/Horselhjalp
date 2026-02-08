@@ -561,36 +561,38 @@ class MainActivity : AppCompatActivity() {
                 if (isDestroyed) return
 
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                if (!matches.isNullOrEmpty()) {
-                    // Rengör partial – samma som i onResults
-                    val partialText = matches[0]?.replace(Regex("\\s+"), " ")?.trim() ?: ""
-                    if (partialText.isBlank()) return
+                if (matches.isNullOrEmpty()) return
 
-                    statusText.text = getString(R.string.status_heard, partialText)
-                    
-                    // Update currentUtterance for onResults to use
-                    currentUtterance.clear()
-                    currentUtterance.append(partialText)
+                // Rengör partialText ordentligt (ta bort multipla spaces, trimma)
+                val partialText = matches[0]
+                    ?.replace(Regex("\\s+"), " ")
+                    ?.trim()
+                    ?: return
 
-                    if (!isManualEditing && partialText.isNotEmpty()) {
-                        // Bygg display: full permanent text + space (om behövs) + NYASTE partial (inte append!)
-                        val displayText = buildString {
-                            val prev = recognizedText.toString()
-                            append(prev)
-                            // Lägg till space ENDAST om prev inte slutar med space och partial börjar med ord
-                            if (prev.isNotEmpty() && !prev.endsWith(" ") && !partialText.startsWith(" ")) {
-                                append(" ")
-                            }
-                            append(partialText)
+                if (partialText.isBlank()) return
+
+                statusText.text = getString(R.string.status_heard, partialText)
+
+                if (!isManualEditing) {
+                    // Bygg display: recognizedText (permanent) + space (om behövs) + senaste partial (hela uttalet)
+                    val prevText = recognizedText.toString()
+                    val displayText = buildString {
+                        append(prevText)
+                        // Smart space: lägg till bara om det behövs
+                        if (prevText.isNotEmpty() && 
+                            !prevText.endsWith(" ") && 
+                            !partialText.startsWith(" ")) {
+                            append(" ")
                         }
-
-                        isProgrammaticUpdate = true
-                        textDisplay.setText(displayText)
-                        isProgrammaticUpdate = false
-
-                        // Scrolla ner för live-känsla
-                        scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
+                        append(partialText)
                     }
+
+                    isProgrammaticUpdate = true
+                    textDisplay.setText(displayText)
+                    isProgrammaticUpdate = false
+
+                    // Scrolla ner så man alltid ser slutet live
+                    scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
                 }
             }
 
