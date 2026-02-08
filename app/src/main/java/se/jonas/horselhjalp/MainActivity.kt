@@ -37,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     private var speechRecognizer: SpeechRecognizer? = null
     @Volatile private var isListening = false
     private var recognizedText = StringBuilder()
+    private var currentUtterance = StringBuilder() // Holds ONLY the current utterance being spoken
     private var currentLanguage = "sv-SE" // Default to Swedish
     private var isManualEditing = false // Flag to track if user is manually editing
     private var isProgrammaticUpdate = false // Flag to track programmatic text updates
@@ -392,6 +393,11 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.status_silence_paused), Toast.LENGTH_SHORT).show()
                 silenceStartTime = null
                 
+                // Mark that next recording will be a new session (for separator after silence)
+                if (recognizedText.isNotEmpty()) {
+                    isNewRecordingSession = true
+                }
+                
                 // Restart automatically after a short delay if not manually stopped
                 if (!manuallyStopped && !isDestroyed) {
                     val restartRunnable = Runnable {
@@ -424,6 +430,8 @@ class MainActivity : AppCompatActivity() {
             override fun onBeginningOfSpeech() {
                 if (isDestroyed) return
                 statusText.text = getString(R.string.status_speech_detected)
+                // Clear current utterance at the beginning of new speech
+                currentUtterance.clear()
             }
 
             override fun onRmsChanged(rmsdB: Float) {
@@ -487,12 +495,12 @@ class MainActivity : AppCompatActivity() {
                 
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
-                    // Get the recognized text and remove any newline characters
+                    // Get the recognized text and clean it
                     val rawText = matches[0]
                     // Replace all whitespace sequences (including newlines) with a single space
-                    val text = rawText.replace(Regex("\\s+"), " ").trim()
+                    val cleanedText = rawText.replace(Regex("\\s+"), " ").trim()
                     
-                    if (text.isNotEmpty()) {
+                    if (cleanedText.isNotEmpty()) {
                         // Add separator based on whether this is a new recording session
                         if (recognizedText.isNotEmpty()) {
                             if (isNewRecordingSession) {
@@ -504,7 +512,8 @@ class MainActivity : AppCompatActivity() {
                                 recognizedText.append(" ")
                             }
                         }
-                        recognizedText.append(text)
+                        // Append the cleaned text to recognizedText
+                        recognizedText.append(cleanedText)
                         isProgrammaticUpdate = true
                         textDisplay.setText(recognizedText.toString())
                         isProgrammaticUpdate = false
@@ -516,6 +525,9 @@ class MainActivity : AppCompatActivity() {
                         
                         statusText.text = getString(R.string.status_complete)
                     }
+                    
+                    // Clear currentUtterance after final results are processed
+                    currentUtterance.clear()
                 }
                 isListening = false
                 silenceStartTime = null
@@ -538,20 +550,24 @@ class MainActivity : AppCompatActivity() {
                     // Clean the partial result text by removing newlines and extra whitespace
                     val partialText = matches[0]?.replace(Regex("\\s+"), " ")?.trim() ?: ""
                     
+                    // REPLACE (clear + append) currentUtterance with the latest partial result
+                    currentUtterance.clear()
+                    currentUtterance.append(partialText)
+                    
                     // Update status text with partial results
                     statusText.text = getString(R.string.status_heard, partialText)
                     
                     // Show live best match in textDisplay only if user is not manually editing
                     if (!isManualEditing && partialText.isNotEmpty()) {
-                        // Build the display text without clearing the entire EditText
-                        // NOTE: Partial results should NEVER add \n\n, only spaces within same session
+                        // Build the display text showing recognizedText + current utterance
+                        // NO \n within same session - only spaces
                         val displayText = buildString {
                             append(recognizedText.toString())
                             if (recognizedText.isNotEmpty()) {
-                                // Only add space for partial results, never \n\n
+                                // Only add space within same session, never \n\n
                                 append(" ")
                             }
-                            append(partialText)
+                            append(currentUtterance.toString())
                         }
                         isProgrammaticUpdate = true
                         textDisplay.setText(displayText)
@@ -595,6 +611,9 @@ class MainActivity : AppCompatActivity() {
 
         // Reset manual editing flag when starting new listening session
         isManualEditing = false
+        
+        // Clear currentUtterance when starting new listening session
+        currentUtterance.clear()
         
         // Reset silence detection
         silenceStartTime = null
