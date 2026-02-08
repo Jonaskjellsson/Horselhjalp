@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
     private var isManualEditing = false // Flag to track if user is manually editing
     private var isProgrammaticUpdate = false // Flag to track programmatic text updates
     @Volatile private var isDestroyed = false // Flag to track if activity is being destroyed
+    private var isNewRecordingSession = false // Flag to track if this is a new recording session after manual stop
     
     // Auto-pause after silence variables
     private var silenceStartTime: Long? = null
@@ -156,6 +157,7 @@ class MainActivity : AppCompatActivity() {
             isProgrammaticUpdate = false
             statusText.text = getString(R.string.status_text_cleared)
             isManualEditing = false // Reset manual editing flag
+            isNewRecordingSession = false // Reset new recording session flag
         }
         
         // Glasaktighetsvaxlare knapp - unique toggle logic
@@ -485,22 +487,34 @@ class MainActivity : AppCompatActivity() {
                 
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
-                    val text = matches[0]
-                    // Add space separator before each recognized result if there's existing text
-                    if (recognizedText.isNotEmpty()) {
-                        recognizedText.append(" ")
-                    }
-                    recognizedText.append(text)
-                    isProgrammaticUpdate = true
-                    textDisplay.setText(recognizedText.toString())
-                    isProgrammaticUpdate = false
+                    // Get the recognized text and remove any newline characters
+                    val rawText = matches[0]
+                    val text = rawText.replace("\n", " ").trim()
                     
-                    // Scrolla ner automatiskt
-                    scrollView.post {
-                        scrollView.fullScroll(ScrollView.FOCUS_DOWN)
+                    if (text.isNotEmpty()) {
+                        // Add separator based on whether this is a new recording session
+                        if (recognizedText.isNotEmpty()) {
+                            if (isNewRecordingSession) {
+                                // Add double newline for new recording session
+                                recognizedText.append("\n\n")
+                                isNewRecordingSession = false
+                            } else {
+                                // Add single space within same recording session
+                                recognizedText.append(" ")
+                            }
+                        }
+                        recognizedText.append(text)
+                        isProgrammaticUpdate = true
+                        textDisplay.setText(recognizedText.toString())
+                        isProgrammaticUpdate = false
+                        
+                        // Scrolla ner automatiskt
+                        scrollView.post {
+                            scrollView.fullScroll(ScrollView.FOCUS_DOWN)
+                        }
+                        
+                        statusText.text = getString(R.string.status_complete)
                     }
-                    
-                    statusText.text = getString(R.string.status_complete)
                 }
                 isListening = false
                 silenceStartTime = null
@@ -520,18 +534,25 @@ class MainActivity : AppCompatActivity() {
                 
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
+                    // Clean the partial result text by removing newlines
+                    val partialText = matches[0]?.replace("\n", " ")?.trim() ?: ""
+                    
                     // Update status text with partial results
-                    statusText.text = getString(R.string.status_heard, matches[0])
+                    statusText.text = getString(R.string.status_heard, partialText)
                     
                     // Show live best match in textDisplay only if user is not manually editing
-                    if (!isManualEditing) {
+                    if (!isManualEditing && partialText.isNotEmpty()) {
                         // Build the display text without clearing the entire EditText
                         val displayText = buildString {
                             append(recognizedText.toString())
                             if (recognizedText.isNotEmpty()) {
-                                append(" ")
+                                if (isNewRecordingSession) {
+                                    append("\n\n")
+                                } else {
+                                    append(" ")
+                                }
                             }
-                            append(matches[0] ?: "")
+                            append(partialText)
                         }
                         isProgrammaticUpdate = true
                         textDisplay.setText(displayText)
@@ -615,6 +636,11 @@ class MainActivity : AppCompatActivity() {
         isListening = false
         manuallyStopped = true
         silenceStartTime = null
+        
+        // Mark that the next recording will be a new session (for separator)
+        if (recognizedText.isNotEmpty()) {
+            isNewRecordingSession = true
+        }
         
         // Stop silence check handler - remove ALL callbacks
         silenceCheckHandler.removeCallbacks(silenceCheckRunnable)
