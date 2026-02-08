@@ -439,7 +439,7 @@ class MainActivity : AppCompatActivity() {
                 statusText.text = getString(R.string.status_speech_detected)
                 // Reset silence timer
                 silenceStartTime = null
-                // Tvinga isNewRecordingSession = false inom session
+                // Force reset of isNewRecordingSession within session
                 isNewRecordingSession = false
             }
 
@@ -525,8 +525,12 @@ class MainActivity : AppCompatActivity() {
                         }
                         recognizedText.append(cleanedFinal)
 
-                        // Extra säkerhet: Normalisera hela strängen
-                        val normalized = recognizedText.toString().replace(Regex("\\s+"), " ").replace("\n ", "\n").trim()
+                        // Extra safety: Normalize entire string - preserve double newlines but clean up spaces
+                        val normalized = recognizedText.toString()
+                            .replace(Regex("[ \\t]+"), " ")  // Replace multiple spaces/tabs with single space
+                            .replace(Regex("\n +"), "\n")    // Remove spaces after newlines
+                            .replace(Regex(" +\n"), "\n")    // Remove spaces before newlines
+                            .trim()
                         recognizedText.clear()
                         recognizedText.append(normalized)
 
@@ -541,7 +545,7 @@ class MainActivity : AppCompatActivity() {
                         
                         statusText.text = getString(R.string.status_complete)
                         
-                        // Extra reset
+                        // Extra reset to ensure flag is cleared
                         isNewRecordingSession = false
                     }
                 }
