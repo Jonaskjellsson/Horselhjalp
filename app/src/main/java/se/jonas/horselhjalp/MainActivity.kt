@@ -498,13 +498,9 @@ class MainActivity : AppCompatActivity() {
                     // Get the recognized text and clean it
                     val rawText = matches[0]
                     // Replace all whitespace sequences (including newlines) with a single space
-                    val text = rawText.replace(Regex("\\s+"), " ").trim()
+                    val cleanedText = rawText.replace(Regex("\\s+"), " ").trim()
                     
-                    // Update currentUtterance with the final result
-                    currentUtterance.clear()
-                    currentUtterance.append(text)
-                    
-                    if (currentUtterance.isNotEmpty()) {
+                    if (cleanedText.isNotEmpty()) {
                         // Add separator based on whether this is a new recording session
                         if (recognizedText.isNotEmpty()) {
                             if (isNewRecordingSession) {
@@ -516,8 +512,8 @@ class MainActivity : AppCompatActivity() {
                                 recognizedText.append(" ")
                             }
                         }
-                        // Append currentUtterance (not matches[0] directly!)
-                        recognizedText.append(currentUtterance.toString())
+                        // Append the cleaned text to recognizedText
+                        recognizedText.append(cleanedText)
                         isProgrammaticUpdate = true
                         textDisplay.setText(recognizedText.toString())
                         isProgrammaticUpdate = false
@@ -530,7 +526,7 @@ class MainActivity : AppCompatActivity() {
                         statusText.text = getString(R.string.status_complete)
                     }
                     
-                    // Clear currentUtterance after appending to recognizedText
+                    // Clear currentUtterance after final results are processed
                     currentUtterance.clear()
                 }
                 isListening = false
