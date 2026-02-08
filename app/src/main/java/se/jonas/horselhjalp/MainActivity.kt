@@ -490,7 +490,7 @@ class MainActivity : AppCompatActivity() {
                     if (recognizedText.isNotEmpty() && !recognizedText.endsWith(" ")) {
                         recognizedText.append(" ")
                     }
-                    recognizedText.append(text)
+                    recognizedText.append(text).append(" ")
                     isProgrammaticUpdate = true
                     textDisplay.setText(recognizedText.toString())
                     isProgrammaticUpdate = false
