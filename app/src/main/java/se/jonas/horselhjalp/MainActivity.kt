@@ -562,15 +562,8 @@ class MainActivity : AppCompatActivity() {
             override fun onPartialResults(partialResults: Bundle?) {
                 if (isDestroyed) return
 
-                val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                if (!matches.isNullOrEmpty()) {
-                    val partialText = matches[0]?.replace(Regex("\\s+"), " ")?.trim() ?: ""
-                    if (partialText.isNotBlank()) {
-                        // Visa bara i status-fältet live – INGEN uppdatering av huvudtexten!
-                        statusText.text = getString(R.string.status_heard, partialText)
-                    }
-                }
-                // Inget mer – ingen textDisplay.setText här längre!
+                // Live-visning avstängd - visa inga partial results
+                // Partial results are no longer displayed in the status text
             }
 
             override fun onEvent(eventType: Int, params: Bundle?) {
