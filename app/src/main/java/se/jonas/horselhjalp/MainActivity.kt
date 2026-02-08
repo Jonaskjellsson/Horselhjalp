@@ -486,11 +486,11 @@ class MainActivity : AppCompatActivity() {
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
                     val text = matches[0]
-                    // Add line breaks before each recognized result if there's existing text
-                    if (recognizedText.isNotEmpty()) {
-                        recognizedText.append("\n")
+                    // Add space before each recognized result if there's existing text
+                    if (recognizedText.isNotEmpty() && !recognizedText.endsWith(" ")) {
+                        recognizedText.append(" ")
                     }
-                    recognizedText.append(text).append(" ")
+                    recognizedText.append(text)
                     isProgrammaticUpdate = true
                     textDisplay.setText(recognizedText.toString())
                     isProgrammaticUpdate = false
@@ -528,8 +528,8 @@ class MainActivity : AppCompatActivity() {
                         // Build the display text without clearing the entire EditText
                         val displayText = buildString {
                             append(recognizedText.toString())
-                            if (recognizedText.isNotEmpty()) {
-                                append("\n")
+                            if (recognizedText.isNotEmpty() && !recognizedText.endsWith(" ")) {
+                                append(" ")
                             }
                             append(matches[0] ?: "")
                         }
