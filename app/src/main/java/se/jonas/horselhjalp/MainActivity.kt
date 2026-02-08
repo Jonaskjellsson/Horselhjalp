@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
     
     companion object {
         private const val SILENCE_CHECK_INTERVAL_MS = 500L
-        private const val SILENCE_THRESHOLD_MS = 8000L
+        private const val SILENCE_THRESHOLD_MS = 12000L  // 12 sekunder – testa 10–15 s
         private const val AUTO_RESTART_DELAY_MS = 1000L
         private const val SILENCE_RMS_THRESHOLD_DB = -40f
         
@@ -439,6 +439,8 @@ class MainActivity : AppCompatActivity() {
                 statusText.text = getString(R.string.status_speech_detected)
                 // Reset silence timer
                 silenceStartTime = null
+                // Force reset of isNewRecordingSession within session
+                isNewRecordingSession = false
             }
 
             override fun onRmsChanged(rmsdB: Float) {
@@ -511,28 +513,27 @@ class MainActivity : AppCompatActivity() {
                         ?: ""
                     
                     if (finalText.isNotEmpty()) {
-                        // Add separator based on whether this is a new recording session
+                        val cleanedFinal = finalText.replace(Regex("\\s+"), " ").trim()
+
                         if (recognizedText.isNotEmpty()) {
                             if (isNewRecordingSession) {
-                                // Add double newline for new recording session
                                 recognizedText.append("\n\n")
                                 isNewRecordingSession = false
                             } else {
-                                // Add single space within same recording session
-                                // Check if recognizedText already ends with space to avoid double spaces
-                                if (!recognizedText.endsWith(" ")) {
-                                    recognizedText.append(" ")
-                                }
+                                recognizedText.append(" ")
                             }
                         }
-                        // Append the final result to recognizedText
-                        recognizedText.append(finalText)
-                        
-                        // Normalize all whitespace globally - replace any multiple spaces with single space
-                        val normalizedText = recognizedText.toString().replace(MULTIPLE_SPACES_REGEX, " ")
+                        recognizedText.append(cleanedFinal)
+
+                        // Extra safety: Normalize entire string - preserve double newlines but clean up spaces
+                        val normalized = recognizedText.toString()
+                            .replace(Regex("[ \\t]+"), " ")  // Replace multiple spaces/tabs with single space
+                            .replace(Regex("\n +"), "\n")    // Remove spaces after newlines
+                            .replace(Regex(" +\n"), "\n")    // Remove spaces before newlines
+                            .trim()
                         recognizedText.clear()
-                        recognizedText.append(normalizedText)
-                        
+                        recognizedText.append(normalized)
+
                         isProgrammaticUpdate = true
                         textDisplay.setText(recognizedText.toString())
                         isProgrammaticUpdate = false
@@ -543,6 +544,9 @@ class MainActivity : AppCompatActivity() {
                         }
                         
                         statusText.text = getString(R.string.status_complete)
+                        
+                        // Extra reset to ensure flag is cleared
+                        isNewRecordingSession = false
                     }
                 }
                 
