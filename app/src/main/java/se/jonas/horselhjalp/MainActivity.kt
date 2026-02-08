@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     private var isProgrammaticUpdate = false // Flag to track programmatic text updates
     @Volatile private var isDestroyed = false // Flag to track if activity is being destroyed
     private var isNewSession = false // Flag to track if this is a new recording session after manual stop
+    private var lastPartialText = "" // Track last partial text to avoid redundant updates
     
     // Custom persistence using XOR encoding to discourage manual preference editing
     private var ogonmiljotillstand = 0
@@ -48,6 +49,11 @@ class MainActivity : AppCompatActivity() {
     companion object {
         // Font size options in sp
         private val FONT_SIZES = arrayOf(24f, 32f, 40f, 48f)
+        
+        // Compiled regex for performance optimization
+        private val MULTIPLE_SPACES_REGEX = Regex(" +")
+        private val NEWLINE_WITH_SPACE_REGEX = Regex("\n ")
+        private val MULTIPLE_NEWLINES_REGEX = Regex("\n{3,}")
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -441,9 +447,9 @@ class MainActivity : AppCompatActivity() {
                     
                     // Extra cleaning - removes hidden problems
                     val cleaned = recognizedText.toString()
-                        .replace(Regex(" +"), " ")      // Multiple spaces → one
-                        .replace("\n ", "\n")           // Space after newline → remove
-                        .replace("\n\n\n", "\n\n")      // Max two newlines
+                        .replace(MULTIPLE_SPACES_REGEX, " ")           // Multiple spaces → one
+                        .replace(NEWLINE_WITH_SPACE_REGEX, "\n")       // Space after newline → remove
+                        .replace(MULTIPLE_NEWLINES_REGEX, "\n\n")      // Max two newlines
                         .trim()
                     
                     recognizedText.clear()
@@ -467,7 +473,9 @@ class MainActivity : AppCompatActivity() {
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
                     val partial = matches[0]?.replace(Regex("\\s+"), " ")?.trim() ?: ""
-                    if (partial.isNotBlank()) {
+                    // Only update if the partial text has meaningfully changed
+                    if (partial.isNotBlank() && partial != lastPartialText) {
+                        lastPartialText = partial
                         statusText.text = getString(R.string.status_heard, partial)
                     }
                 }
@@ -508,6 +516,7 @@ class MainActivity : AppCompatActivity() {
 
         // Reset manual editing flag when starting new listening session
         isManualEditing = false
+        lastPartialText = "" // Reset for new listening session
         
         // Set listening flag BEFORE starting recognizer to prevent race conditions
         isListening = true
