@@ -4,8 +4,6 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
@@ -21,7 +19,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import java.util.Locale
 import android.content.res.Configuration
-import android.util.Log
 import com.google.android.material.color.DynamicColors
 
 class MainActivity : AppCompatActivity() {
@@ -42,37 +39,15 @@ class MainActivity : AppCompatActivity() {
     private var isManualEditing = false // Flag to track if user is manually editing
     private var isProgrammaticUpdate = false // Flag to track programmatic text updates
     @Volatile private var isDestroyed = false // Flag to track if activity is being destroyed
-    private var isNewRecordingSession = false // Flag to track if this is a new recording session after manual stop
-    
-    // Auto-pause after silence variables
-    private var silenceStartTime: Long? = null
-    private var manuallyStopped = false
-    private val silenceCheckHandler = Handler(Looper.getMainLooper())
-    private val silenceCheckRunnable: Runnable by lazy {
-        object : Runnable {
-            override fun run() {
-                checkSilenceDuration()
-                silenceCheckHandler.postDelayed(this, SILENCE_CHECK_INTERVAL_MS)
-            }
-        }
-    }
-    private var autoRestartRunnable: Runnable? = null
+    private var isNewSession = false // Flag to track if this is a new recording session after manual stop
     
     // Custom persistence using XOR encoding to discourage manual preference editing
     private var ogonmiljotillstand = 0
     private var textstorleksindex = 1 // Default to medium (32sp), index 0-3 for 24sp, 32sp, 40sp, 48sp
     
     companion object {
-        private const val SILENCE_CHECK_INTERVAL_MS = 500L
-        private const val SILENCE_THRESHOLD_MS = 10000L  // 10 sekunder – minskar falska pauser
-        private const val AUTO_RESTART_DELAY_MS = 1000L
-        private const val SILENCE_RMS_THRESHOLD_DB = -40f
-        
         // Font size options in sp
         private val FONT_SIZES = arrayOf(24f, 32f, 40f, 48f)
-        
-        // Compiled regex for whitespace normalization (performance optimization)
-        private val MULTIPLE_SPACES_REGEX = Regex(" +")
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -147,7 +122,6 @@ class MainActivity : AppCompatActivity() {
         // Mikrofon-knapp
         micButton.setOnClickListener {
             if (isListening) {
-                manuallyStopped = true  // Markera som MANUELL stopp
                 stopListening()
             } else {
                 startListening()
@@ -162,7 +136,7 @@ class MainActivity : AppCompatActivity() {
             isProgrammaticUpdate = false
             statusText.text = getString(R.string.status_text_cleared)
             isManualEditing = false // Reset manual editing flag
-            isNewRecordingSession = false // Reset new recording session flag
+            isNewSession = false // Reset new session flag
         }
         
         // Glasaktighetsvaxlare knapp - unique toggle logic
@@ -384,33 +358,6 @@ class MainActivity : AppCompatActivity() {
         textDisplay.setTextIsSelectable(true)
     }
     
-    // Check silence duration and auto-pause if needed
-    private fun checkSilenceDuration() {
-        if (isDestroyed) return
-        
-        val currentSilenceStart = silenceStartTime
-        if (currentSilenceStart != null) {
-            val currentTime = System.currentTimeMillis()
-            if (currentTime - currentSilenceStart > SILENCE_THRESHOLD_MS) {
-                // More than 10 seconds of silence - auto-pause
-                manuallyStopped = false  // Markera som AUTO-pause
-                stopListening()
-                Toast.makeText(this, getString(R.string.status_silence_paused), Toast.LENGTH_SHORT).show()
-                
-                // Restart automatically after a short delay if not destroyed
-                if (!isDestroyed) {
-                    val restartRunnable = Runnable {
-                        if (!isListening && !isDestroyed) {
-                            startListening()
-                        }
-                    }
-                    autoRestartRunnable = restartRunnable
-                    silenceCheckHandler.postDelayed(restartRunnable, AUTO_RESTART_DELAY_MS)
-                }
-            }
-        }
-    }
-
     private fun setupSpeechRecognizer() {
         // Clean up any existing recognizer first
         try {
@@ -429,23 +376,10 @@ class MainActivity : AppCompatActivity() {
             override fun onBeginningOfSpeech() {
                 if (isDestroyed) return
                 statusText.text = getString(R.string.status_speech_detected)
-                // Reset silence timer
-                silenceStartTime = null
-                // Force reset of isNewRecordingSession within session
-                isNewRecordingSession = false
             }
 
             override fun onRmsChanged(rmsdB: Float) {
-                // Auto-pause after silence detection
-                if (rmsdB < SILENCE_RMS_THRESHOLD_DB) {
-                    // Silence detected
-                    if (silenceStartTime == null) {
-                        silenceStartTime = System.currentTimeMillis()
-                    }
-                } else {
-                    // Sound detected - reset silence timer
-                    silenceStartTime = null
-                }
+                // No auto-pause logic needed
             }
 
             override fun onBufferReceived(buffer: ByteArray?) {
@@ -474,18 +408,13 @@ class MainActivity : AppCompatActivity() {
                 }
                 statusText.text = errorMessage
                 isListening = false
-                silenceStartTime = null
-                
-                // Stop silence check handler
-                silenceCheckHandler.removeCallbacks(silenceCheckRunnable)
-                autoRestartRunnable?.let { silenceCheckHandler.removeCallbacks(it) }
                 
                 // Re-enable editing after error
                 enableTextEditing()
                 
                 updateMicButton()
                 
-                // Starta om automatiskt efter "inget tal"-fel
+                // Auto-restart after "no speech" errors
                 if (error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT || 
                     error == SpeechRecognizer.ERROR_NO_MATCH) {
                     startListening()
@@ -497,73 +426,51 @@ class MainActivity : AppCompatActivity() {
                 
                 // Get final results from Bundle
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                if (!matches.isNullOrEmpty()) {
-                    // Clean the final result text
-                    val finalText = matches[0]
-                        ?.replace(Regex("\\s+"), " ")
-                        ?.trim()
-                        ?: ""
-                    
-                    if (finalText.isNotEmpty()) {
-                        // DEBUG: Logga flaggorna för att se vad som händer
-                        Log.d("HorselDebug", "onResults: isNewRecordingSession = $isNewRecordingSession, manuallyStopped = $manuallyStopped")
-                        
-                        val cleanedFinal = finalText.replace(Regex("\\s+"), " ").trim()
-
-                        if (recognizedText.isNotEmpty()) {
-                            if (isNewRecordingSession) {
-                                Log.d("HorselDebug", "Appending \\n\\n (ny session)")
-                                recognizedText.append("\n\n")
-                                isNewRecordingSession = false
-                            } else {
-                                Log.d("HorselDebug", "Appending ' ' (samma session)")
-                                recognizedText.append(" ")
-                            }
+                val newText = matches?.get(0)?.replace(Regex("\\s+"), " ")?.trim() ?: return
+                
+                if (newText.isNotEmpty()) {
+                    if (recognizedText.isNotEmpty()) {
+                        if (isNewSession) {
+                            recognizedText.append("\n\n")  // Blank line for new recording (after STOP)
+                            isNewSession = false
+                        } else {
+                            recognizedText.append(" ")  // Within same listening - just space
                         }
-                        recognizedText.append(cleanedFinal)
-
-                        // Extra safety: Normalize entire string - preserve double newlines but clean up spaces
-                        val normalized = recognizedText.toString()
-                            .replace(Regex("[ \\t]+"), " ")  // Replace multiple spaces/tabs with single space
-                            .replace(Regex("\n +"), "\n")    // Remove spaces after newlines
-                            .replace(Regex(" +\n"), "\n")    // Remove spaces before newlines
-                            .trim()
-                        recognizedText.clear()
-                        recognizedText.append(normalized)
-
-                        isProgrammaticUpdate = true
-                        textDisplay.setText(recognizedText.toString())
-                        isProgrammaticUpdate = false
-                        
-                        // Scrolla ner automatiskt
-                        scrollView.post {
-                            scrollView.fullScroll(ScrollView.FOCUS_DOWN)
-                        }
-                        
-                        statusText.text = getString(R.string.status_complete)
-                        
-                        // Extra reset to ensure flag is cleared
-                        isNewRecordingSession = false
                     }
+                    recognizedText.append(newText)
+                    
+                    // Extra cleaning - removes hidden problems
+                    val cleaned = recognizedText.toString()
+                        .replace(Regex(" +"), " ")      // Multiple spaces → one
+                        .replace("\n ", "\n")           // Space after newline → remove
+                        .replace("\n\n\n", "\n\n")      // Max two newlines
+                        .trim()
+                    
+                    recognizedText.clear()
+                    recognizedText.append(cleaned)
+                    
+                    isProgrammaticUpdate = true
+                    textDisplay.setText(recognizedText.toString())
+                    isProgrammaticUpdate = false
+                    
+                    scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
                 }
                 
                 isListening = false
-                silenceStartTime = null
-                
-                // Stop silence check handler
-                silenceCheckHandler.removeCallbacks(silenceCheckRunnable)
-                autoRestartRunnable?.let { silenceCheckHandler.removeCallbacks(it) }
-                
-                // Re-enable editing after final results
-                enableTextEditing()
-                
                 updateMicButton()
+                enableTextEditing()
             }
 
             override fun onPartialResults(partialResults: Bundle?) {
                 if (isDestroyed) return
-
-                // Live-visning avstängd - visa inga partial results
+                
+                val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!matches.isNullOrEmpty()) {
+                    val partial = matches[0]?.replace(Regex("\\s+"), " ")?.trim() ?: ""
+                    if (partial.isNotBlank()) {
+                        statusText.text = getString(R.string.status_heard, partial)
+                    }
+                }
             }
 
             override fun onEvent(eventType: Int, params: Bundle?) {
@@ -601,18 +508,11 @@ class MainActivity : AppCompatActivity() {
 
         // Reset manual editing flag when starting new listening session
         isManualEditing = false
-        manuallyStopped = false  // Reset för nästa gång
-        
-        // Reset silence detection
-        silenceStartTime = null
         
         // Set listening flag BEFORE starting recognizer to prevent race conditions
         isListening = true
         updateMicButton()
         statusText.text = getString(R.string.status_preparing)
-        
-        // Start silence check handler
-        silenceCheckHandler.postDelayed(silenceCheckRunnable, SILENCE_CHECK_INTERVAL_MS)
         
         // Make textDisplay non-editable during listening but keep it selectable for copying
         disableTextEditing()
@@ -625,38 +525,25 @@ class MainActivity : AppCompatActivity() {
             updateMicButton()
             statusText.text = getString(R.string.error_unknown)
             enableTextEditing()
-            silenceCheckHandler.removeCallbacks(silenceCheckRunnable)
         }
     }
 
     private fun stopListening() {
-        // Save destroyed state for checking
-        val wasDestroyed = isDestroyed
-        
         // Prevent stopping if not listening
         if (!isListening) {
             return
         }
         
-        isListening = false
-        silenceStartTime = null
-        
-        // Sätt flaggor baserat på om det är manuell eller auto-stop
-        if (manuallyStopped) {
-            isNewRecordingSession = true
-        } else {
-            isNewRecordingSession = false  // Fortsätt samma session vid auto-pause
+        // Set isNewSession for next recording (after manual stop)
+        if (recognizedText.isNotEmpty()) {
+            isNewSession = true
         }
         
-        // Stop silence check handler - remove ALL callbacks
-        silenceCheckHandler.removeCallbacks(silenceCheckRunnable)
-        autoRestartRunnable?.let { silenceCheckHandler.removeCallbacks(it) }
+        isListening = false
         
-        // Only update UI if activity is not being destroyed
-        if (!wasDestroyed) {
-            // Re-enable editing after listening stops
+        // Update UI if activity is not being destroyed
+        if (!isDestroyed) {
             enableTextEditing()
-            
             updateMicButton()
             statusText.text = getString(R.string.status_stopped)
         }
@@ -684,9 +571,6 @@ class MainActivity : AppCompatActivity() {
         // Set destroyed flag first to prevent callbacks from executing
         isDestroyed = true
         isListening = false
-        
-        // Remove all pending callbacks before destroying
-        silenceCheckHandler.removeCallbacksAndMessages(null)
         
         // Destroy speech recognizer
         try {
