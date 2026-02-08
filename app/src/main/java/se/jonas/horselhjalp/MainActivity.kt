@@ -499,8 +499,10 @@ class MainActivity : AppCompatActivity() {
                                 // Add double newline for new recording session
                                 recognizedText.append("\n\n")
                                 isNewRecordingSession = false
+                            } else {
+                                // Add single space within same recording session
+                                recognizedText.append(" ")
                             }
-                            // No separator within same recording session - just concatenate
                         }
                         recognizedText.append(text)
                         isProgrammaticUpdate = true
@@ -547,8 +549,10 @@ class MainActivity : AppCompatActivity() {
                             if (recognizedText.isNotEmpty()) {
                                 if (isNewRecordingSession) {
                                     append("\n\n")
+                                } else {
+                                    // Add single space within same recording session
+                                    append(" ")
                                 }
-                                // No separator within same recording session - just concatenate
                             }
                             append(partialText)
                         }
