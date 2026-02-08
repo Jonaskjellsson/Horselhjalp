@@ -432,7 +432,7 @@ class MainActivity : AppCompatActivity() {
                 
                 // Get final results from Bundle
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                val newText = matches?.get(0)?.replace(MULTIPLE_SPACES_REGEX, " ")?.trim()
+                val newText = matches?.getOrNull(0)?.replace(MULTIPLE_SPACES_REGEX, " ")?.trim()
                 
                 if (newText != null && newText.isNotEmpty()) {
                     if (recognizedText.isNotEmpty()) {
@@ -472,7 +472,7 @@ class MainActivity : AppCompatActivity() {
                 if (isDestroyed) return
                 
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                val firstMatch = matches?.get(0) ?: ""
+                val firstMatch = matches?.getOrNull(0) ?: ""
                 
                 if (firstMatch.isNotBlank()) {
                     val partial = firstMatch.replace(MULTIPLE_SPACES_REGEX, " ").trim()
