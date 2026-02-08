@@ -563,7 +563,6 @@ class MainActivity : AppCompatActivity() {
                 if (isDestroyed) return
 
                 // Live-visning avstängd - visa inga partial results
-                // Partial results are no longer displayed in the status text
             }
 
             override fun onEvent(eventType: Int, params: Bundle?) {
