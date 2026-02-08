@@ -489,7 +489,8 @@ class MainActivity : AppCompatActivity() {
                 if (!matches.isNullOrEmpty()) {
                     // Get the recognized text and remove any newline characters
                     val rawText = matches[0]
-                    val text = rawText.replace("\n", " ").trim()
+                    // Replace all whitespace sequences (including newlines) with a single space
+                    val text = rawText.replace(Regex("\\s+"), " ").trim()
                     
                     if (text.isNotEmpty()) {
                         // Add separator based on whether this is a new recording session
@@ -498,10 +499,8 @@ class MainActivity : AppCompatActivity() {
                                 // Add double newline for new recording session
                                 recognizedText.append("\n\n")
                                 isNewRecordingSession = false
-                            } else {
-                                // Add single space within same recording session
-                                recognizedText.append(" ")
                             }
+                            // No separator within same recording session - just concatenate
                         }
                         recognizedText.append(text)
                         isProgrammaticUpdate = true
@@ -534,8 +533,8 @@ class MainActivity : AppCompatActivity() {
                 
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
-                    // Clean the partial result text by removing newlines
-                    val partialText = matches[0]?.replace("\n", " ")?.trim() ?: ""
+                    // Clean the partial result text by removing newlines and extra whitespace
+                    val partialText = matches[0]?.replace(Regex("\\s+"), " ")?.trim() ?: ""
                     
                     // Update status text with partial results
                     statusText.text = getString(R.string.status_heard, partialText)
@@ -548,9 +547,8 @@ class MainActivity : AppCompatActivity() {
                             if (recognizedText.isNotEmpty()) {
                                 if (isNewRecordingSession) {
                                     append("\n\n")
-                                } else {
-                                    append(" ")
                                 }
+                                // No separator within same recording session - just concatenate
                             }
                             append(partialText)
                         }
