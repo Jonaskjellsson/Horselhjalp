@@ -432,9 +432,9 @@ class MainActivity : AppCompatActivity() {
                 
                 // Get final results from Bundle
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                val newText = matches?.get(0)?.replace(MULTIPLE_SPACES_REGEX, " ")?.trim() ?: return
+                val newText = matches?.get(0)?.replace(MULTIPLE_SPACES_REGEX, " ")?.trim()
                 
-                if (newText.isNotEmpty()) {
+                if (newText != null && newText.isNotEmpty()) {
                     if (recognizedText.isNotEmpty()) {
                         if (isNewSession) {
                             recognizedText.append("\n\n")  // Blank line for new recording (after STOP)
@@ -462,6 +462,7 @@ class MainActivity : AppCompatActivity() {
                     scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
                 }
                 
+                // Always update state even if no text was recognized
                 isListening = false
                 updateMicButton()
                 enableTextEditing()
@@ -473,11 +474,11 @@ class MainActivity : AppCompatActivity() {
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 val firstMatch = matches?.get(0) ?: ""
                 
-                // Only process if the partial text has changed (avoid unnecessary string operations)
-                if (firstMatch.isNotBlank() && firstMatch != lastPartialText) {
+                if (firstMatch.isNotBlank()) {
                     val partial = firstMatch.replace(MULTIPLE_SPACES_REGEX, " ").trim()
-                    if (partial.isNotBlank()) {
-                        lastPartialText = firstMatch
+                    // Only update UI if the cleaned partial text has changed
+                    if (partial.isNotBlank() && partial != lastPartialText) {
+                        lastPartialText = partial
                         statusText.text = getString(R.string.status_heard, partial)
                     }
                 }
