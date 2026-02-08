@@ -32,15 +32,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var languageButton: Button
     private lateinit var fontSizeButton: Button
     
+    // Text state management - unified state container
+    private data class TextState(
+        val isManualEditing: Boolean = false,
+        val isProgrammaticUpdate: Boolean = false,
+        val isNewSession: Boolean = false,
+        val lastPartialText: String = ""
+    )
+    
     private var speechRecognizer: SpeechRecognizer? = null
     @Volatile private var isListening = false
     private var recognizedText = StringBuilder()
     private var currentLanguage = "sv-SE" // Default to Swedish
-    private var isManualEditing = false // Flag to track if user is manually editing
-    private var isProgrammaticUpdate = false // Flag to track programmatic text updates
+    private var textState = TextState()
     @Volatile private var isDestroyed = false // Flag to track if activity is being destroyed
-    private var isNewSession = false // Flag to track if this is a new recording session after manual stop
-    private var lastPartialText = "" // Track last partial text to avoid redundant updates
     
     // Custom persistence using XOR encoding to discourage manual preference editing
     private var ogonmiljotillstand = 0
@@ -55,6 +60,13 @@ class MainActivity : AppCompatActivity() {
         private val NEWLINE_WITH_SPACE_REGEX = Regex("\n ")
         private val MULTIPLE_NEWLINES_REGEX = Regex("\n{3,}")
     }
+    
+    // Text cleaning utility - single source of truth
+    private fun cleanText(text: String): String = text
+        .replace(MULTIPLE_SPACES_REGEX, " ")
+        .replace(NEWLINE_WITH_SPACE_REGEX, "\n")
+        .replace(MULTIPLE_NEWLINES_REGEX, "\n\n")
+        .trim()
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -137,12 +149,10 @@ class MainActivity : AppCompatActivity() {
         // Radera-knapp
         clearButton.setOnClickListener {
             recognizedText.clear()
-            isProgrammaticUpdate = true
+            textState = textState.copy(isProgrammaticUpdate = true, isManualEditing = false, isNewSession = false)
             textDisplay.setText(getString(R.string.text_placeholder))
-            isProgrammaticUpdate = false
+            textState = textState.copy(isProgrammaticUpdate = false)
             statusText.text = getString(R.string.status_text_cleared)
-            isManualEditing = false // Reset manual editing flag
-            isNewSession = false // Reset new session flag
         }
         
         // Glasaktighetsvaxlare knapp - unique toggle logic
@@ -166,9 +176,8 @@ class MainActivity : AppCompatActivity() {
             
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 // Only mark as manual editing if the change was not programmatic
-                // We check if the text field has focus and it's not a programmatic update
-                if (textDisplay.hasFocus() && !isProgrammaticUpdate) {
-                    isManualEditing = true
+                if (textDisplay.hasFocus() && !textState.isProgrammaticUpdate) {
+                    textState = textState.copy(isManualEditing = true)
                 }
             }
             
@@ -348,20 +357,15 @@ class MainActivity : AppCompatActivity() {
         textDisplay.textSize = textSize
     }
 
-    // Helper method to disable text editing during listening
-    private fun disableTextEditing() {
-        textDisplay.isFocusable = false
-        textDisplay.isFocusableInTouchMode = false
-        textDisplay.isClickable = true
-        textDisplay.isLongClickable = true
-        textDisplay.setTextIsSelectable(true)
-    }
-
-    // Helper method to enable text editing after listening
-    private fun enableTextEditing() {
-        textDisplay.isFocusable = true
-        textDisplay.isFocusableInTouchMode = true
-        textDisplay.setTextIsSelectable(true)
+    // Text editing state management - unified control
+    private fun setEditable(enabled: Boolean) {
+        textDisplay.apply {
+            isFocusable = enabled
+            isFocusableInTouchMode = enabled
+            isClickable = true
+            isLongClickable = true
+            setTextIsSelectable(true)
+        }
     }
     
     private fun setupSpeechRecognizer() {
@@ -414,10 +418,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 statusText.text = errorMessage
                 isListening = false
-                
-                // Re-enable editing after error
-                enableTextEditing()
-                
+                setEditable(true)
                 updateMicButton()
                 
                 // Auto-restart after "no speech" errors
@@ -432,45 +433,35 @@ class MainActivity : AppCompatActivity() {
                 
                 // Get final results from Bundle
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                val newText = matches?.getOrNull(0)?.replace(MULTIPLE_SPACES_REGEX, " ")?.trim()
+                val newText = matches?.getOrNull(0)?.let { cleanText(it) }
                 
                 if (newText != null && newText.isNotEmpty()) {
+                    // Add separator based on session state
                     if (recognizedText.isNotEmpty()) {
-                        if (isNewSession) {
-                            recognizedText.append("\n\n")  // Blank line for new recording (after STOP)
-                            isNewSession = false
-                        } else {
-                            recognizedText.append(" ")  // Within same listening - just space
-                        }
+                        val separator = if (textState.isNewSession) "\n\n" else " "
+                        recognizedText.append(separator)
                     }
                     recognizedText.append(newText)
                     
-                    // Extra cleaning - removes hidden problems
-                    val cleaned = recognizedText.toString()
-                        .replace(MULTIPLE_SPACES_REGEX, " ")           // Multiple spaces → one
-                        .replace(NEWLINE_WITH_SPACE_REGEX, "\n")       // Space after newline → remove
-                        .replace(MULTIPLE_NEWLINES_REGEX, "\n\n")      // Max two newlines
-                        .trim()
-                    
+                    // Clean the entire text buffer
+                    val cleaned = cleanText(recognizedText.toString())
                     recognizedText.clear()
                     recognizedText.append(cleaned)
                     
-                    isProgrammaticUpdate = true
+                    // Update display
+                    textState = textState.copy(isProgrammaticUpdate = true, isNewSession = false)
                     textDisplay.setText(recognizedText.toString())
-                    isProgrammaticUpdate = false
+                    textState = textState.copy(isProgrammaticUpdate = false)
                     
                     scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
-                    
                     statusText.text = getString(R.string.status_complete)
                 } else {
-                    // No text recognized - update status to reflect completion
                     statusText.text = getString(R.string.status_complete)
                 }
                 
-                // Always update state even if no text was recognized
                 isListening = false
                 updateMicButton()
-                enableTextEditing()
+                setEditable(true)
             }
 
             override fun onPartialResults(partialResults: Bundle?) {
@@ -480,15 +471,15 @@ class MainActivity : AppCompatActivity() {
                 val firstMatch = matches?.getOrNull(0) ?: ""
                 
                 if (firstMatch.isNotBlank()) {
-                    val partial = firstMatch.replace(MULTIPLE_SPACES_REGEX, " ").trim()
-                    // Only update UI if the cleaned partial text has changed
-                    if (partial != lastPartialText) {
-                        lastPartialText = partial
+                    val partial = cleanText(firstMatch)
+                    // Only update UI if the partial text has changed
+                    if (partial != textState.lastPartialText) {
+                        textState = textState.copy(lastPartialText = partial)
                         statusText.text = getString(R.string.status_heard, partial)
                     }
-                } else if (lastPartialText.isNotEmpty()) {
+                } else if (textState.lastPartialText.isNotEmpty()) {
                     // Clear stale partial text when moving to silent period
-                    lastPartialText = ""
+                    textState = textState.copy(lastPartialText = "")
                     statusText.text = getString(R.string.status_listening)
                 }
             }
@@ -526,9 +517,8 @@ class MainActivity : AppCompatActivity() {
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
         }
 
-        // Reset manual editing flag when starting new listening session
-        isManualEditing = false
-        lastPartialText = "" // Reset for new listening session
+        // Reset state for new listening session
+        textState = textState.copy(isManualEditing = false, lastPartialText = "")
         
         // Set listening flag BEFORE starting recognizer to prevent race conditions
         isListening = true
@@ -536,7 +526,7 @@ class MainActivity : AppCompatActivity() {
         statusText.text = getString(R.string.status_preparing)
         
         // Make textDisplay non-editable during listening but keep it selectable for copying
-        disableTextEditing()
+        setEditable(false)
         
         try {
             speechRecognizer?.startListening(intent)
@@ -545,7 +535,7 @@ class MainActivity : AppCompatActivity() {
             isListening = false
             updateMicButton()
             statusText.text = getString(R.string.error_unknown)
-            enableTextEditing()
+            setEditable(true)
         }
     }
 
@@ -557,16 +547,14 @@ class MainActivity : AppCompatActivity() {
         
         // Set isNewSession for next recording to create paragraph break
         // Only set if we have recognized text (otherwise there's nothing to separate)
-        if (recognizedText.isNotEmpty()) {
-            isNewSession = true
-        }
+        val shouldStartNewSession = recognizedText.isNotEmpty()
+        textState = textState.copy(isNewSession = shouldStartNewSession, lastPartialText = "")
         
         isListening = false
-        lastPartialText = "" // Reset for next listening session
         
         // Update UI if activity is not being destroyed
         if (!isDestroyed) {
-            enableTextEditing()
+            setEditable(true)
             updateMicButton()
             statusText.text = getString(R.string.status_stopped)
         }
