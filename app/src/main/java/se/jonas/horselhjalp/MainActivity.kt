@@ -70,6 +70,9 @@ class MainActivity : AppCompatActivity() {
         
         // Font size options in sp
         private val FONT_SIZES = arrayOf(24f, 32f, 40f, 48f)
+        
+        // Compiled regex for whitespace normalization (performance optimization)
+        private val MULTIPLE_SPACES_REGEX = Regex(" +")
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -461,8 +464,7 @@ class MainActivity : AppCompatActivity() {
             override fun onEndOfSpeech() {
                 if (isDestroyed) return
                 statusText.text = getString(R.string.status_processing)
-                // Clear current utterance when speech ends
-                currentUtterance.clear()
+                // Don't clear currentUtterance here - it will be used in onResults()
             }
 
             override fun onError(error: Int) {
@@ -523,7 +525,7 @@ class MainActivity : AppCompatActivity() {
                     recognizedText.append(currentUtterance.toString())
                     
                     // Normalize all whitespace globally - replace any multiple spaces with single space
-                    val normalizedText = recognizedText.toString().replace(Regex(" +"), " ")
+                    val normalizedText = recognizedText.toString().replace(MULTIPLE_SPACES_REGEX, " ")
                     recognizedText.clear()
                     recognizedText.append(normalizedText)
                     
@@ -616,12 +618,6 @@ class MainActivity : AppCompatActivity() {
         // Ensure we have a valid SpeechRecognizer instance
         if (speechRecognizer == null) {
             setupSpeechRecognizer()
-        }
-        
-        // Handle new recording session separator
-        if (isNewRecordingSession && recognizedText.isNotEmpty()) {
-            recognizedText.append("\n\n")
-            isNewRecordingSession = false
         }
 
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
