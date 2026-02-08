@@ -563,39 +563,14 @@ class MainActivity : AppCompatActivity() {
                 if (isDestroyed) return
 
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                if (matches.isNullOrEmpty()) return
-
-                // Rengör partialText ordentligt (ta bort multipla spaces, trimma)
-                val partialText = matches[0]
-                    ?.replace(Regex("\\s+"), " ")
-                    ?.trim()
-                    ?: return
-
-                if (partialText.isBlank()) return
-
-                statusText.text = getString(R.string.status_heard, partialText)
-
-                if (!isManualEditing) {
-                    // Bygg display: recognizedText (permanent) + space (om behövs) + senaste partial (hela uttalet)
-                    val prevText = recognizedText.toString()
-                    val displayText = buildString {
-                        append(prevText)
-                        // Smart space: lägg till bara om det behövs
-                        if (prevText.isNotEmpty() && 
-                            !prevText.endsWith(" ") && 
-                            !partialText.startsWith(" ")) {
-                            append(" ")
-                        }
-                        append(partialText)
+                if (!matches.isNullOrEmpty()) {
+                    val partialText = matches[0]?.replace(Regex("\\s+"), " ")?.trim() ?: ""
+                    if (partialText.isNotBlank()) {
+                        // Visa BARA i statusText live – ingen uppdatering av textDisplay!
+                        statusText.text = getString(R.string.status_heard, partialText)
                     }
-
-                    isProgrammaticUpdate = true
-                    textDisplay.setText(displayText)
-                    isProgrammaticUpdate = false
-
-                    // Scrolla ner så man alltid ser slutet live
-                    scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
                 }
+                // Inget mer här – ingen setText på textDisplay!
             }
 
             override fun onEvent(eventType: Int, params: Bundle?) {
