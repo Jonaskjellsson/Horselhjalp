@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
     
     companion object {
         private const val SILENCE_CHECK_INTERVAL_MS = 500L
-        private const val SILENCE_THRESHOLD_MS = 5000L
+        private const val SILENCE_THRESHOLD_MS = 8000L
         private const val AUTO_RESTART_DELAY_MS = 1000L
         private const val SILENCE_RMS_THRESHOLD_DB = -40f
         
@@ -559,37 +559,34 @@ class MainActivity : AppCompatActivity() {
 
             override fun onPartialResults(partialResults: Bundle?) {
                 if (isDestroyed) return
-                
+
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
-                    // Clean the partial result text by removing newlines and extra whitespace
-                    val partialText = matches[0]?.trim()?.replace(Regex("\\s+"), " ") ?: ""
-                    
-                    // REPLACE (clear + append) currentUtterance with the latest partial result
-                    currentUtterance.clear()
-                    currentUtterance.append(partialText)
-                    
-                    // Update status text with partial results
+                    val partialText = matches[0]?.replace(Regex("\\s+"), " ")?.trim() ?: ""
+                    if (partialText.isBlank()) return
+
                     statusText.text = getString(R.string.status_heard, partialText)
                     
-                    // Show live best match in textDisplay only if user is not manually editing
+                    // Update currentUtterance for onResults to use
+                    currentUtterance.clear()
+                    currentUtterance.append(partialText)
+
                     if (!isManualEditing && partialText.isNotEmpty()) {
-                        // Build the display text showing recognizedText + current utterance
-                        // NO \n within same session - only spaces
                         val displayText = buildString {
-                            append(recognizedText.toString())
-                            if (recognizedText.isNotEmpty()) {
-                                // Only add space within same session, never \n\n
-                                // Check if recognizedText already ends with space to avoid double spaces
-                                if (!recognizedText.endsWith(" ")) {
-                                    append(" ")
-                                }
+                            val prev = recognizedText.toString()
+                            append(prev)
+                            // Lägg till space ENDAST om det behövs (inte alltid)
+                            if (prev.isNotEmpty() && !prev.endsWith(" ")) {
+                                append(" ")
                             }
-                            append(currentUtterance.toString())
+                            append(partialText)
                         }
                         isProgrammaticUpdate = true
                         textDisplay.setText(displayText)
                         isProgrammaticUpdate = false
+
+                        // Scrolla ner live
+                        scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
                     }
                 }
             }
