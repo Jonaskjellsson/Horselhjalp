@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import java.util.Locale
 import android.content.res.Configuration
+import android.util.Log
 import com.google.android.material.color.DynamicColors
 
 class MainActivity : AppCompatActivity() {
@@ -504,13 +505,18 @@ class MainActivity : AppCompatActivity() {
                         ?: ""
                     
                     if (finalText.isNotEmpty()) {
+                        // DEBUG: Logga flaggorna för att se vad som händer
+                        Log.d("HorselDebug", "onResults: isNewRecordingSession = $isNewRecordingSession, manuallyStopped = $manuallyStopped")
+                        
                         val cleanedFinal = finalText.replace(Regex("\\s+"), " ").trim()
 
                         if (recognizedText.isNotEmpty()) {
                             if (isNewRecordingSession) {
+                                Log.d("HorselDebug", "Appending \\n\\n (ny session)")
                                 recognizedText.append("\n\n")
                                 isNewRecordingSession = false
                             } else {
+                                Log.d("HorselDebug", "Appending ' ' (samma session)")
                                 recognizedText.append(" ")
                             }
                         }
