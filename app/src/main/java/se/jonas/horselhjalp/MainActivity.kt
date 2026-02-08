@@ -477,7 +477,7 @@ class MainActivity : AppCompatActivity() {
                 if (firstMatch.isNotBlank()) {
                     val partial = firstMatch.replace(MULTIPLE_SPACES_REGEX, " ").trim()
                     // Only update UI if the cleaned partial text has changed
-                    if (partial.isNotBlank() && partial != lastPartialText) {
+                    if (partial != lastPartialText) {
                         lastPartialText = partial
                         statusText.text = getString(R.string.status_heard, partial)
                     }
@@ -553,6 +553,7 @@ class MainActivity : AppCompatActivity() {
         }
         
         isListening = false
+        lastPartialText = "" // Reset for next listening session
         
         // Update UI if activity is not being destroyed
         if (!isDestroyed) {
