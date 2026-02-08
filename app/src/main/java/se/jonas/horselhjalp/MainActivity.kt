@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
     @Volatile private var isListening = false
     private var recognizedText = StringBuilder()
     private var currentLanguage = "sv-SE" // Default to Swedish
-    private var textState = TextState()
+    @Volatile private var textState = TextState()
     @Volatile private var isDestroyed = false // Flag to track if activity is being destroyed
     
     // Custom persistence using XOR encoding to discourage manual preference editing
@@ -149,9 +149,9 @@ class MainActivity : AppCompatActivity() {
         // Radera-knapp
         clearButton.setOnClickListener {
             recognizedText.clear()
-            textState = textState.copy(isProgrammaticUpdate = true, isManualEditing = false, isNewSession = false)
+            textState = TextState(isProgrammaticUpdate = true)
             textDisplay.setText(getString(R.string.text_placeholder))
-            textState = textState.copy(isProgrammaticUpdate = false)
+            textState = TextState()
             statusText.text = getString(R.string.status_text_cleared)
         }
         
@@ -448,10 +448,10 @@ class MainActivity : AppCompatActivity() {
                     recognizedText.clear()
                     recognizedText.append(cleaned)
                     
-                    // Update display
-                    textState = textState.copy(isProgrammaticUpdate = true, isNewSession = false)
+                    // Update display with atomic state change
+                    textState = TextState(isProgrammaticUpdate = true)
                     textDisplay.setText(recognizedText.toString())
-                    textState = textState.copy(isProgrammaticUpdate = false)
+                    textState = TextState()
                     
                     scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
                     statusText.text = getString(R.string.status_complete)
@@ -518,7 +518,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Reset state for new listening session
-        textState = textState.copy(isManualEditing = false, lastPartialText = "")
+        textState = TextState()
         
         // Set listening flag BEFORE starting recognizer to prevent race conditions
         isListening = true
@@ -548,7 +548,7 @@ class MainActivity : AppCompatActivity() {
         // Set isNewSession for next recording to create paragraph break
         // Only set if we have recognized text (otherwise there's nothing to separate)
         val shouldStartNewSession = recognizedText.isNotEmpty()
-        textState = textState.copy(isNewSession = shouldStartNewSession, lastPartialText = "")
+        textState = TextState(isNewSession = shouldStartNewSession)
         
         isListening = false
         
