@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
     
     companion object {
         private const val SILENCE_CHECK_INTERVAL_MS = 500L
-        private const val SILENCE_THRESHOLD_MS = 12000L  // 12 sekunder – testa 10–15 s
+        private const val SILENCE_THRESHOLD_MS = 10000L  // 10 sekunder – minskar falska pauser
         private const val AUTO_RESTART_DELAY_MS = 1000L
         private const val SILENCE_RMS_THRESHOLD_DB = -40f
         
@@ -146,6 +146,7 @@ class MainActivity : AppCompatActivity() {
         // Mikrofon-knapp
         micButton.setOnClickListener {
             if (isListening) {
+                manuallyStopped = true  // Markera som MANUELL stopp
                 stopListening()
             } else {
                 startListening()
@@ -390,25 +391,15 @@ class MainActivity : AppCompatActivity() {
         if (currentSilenceStart != null) {
             val currentTime = System.currentTimeMillis()
             if (currentTime - currentSilenceStart > SILENCE_THRESHOLD_MS) {
-                // More than 5 seconds of silence - auto-pause
-                speechRecognizer?.stopListening()
+                // More than 10 seconds of silence - auto-pause
+                manuallyStopped = false  // Markera som AUTO-pause
+                stopListening()
                 Toast.makeText(this, getString(R.string.status_silence_paused), Toast.LENGTH_SHORT).show()
-                silenceStartTime = null
-                
-                // Mark as manually stopped to trigger new session behavior
-                manuallyStopped = true
-                
-                // Mark that next recording will be a new session (for separator after silence)
-                if (recognizedText.isNotEmpty()) {
-                    isNewRecordingSession = true
-                }
                 
                 // Restart automatically after a short delay if not destroyed
                 if (!isDestroyed) {
                     val restartRunnable = Runnable {
                         if (!isListening && !isDestroyed) {
-                            // Reset manuallyStopped before restarting for continuous operation
-                            manuallyStopped = false
                             startListening()
                         }
                     }
@@ -604,6 +595,7 @@ class MainActivity : AppCompatActivity() {
 
         // Reset manual editing flag when starting new listening session
         isManualEditing = false
+        manuallyStopped = false  // Reset för nästa gång
         
         // Säkerställ att ny session triggas om det finns tidigare text
         if (recognizedText.isNotEmpty()) {
@@ -612,7 +604,6 @@ class MainActivity : AppCompatActivity() {
         
         // Reset silence detection
         silenceStartTime = null
-        manuallyStopped = false
         
         // Set listening flag BEFORE starting recognizer to prevent race conditions
         isListening = true
@@ -647,12 +638,13 @@ class MainActivity : AppCompatActivity() {
         }
         
         isListening = false
-        manuallyStopped = true
         silenceStartTime = null
         
-        // Mark that the next recording will be a new session (for separator)
-        if (recognizedText.isNotEmpty()) {
+        // Sätt flaggor baserat på om det är manuell eller auto-stop
+        if (manuallyStopped) {
             isNewRecordingSession = true
+        } else {
+            isNewRecordingSession = false  // Fortsätt samma session vid auto-pause
         }
         
         // Stop silence check handler - remove ALL callbacks
@@ -673,8 +665,6 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             // Ignore exceptions when stopping
         }
-        
-        isNewRecordingSession = true
     }
 
     private fun updateMicButton() {
