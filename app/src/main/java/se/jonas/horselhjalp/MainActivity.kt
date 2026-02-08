@@ -488,7 +488,7 @@ class MainActivity : AppCompatActivity() {
                     val text = matches[0]
                     // Add line breaks before each recognized result if there's existing text
                     if (recognizedText.isNotEmpty()) {
-                        recognizedText.append("\n")
+                        recognizedText.append("\n\n")
                     }
                     recognizedText.append(text).append(" ")
                     isProgrammaticUpdate = true
@@ -529,7 +529,7 @@ class MainActivity : AppCompatActivity() {
                         val displayText = buildString {
                             append(recognizedText.toString())
                             if (recognizedText.isNotEmpty()) {
-                                append("\n")
+                                append("\n\n")
                             }
                             append(matches[0] ?: "")
                         }
