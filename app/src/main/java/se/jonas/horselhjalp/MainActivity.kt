@@ -393,15 +393,20 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.status_silence_paused), Toast.LENGTH_SHORT).show()
                 silenceStartTime = null
                 
+                // Mark as manually stopped to trigger new session behavior
+                manuallyStopped = true
+                
                 // Mark that next recording will be a new session (for separator after silence)
                 if (recognizedText.isNotEmpty()) {
                     isNewRecordingSession = true
                 }
                 
-                // Restart automatically after a short delay if not manually stopped
-                if (!manuallyStopped && !isDestroyed) {
+                // Restart automatically after a short delay if not destroyed
+                if (!isDestroyed) {
                     val restartRunnable = Runnable {
-                        if (!manuallyStopped && !isListening && !isDestroyed) {
+                        if (!isListening && !isDestroyed) {
+                            // Reset manuallyStopped before restarting for continuous operation
+                            manuallyStopped = false
                             startListening()
                         }
                     }
@@ -432,6 +437,8 @@ class MainActivity : AppCompatActivity() {
                 statusText.text = getString(R.string.status_speech_detected)
                 // Clear current utterance at the beginning of new speech
                 currentUtterance.clear()
+                // Reset silence timer
+                silenceStartTime = null
             }
 
             override fun onRmsChanged(rmsdB: Float) {
@@ -452,7 +459,10 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onEndOfSpeech() {
+                if (isDestroyed) return
                 statusText.text = getString(R.string.status_processing)
+                // Clear current utterance when speech ends
+                currentUtterance.clear()
             }
 
             override fun onError(error: Int) {
@@ -493,42 +503,45 @@ class MainActivity : AppCompatActivity() {
             override fun onResults(results: Bundle?) {
                 if (isDestroyed) return
                 
-                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                if (!matches.isNullOrEmpty()) {
-                    // Get the recognized text and clean it
-                    val rawText = matches[0]
-                    // Replace all whitespace sequences (including newlines) with a single space
-                    val cleanedText = rawText.replace(Regex("\\s+"), " ").trim()
-                    
-                    if (cleanedText.isNotEmpty()) {
-                        // Add separator based on whether this is a new recording session
-                        if (recognizedText.isNotEmpty()) {
-                            if (isNewRecordingSession) {
-                                // Add double newline for new recording session
-                                recognizedText.append("\n\n")
-                                isNewRecordingSession = false
-                            } else {
-                                // Add single space within same recording session
+                // Use currentUtterance which already contains cleaned partial results
+                if (currentUtterance.isNotEmpty()) {
+                    // Add separator based on whether this is a new recording session
+                    if (recognizedText.isNotEmpty()) {
+                        if (isNewRecordingSession) {
+                            // Add double newline for new recording session
+                            recognizedText.append("\n\n")
+                            isNewRecordingSession = false
+                        } else {
+                            // Add single space within same recording session
+                            // Check if recognizedText already ends with space to avoid double spaces
+                            if (!recognizedText.endsWith(" ")) {
                                 recognizedText.append(" ")
                             }
                         }
-                        // Append the cleaned text to recognizedText
-                        recognizedText.append(cleanedText)
-                        isProgrammaticUpdate = true
-                        textDisplay.setText(recognizedText.toString())
-                        isProgrammaticUpdate = false
-                        
-                        // Scrolla ner automatiskt
-                        scrollView.post {
-                            scrollView.fullScroll(ScrollView.FOCUS_DOWN)
-                        }
-                        
-                        statusText.text = getString(R.string.status_complete)
+                    }
+                    // Append the current utterance to recognizedText
+                    recognizedText.append(currentUtterance.toString())
+                    
+                    // Normalize all whitespace globally - replace any multiple spaces with single space
+                    val normalizedText = recognizedText.toString().replace(Regex(" +"), " ")
+                    recognizedText.clear()
+                    recognizedText.append(normalizedText)
+                    
+                    isProgrammaticUpdate = true
+                    textDisplay.setText(recognizedText.toString())
+                    isProgrammaticUpdate = false
+                    
+                    // Scrolla ner automatiskt
+                    scrollView.post {
+                        scrollView.fullScroll(ScrollView.FOCUS_DOWN)
                     }
                     
-                    // Clear currentUtterance after final results are processed
-                    currentUtterance.clear()
+                    statusText.text = getString(R.string.status_complete)
                 }
+                
+                // Clear currentUtterance after final results are processed
+                currentUtterance.clear()
+                
                 isListening = false
                 silenceStartTime = null
                 
@@ -548,7 +561,7 @@ class MainActivity : AppCompatActivity() {
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
                     // Clean the partial result text by removing newlines and extra whitespace
-                    val partialText = matches[0]?.replace(Regex("\\s+"), " ")?.trim() ?: ""
+                    val partialText = matches[0]?.trim()?.replace(Regex("\\s+"), " ") ?: ""
                     
                     // REPLACE (clear + append) currentUtterance with the latest partial result
                     currentUtterance.clear()
@@ -565,7 +578,10 @@ class MainActivity : AppCompatActivity() {
                             append(recognizedText.toString())
                             if (recognizedText.isNotEmpty()) {
                                 // Only add space within same session, never \n\n
-                                append(" ")
+                                // Check if recognizedText already ends with space to avoid double spaces
+                                if (!recognizedText.endsWith(" ")) {
+                                    append(" ")
+                                }
                             }
                             append(currentUtterance.toString())
                         }
@@ -600,6 +616,12 @@ class MainActivity : AppCompatActivity() {
         // Ensure we have a valid SpeechRecognizer instance
         if (speechRecognizer == null) {
             setupSpeechRecognizer()
+        }
+        
+        // Handle new recording session separator
+        if (isNewRecordingSession && recognizedText.isNotEmpty()) {
+            recognizedText.append("\n\n")
+            isNewRecordingSession = false
         }
 
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
