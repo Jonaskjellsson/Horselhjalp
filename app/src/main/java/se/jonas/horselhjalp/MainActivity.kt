@@ -566,11 +566,10 @@ class MainActivity : AppCompatActivity() {
                 if (!matches.isNullOrEmpty()) {
                     val partialText = matches[0]?.replace(Regex("\\s+"), " ")?.trim() ?: ""
                     if (partialText.isNotBlank()) {
-                        // Visa BARA i statusText live – ingen uppdatering av textDisplay!
+                        // Visa BARA i statusText för live-feedback – INGEN uppdatering av textDisplay!
                         statusText.text = getString(R.string.status_heard, partialText)
                     }
                 }
-                // Inget mer här – ingen setText på textDisplay!
             }
 
             override fun onEvent(eventType: Int, params: Bundle?) {
