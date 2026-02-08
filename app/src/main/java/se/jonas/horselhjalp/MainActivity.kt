@@ -603,11 +603,6 @@ class MainActivity : AppCompatActivity() {
         isManualEditing = false
         manuallyStopped = false  // Reset för nästa gång
         
-        // Säkerställ att ny session triggas om det finns tidigare text
-        if (recognizedText.isNotEmpty()) {
-            isNewRecordingSession = true
-        }
-        
         // Reset silence detection
         silenceStartTime = null
         
