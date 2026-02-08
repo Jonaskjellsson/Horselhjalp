@@ -486,6 +486,10 @@ class MainActivity : AppCompatActivity() {
                         lastPartialText = partial
                         statusText.text = getString(R.string.status_heard, partial)
                     }
+                } else if (lastPartialText.isNotEmpty()) {
+                    // Clear stale partial text when moving to silent period
+                    lastPartialText = ""
+                    statusText.text = getString(R.string.status_listening)
                 }
             }
 
