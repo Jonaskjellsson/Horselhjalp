@@ -37,7 +37,6 @@ class MainActivity : AppCompatActivity() {
     private var speechRecognizer: SpeechRecognizer? = null
     @Volatile private var isListening = false
     private var recognizedText = StringBuilder()
-    private var currentUtterance = StringBuilder() // Holds ONLY the current utterance being spoken
     private var currentLanguage = "sv-SE" // Default to Swedish
     private var isManualEditing = false // Flag to track if user is manually editing
     private var isProgrammaticUpdate = false // Flag to track programmatic text updates
@@ -438,8 +437,6 @@ class MainActivity : AppCompatActivity() {
             override fun onBeginningOfSpeech() {
                 if (isDestroyed) return
                 statusText.text = getString(R.string.status_speech_detected)
-                // Clear current utterance at the beginning of new speech
-                currentUtterance.clear()
                 // Reset silence timer
                 silenceStartTime = null
             }
@@ -464,7 +461,6 @@ class MainActivity : AppCompatActivity() {
             override fun onEndOfSpeech() {
                 if (isDestroyed) return
                 statusText.text = getString(R.string.status_processing)
-                // Don't clear currentUtterance here - it will be used in onResults()
             }
 
             override fun onError(error: Int) {
@@ -505,44 +501,50 @@ class MainActivity : AppCompatActivity() {
             override fun onResults(results: Bundle?) {
                 if (isDestroyed) return
                 
-                // Use currentUtterance which already contains cleaned partial results
-                if (currentUtterance.isNotEmpty()) {
-                    // Add separator based on whether this is a new recording session
-                    if (recognizedText.isNotEmpty()) {
-                        if (isNewRecordingSession) {
-                            // Add double newline for new recording session
-                            recognizedText.append("\n\n")
-                            isNewRecordingSession = false
-                        } else {
-                            // Add single space within same recording session
-                            // Check if recognizedText already ends with space to avoid double spaces
-                            if (!recognizedText.endsWith(" ")) {
-                                recognizedText.append(" ")
+                // Get final results from Bundle
+                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!matches.isNullOrEmpty()) {
+                    // Clean the final result text
+                    val finalText = matches[0]
+                        ?.replace(Regex("\\s+"), " ")
+                        ?.trim()
+                        ?: ""
+                    
+                    if (finalText.isNotEmpty()) {
+                        // Add separator based on whether this is a new recording session
+                        if (recognizedText.isNotEmpty()) {
+                            if (isNewRecordingSession) {
+                                // Add double newline for new recording session
+                                recognizedText.append("\n\n")
+                                isNewRecordingSession = false
+                            } else {
+                                // Add single space within same recording session
+                                // Check if recognizedText already ends with space to avoid double spaces
+                                if (!recognizedText.endsWith(" ")) {
+                                    recognizedText.append(" ")
+                                }
                             }
                         }
+                        // Append the final result to recognizedText
+                        recognizedText.append(finalText)
+                        
+                        // Normalize all whitespace globally - replace any multiple spaces with single space
+                        val normalizedText = recognizedText.toString().replace(MULTIPLE_SPACES_REGEX, " ")
+                        recognizedText.clear()
+                        recognizedText.append(normalizedText)
+                        
+                        isProgrammaticUpdate = true
+                        textDisplay.setText(recognizedText.toString())
+                        isProgrammaticUpdate = false
+                        
+                        // Scrolla ner automatiskt
+                        scrollView.post {
+                            scrollView.fullScroll(ScrollView.FOCUS_DOWN)
+                        }
+                        
+                        statusText.text = getString(R.string.status_complete)
                     }
-                    // Append the current utterance to recognizedText
-                    recognizedText.append(currentUtterance.toString())
-                    
-                    // Normalize all whitespace globally - replace any multiple spaces with single space
-                    val normalizedText = recognizedText.toString().replace(MULTIPLE_SPACES_REGEX, " ")
-                    recognizedText.clear()
-                    recognizedText.append(normalizedText)
-                    
-                    isProgrammaticUpdate = true
-                    textDisplay.setText(recognizedText.toString())
-                    isProgrammaticUpdate = false
-                    
-                    // Scrolla ner automatiskt
-                    scrollView.post {
-                        scrollView.fullScroll(ScrollView.FOCUS_DOWN)
-                    }
-                    
-                    statusText.text = getString(R.string.status_complete)
                 }
-                
-                // Clear currentUtterance after final results are processed
-                currentUtterance.clear()
                 
                 isListening = false
                 silenceStartTime = null
@@ -631,9 +633,6 @@ class MainActivity : AppCompatActivity() {
 
         // Reset manual editing flag when starting new listening session
         isManualEditing = false
-        
-        // Clear currentUtterance when starting new listening session
-        currentUtterance.clear()
         
         // Reset silence detection
         silenceStartTime = null
