@@ -544,15 +544,12 @@ class MainActivity : AppCompatActivity() {
                     // Show live best match in textDisplay only if user is not manually editing
                     if (!isManualEditing && partialText.isNotEmpty()) {
                         // Build the display text without clearing the entire EditText
+                        // NOTE: Partial results should NEVER add \n\n, only spaces within same session
                         val displayText = buildString {
                             append(recognizedText.toString())
                             if (recognizedText.isNotEmpty()) {
-                                if (isNewRecordingSession) {
-                                    append("\n\n")
-                                } else {
-                                    // Add single space within same recording session
-                                    append(" ")
-                                }
+                                // Only add space for partial results, never \n\n
+                                append(" ")
                             }
                             append(partialText)
                         }
