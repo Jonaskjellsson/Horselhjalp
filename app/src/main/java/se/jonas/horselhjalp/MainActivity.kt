@@ -460,6 +460,11 @@ class MainActivity : AppCompatActivity() {
                     isProgrammaticUpdate = false
                     
                     scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
+                    
+                    statusText.text = getString(R.string.status_complete)
+                } else {
+                    // No text recognized - update status to reflect completion
+                    statusText.text = getString(R.string.status_complete)
                 }
                 
                 // Always update state even if no text was recognized
