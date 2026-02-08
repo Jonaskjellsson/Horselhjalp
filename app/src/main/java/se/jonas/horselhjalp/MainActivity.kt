@@ -177,7 +177,7 @@ class MainActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 // Only mark as manual editing if the change was not programmatic
                 if (textDisplay.hasFocus() && !textState.isProgrammaticUpdate) {
-                    textState = textState.copy(isManualEditing = true)
+                    textState = TextState(isManualEditing = true)
                 }
             }
             
@@ -436,9 +436,12 @@ class MainActivity : AppCompatActivity() {
                 val newText = matches?.getOrNull(0)?.let { cleanText(it) }
                 
                 if (newText != null && newText.isNotEmpty()) {
+                    // Cache state locally for consistent reads
+                    val currentState = textState
+                    
                     // Add separator based on session state
                     if (recognizedText.isNotEmpty()) {
-                        val separator = if (textState.isNewSession) "\n\n" else " "
+                        val separator = if (currentState.isNewSession) "\n\n" else " "
                         recognizedText.append(separator)
                     }
                     recognizedText.append(newText)
@@ -472,14 +475,15 @@ class MainActivity : AppCompatActivity() {
                 
                 if (firstMatch.isNotBlank()) {
                     val partial = cleanText(firstMatch)
+                    val currentLastPartial = textState.lastPartialText
                     // Only update UI if the partial text has changed
-                    if (partial != textState.lastPartialText) {
-                        textState = textState.copy(lastPartialText = partial)
+                    if (partial != currentLastPartial) {
+                        textState = TextState(lastPartialText = partial)
                         statusText.text = getString(R.string.status_heard, partial)
                     }
                 } else if (textState.lastPartialText.isNotEmpty()) {
                     // Clear stale partial text when moving to silent period
-                    textState = textState.copy(lastPartialText = "")
+                    textState = TextState()
                     statusText.text = getString(R.string.status_listening)
                 }
             }
@@ -546,9 +550,7 @@ class MainActivity : AppCompatActivity() {
         }
         
         // Set isNewSession for next recording to create paragraph break
-        // Only set if we have recognized text (otherwise there's nothing to separate)
-        val shouldStartNewSession = recognizedText.isNotEmpty()
-        textState = TextState(isNewSession = shouldStartNewSession)
+        textState = TextState(isNewSession = recognizedText.isNotEmpty())
         
         isListening = false
         
