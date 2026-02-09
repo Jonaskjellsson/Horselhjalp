@@ -34,7 +34,6 @@ class MainActivity : AppCompatActivity() {
     private var recognizedText = StringBuilder()
     private var currentLanguage = "sv-SE" // Default to Swedish
     @Volatile private var isDestroyed = false // Flag to track if activity is being destroyed
-    private var isNewSession = false // Flag to track if this is a new recording session after manual stop
     private var lastPartialText = "" // Track last partial text to avoid redundant updates
     
     // Custom persistence using XOR encoding to discourage manual preference editing
@@ -142,7 +141,6 @@ class MainActivity : AppCompatActivity() {
             recognizedText.clear()
             textDisplay.setText(getString(R.string.text_placeholder))
             statusText.text = getString(R.string.status_text_cleared)
-            isNewSession = false // Reset new session flag
         }
         
         // Glasaktighetsvaxlare knapp - unique toggle logic
@@ -404,7 +402,6 @@ class MainActivity : AppCompatActivity() {
                     if (recognizedText.isNotEmpty()) {
                         // Always add separator between recordings to create empty lines
                         recognizedText.append(SESSION_SEPARATOR)  // Each recording: 2 empty lines
-                        isNewSession = false
                     }
                     recognizedText.append(newText)
                     
@@ -492,8 +489,6 @@ class MainActivity : AppCompatActivity() {
 
         // Reset for new listening session
         lastPartialText = "" // Reset for new listening session
-        // NOTE: Do NOT reset isNewSession here! It must remain true (if set by stopListening)
-        // so that the first result after STOP→START will add the session separator
         
         // Set listening flag BEFORE starting recognizer to prevent race conditions
         isListening = true
@@ -514,12 +509,6 @@ class MainActivity : AppCompatActivity() {
         // Prevent stopping if not listening
         if (!isListening) {
             return
-        }
-        
-        // Set isNewSession for next recording to create paragraph break
-        // Only set if we have recognized text (otherwise there's nothing to separate)
-        if (recognizedText.isNotEmpty()) {
-            isNewSession = true
         }
         
         isListening = false
