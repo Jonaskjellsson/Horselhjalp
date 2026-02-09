@@ -402,12 +402,9 @@ class MainActivity : AppCompatActivity() {
                 
                 if (newText != null && newText.isNotEmpty()) {
                     if (recognizedText.isNotEmpty()) {
-                        if (isNewSession) {
-                            recognizedText.append(SESSION_SEPARATOR)  // New recording session: 2 empty lines
-                            isNewSession = false
-                        } else {
-                            recognizedText.append(" ")  // Within same recording - just space, NO empty line
-                        }
+                        // Always add separator between recordings to create empty lines
+                        recognizedText.append(SESSION_SEPARATOR)  // Each recording: 2 empty lines
+                        isNewSession = false
                     }
                     recognizedText.append(newText)
                     
