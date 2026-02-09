@@ -12,13 +12,10 @@ import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
-import android.text.TextWatcher
-import android.text.Editable
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import java.util.Locale
-import android.content.res.Configuration
 import com.google.android.material.color.DynamicColors
 
 class MainActivity : AppCompatActivity() {
@@ -36,7 +33,6 @@ class MainActivity : AppCompatActivity() {
     @Volatile private var isListening = false
     private var recognizedText = StringBuilder()
     private var currentLanguage = "sv-SE" // Default to Swedish
-    private var isManualEditing = false // Flag to track if user is manually editing
     private var isProgrammaticUpdate = false // Flag to track programmatic text updates
     @Volatile private var isDestroyed = false // Flag to track if activity is being destroyed
     private var isNewSession = false // Flag to track if this is a new recording session after manual stop
@@ -85,7 +81,11 @@ class MainActivity : AppCompatActivity() {
         languageButton = findViewById(R.id.languageButton)
         fontSizeButton = findViewById(R.id.fontSizeButton)
         
-        // Make textDisplay always selectable for copying
+        // Make textDisplay non-editable but selectable for copying
+        textDisplay.isFocusable = false
+        textDisplay.isFocusableInTouchMode = false
+        textDisplay.isClickable = true
+        textDisplay.isLongClickable = true
         textDisplay.setTextIsSelectable(true)
         
         // Ladda sparad ögonmiljö med XOR-nyckel
@@ -141,7 +141,6 @@ class MainActivity : AppCompatActivity() {
             textDisplay.setText(getString(R.string.text_placeholder))
             isProgrammaticUpdate = false
             statusText.text = getString(R.string.status_text_cleared)
-            isManualEditing = false // Reset manual editing flag
             isNewSession = false // Reset new session flag
         }
         
@@ -159,21 +158,6 @@ class MainActivity : AppCompatActivity() {
         fontSizeButton.setOnClickListener {
             vaxlaTextstorlek()
         }
-        
-        // Add TextWatcher to detect manual editing
-        textDisplay.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // Only mark as manual editing if the change was not programmatic
-                // We check if the text field has focus and it's not a programmatic update
-                if (textDisplay.hasFocus() && !isProgrammaticUpdate) {
-                    isManualEditing = true
-                }
-            }
-            
-            override fun afterTextChanged(s: Editable?) {}
-        })
     }
     
     // XOR-based persistence
@@ -348,21 +332,7 @@ class MainActivity : AppCompatActivity() {
         textDisplay.textSize = textSize
     }
 
-    // Helper method to disable text editing during listening
-    private fun disableTextEditing() {
-        textDisplay.isFocusable = false
-        textDisplay.isFocusableInTouchMode = false
-        textDisplay.isClickable = true
-        textDisplay.isLongClickable = true
-        textDisplay.setTextIsSelectable(true)
-    }
 
-    // Helper method to enable text editing after listening
-    private fun enableTextEditing() {
-        textDisplay.isFocusable = true
-        textDisplay.isFocusableInTouchMode = true
-        textDisplay.setTextIsSelectable(true)
-    }
     
     private fun setupSpeechRecognizer() {
         // Clean up any existing recognizer first
@@ -415,16 +385,7 @@ class MainActivity : AppCompatActivity() {
                 statusText.text = errorMessage
                 isListening = false
                 
-                // Re-enable editing after error
-                enableTextEditing()
-                
                 updateMicButton()
-                
-                // Auto-restart after "no speech" errors
-                if (error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT || 
-                    error == SpeechRecognizer.ERROR_NO_MATCH) {
-                    startListening()
-                }
             }
 
             override fun onResults(results: Bundle?) {
@@ -437,10 +398,10 @@ class MainActivity : AppCompatActivity() {
                 if (newText != null && newText.isNotEmpty()) {
                     if (recognizedText.isNotEmpty()) {
                         if (isNewSession) {
-                            recognizedText.append("\n\n")  // Blank line for new recording (after STOP)
+                            recognizedText.append("\n\n")  // Two empty lines for new recording (after STOP)
                             isNewSession = false
                         } else {
-                            recognizedText.append(" ")  // Within same listening - just space
+                            recognizedText.append(" ")  // Within same recording - just space, NO empty line
                         }
                     }
                     recognizedText.append(newText)
@@ -470,7 +431,6 @@ class MainActivity : AppCompatActivity() {
                 // Always update state even if no text was recognized
                 isListening = false
                 updateMicButton()
-                enableTextEditing()
             }
 
             override fun onPartialResults(partialResults: Bundle?) {
@@ -526,17 +486,13 @@ class MainActivity : AppCompatActivity() {
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
         }
 
-        // Reset manual editing flag when starting new listening session
-        isManualEditing = false
+        // Reset for new listening session
         lastPartialText = "" // Reset for new listening session
         
         // Set listening flag BEFORE starting recognizer to prevent race conditions
         isListening = true
         updateMicButton()
         statusText.text = getString(R.string.status_preparing)
-        
-        // Make textDisplay non-editable during listening but keep it selectable for copying
-        disableTextEditing()
         
         try {
             speechRecognizer?.startListening(intent)
@@ -566,7 +522,6 @@ class MainActivity : AppCompatActivity() {
         
         // Update UI if activity is not being destroyed
         if (!isDestroyed) {
-            enableTextEditing()
             updateMicButton()
             statusText.text = getString(R.string.status_stopped)
         }
