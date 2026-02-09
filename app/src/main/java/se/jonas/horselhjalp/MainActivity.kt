@@ -33,7 +33,6 @@ class MainActivity : AppCompatActivity() {
     @Volatile private var isListening = false
     private var recognizedText = StringBuilder()
     private var currentLanguage = "sv-SE" // Default to Swedish
-    private var isProgrammaticUpdate = false // Flag to track programmatic text updates
     @Volatile private var isDestroyed = false // Flag to track if activity is being destroyed
     private var isNewSession = false // Flag to track if this is a new recording session after manual stop
     private var lastPartialText = "" // Track last partial text to avoid redundant updates
@@ -49,7 +48,7 @@ class MainActivity : AppCompatActivity() {
         // Compiled regex for performance optimization
         private val MULTIPLE_SPACES_REGEX = Regex(" +")
         private val NEWLINE_WITH_SPACE_REGEX = Regex("\n ")
-        private val MULTIPLE_NEWLINES_REGEX = Regex("\n{3,}")
+        private val MULTIPLE_NEWLINES_REGEX = Regex("\n{4,}")  // Allow up to 3 newlines (two empty lines)
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -137,9 +136,7 @@ class MainActivity : AppCompatActivity() {
         // Radera-knapp
         clearButton.setOnClickListener {
             recognizedText.clear()
-            isProgrammaticUpdate = true
             textDisplay.setText(getString(R.string.text_placeholder))
-            isProgrammaticUpdate = false
             statusText.text = getString(R.string.status_text_cleared)
             isNewSession = false // Reset new session flag
         }
@@ -398,7 +395,7 @@ class MainActivity : AppCompatActivity() {
                 if (newText != null && newText.isNotEmpty()) {
                     if (recognizedText.isNotEmpty()) {
                         if (isNewSession) {
-                            recognizedText.append("\n\n")  // Two empty lines for new recording (after STOP)
+                            recognizedText.append("\n\n\n")  // Two empty lines for new recording (after STOP)
                             isNewSession = false
                         } else {
                             recognizedText.append(" ")  // Within same recording - just space, NO empty line
@@ -410,15 +407,13 @@ class MainActivity : AppCompatActivity() {
                     val cleaned = recognizedText.toString()
                         .replace(MULTIPLE_SPACES_REGEX, " ")           // Multiple spaces → one
                         .replace(NEWLINE_WITH_SPACE_REGEX, "\n")       // Space after newline → remove
-                        .replace(MULTIPLE_NEWLINES_REGEX, "\n\n")      // Max two newlines
+                        .replace(MULTIPLE_NEWLINES_REGEX, "\n\n\n")    // Max three newlines (two empty lines)
                         .trim()
                     
                     recognizedText.clear()
                     recognizedText.append(cleaned)
                     
-                    isProgrammaticUpdate = true
                     textDisplay.setText(recognizedText.toString())
-                    isProgrammaticUpdate = false
                     
                     scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
                     
