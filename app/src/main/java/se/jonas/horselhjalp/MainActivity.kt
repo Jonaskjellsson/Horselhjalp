@@ -45,10 +45,13 @@ class MainActivity : AppCompatActivity() {
         // Font size options in sp
         private val FONT_SIZES = arrayOf(24f, 32f, 40f, 48f)
         
+        // Session separator: 3 newlines = 2 empty lines between recording sessions
+        private const val SESSION_SEPARATOR = "\n\n\n"
+        
         // Compiled regex for performance optimization
         private val MULTIPLE_SPACES_REGEX = Regex(" +")
         private val NEWLINE_WITH_SPACE_REGEX = Regex("\n ")
-        private val MULTIPLE_NEWLINES_REGEX = Regex("\n{4,}")  // Replace 4+ newlines with 3 (two empty lines max)
+        private val MULTIPLE_NEWLINES_REGEX = Regex("\n{4,}")  // Match 4+ newlines (3+ empty lines)
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -395,7 +398,7 @@ class MainActivity : AppCompatActivity() {
                 if (newText != null && newText.isNotEmpty()) {
                     if (recognizedText.isNotEmpty()) {
                         if (isNewSession) {
-                            recognizedText.append("\n\n\n")  // Three newlines = two empty lines for new recording
+                            recognizedText.append(SESSION_SEPARATOR)  // New recording session: 2 empty lines
                             isNewSession = false
                         } else {
                             recognizedText.append(" ")  // Within same recording - just space, NO empty line
@@ -407,7 +410,7 @@ class MainActivity : AppCompatActivity() {
                     val cleaned = recognizedText.toString()
                         .replace(MULTIPLE_SPACES_REGEX, " ")           // Multiple spaces → one
                         .replace(NEWLINE_WITH_SPACE_REGEX, "\n")       // Space after newline → remove
-                        .replace(MULTIPLE_NEWLINES_REGEX, "\n\n\n")    // 4+ newlines → 3 (max two empty lines)
+                        .replace(MULTIPLE_NEWLINES_REGEX, SESSION_SEPARATOR)    // 4+ newlines → 3 (max 2 empty lines)
                         .trim()
                     
                     recognizedText.clear()
