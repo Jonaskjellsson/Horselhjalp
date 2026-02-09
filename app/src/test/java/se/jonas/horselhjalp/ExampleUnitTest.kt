@@ -36,12 +36,12 @@ class ExampleUnitTest {
     
     @Test
     fun testSessionSeparatorPreserved() {
-        // Test that session separators (2 newlines = 1 empty line) are preserved
-        val sessionSeparator = "\n\n"
+        // Test that session separators (3 newlines = 2 empty lines) are preserved
+        val sessionSeparator = "\n\n\n"
         val input = "First session${sessionSeparator}Second session"
         
-        // The MULTIPLE_NEWLINES_REGEX should NOT replace exactly 2 newlines
-        val multipleNewlinesRegex = Regex("\n{3,}")  // Only matches 3+ newlines
+        // The MULTIPLE_NEWLINES_REGEX should NOT replace exactly 3 newlines
+        val multipleNewlinesRegex = Regex("\n{4,}")  // Only matches 4+ newlines
         val result = input.replace(multipleNewlinesRegex, sessionSeparator)
         
         assertEquals(input, result)  // Should remain unchanged
@@ -49,13 +49,13 @@ class ExampleUnitTest {
     
     @Test
     fun testExcessiveNewlinesReduced() {
-        // Test that 3+ newlines are reduced to 2 (1 empty line)
+        // Test that 4+ newlines are reduced to 3 (2 empty lines)
         // This cleaning happens in the post-processing step in MainActivity.onResults()
-        val sessionSeparator = "\n\n"
-        val input = "Text\n\n\n\nMore text"  // 4 newlines
+        val sessionSeparator = "\n\n\n"
+        val input = "Text\n\n\n\n\nMore text"  // 5 newlines
         
         // MULTIPLE_NEWLINES_REGEX in MainActivity handles this edge case
-        val multipleNewlinesRegex = Regex("\n{3,}")
+        val multipleNewlinesRegex = Regex("\n{4,}")
         val result = input.replace(multipleNewlinesRegex, sessionSeparator)
         
         assertEquals("Text${sessionSeparator}More text", result)
