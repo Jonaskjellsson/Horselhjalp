@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity() {
         
         // Compiled regex for performance optimization
         private val MULTIPLE_SPACES_REGEX = Regex(" +")
+        private val NEWLINE_REGEX = Regex("\n+")  // Match one or more newlines
         private val NEWLINE_WITH_SPACE_REGEX = Regex("\n ")
         private val MULTIPLE_NEWLINES_REGEX = Regex("\n{4,}")  // Match 4+ newlines (3+ empty lines)
     }
@@ -393,7 +394,11 @@ class MainActivity : AppCompatActivity() {
                 
                 // Get final results from Bundle
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                val newText = matches?.getOrNull(0)?.replace(MULTIPLE_SPACES_REGEX, " ")?.trim()
+                // Remove newlines from speech recognition result - they cause extra empty lines
+                val newText = matches?.getOrNull(0)
+                    ?.replace(NEWLINE_REGEX, " ")       // Remove all newlines from recognition result
+                    ?.replace(MULTIPLE_SPACES_REGEX, " ")  // Clean up multiple spaces
+                    ?.trim()
                 
                 if (newText != null && newText.isNotEmpty()) {
                     if (recognizedText.isNotEmpty()) {
@@ -438,7 +443,11 @@ class MainActivity : AppCompatActivity() {
                 val firstMatch = matches?.getOrNull(0) ?: ""
                 
                 if (firstMatch.isNotBlank()) {
-                    val partial = firstMatch.replace(MULTIPLE_SPACES_REGEX, " ").trim()
+                    // Remove newlines from partial results too
+                    val partial = firstMatch
+                        .replace(NEWLINE_REGEX, " ")        // Remove newlines
+                        .replace(MULTIPLE_SPACES_REGEX, " ") // Clean up multiple spaces
+                        .trim()
                     // Only update UI if the cleaned partial text has changed
                     if (partial != lastPartialText) {
                         lastPartialText = partial
