@@ -45,14 +45,14 @@ class MainActivity : AppCompatActivity() {
         // Font size options in sp
         private val FONT_SIZES = arrayOf(24f, 32f, 40f, 48f)
         
-        // Session separator: 3 newlines = 2 empty lines between recording sessions
-        private const val SESSION_SEPARATOR = "\n\n\n"
+        // Session separator: 2 newlines = 1 empty line between recording sessions
+        private const val SESSION_SEPARATOR = "\n\n"
         
         // Compiled regex for performance optimization
         private val MULTIPLE_SPACES_REGEX = Regex(" +")
         private val NEWLINE_REGEX = Regex("\n+")  // Match one or more newlines
         private val NEWLINE_WITH_SPACE_REGEX = Regex("\n ")
-        private val MULTIPLE_NEWLINES_REGEX = Regex("\n{4,}")  // Match 4+ newlines (3+ empty lines)
+        private val MULTIPLE_NEWLINES_REGEX = Regex("\n{3,}")  // Match 3+ newlines (2+ empty lines)
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -403,7 +403,7 @@ class MainActivity : AppCompatActivity() {
                 if (newText != null && newText.isNotEmpty()) {
                     if (recognizedText.isNotEmpty()) {
                         if (isNewSession) {
-                            recognizedText.append(SESSION_SEPARATOR)  // New recording session: 2 empty lines
+                            recognizedText.append(SESSION_SEPARATOR)  // New recording session: 1 empty line
                             isNewSession = false
                         } else {
                             recognizedText.append(" ")  // Within same recording - just space, NO empty line
@@ -415,7 +415,7 @@ class MainActivity : AppCompatActivity() {
                     val cleaned = recognizedText.toString()
                         .replace(MULTIPLE_SPACES_REGEX, " ")           // Multiple spaces → one
                         .replace(NEWLINE_WITH_SPACE_REGEX, "\n")       // Space after newline → remove
-                        .replace(MULTIPLE_NEWLINES_REGEX, SESSION_SEPARATOR)    // 4+ newlines → 3 (max 2 empty lines)
+                        .replace(MULTIPLE_NEWLINES_REGEX, SESSION_SEPARATOR)    // 3+ newlines → 2 (max 1 empty line)
                         .trim()
                     
                     recognizedText.clear()
@@ -495,6 +495,7 @@ class MainActivity : AppCompatActivity() {
 
         // Reset for new listening session
         lastPartialText = "" // Reset for new listening session
+        isNewSession = false // Reset session flag when starting new listening
         
         // Set listening flag BEFORE starting recognizer to prevent race conditions
         isListening = true
