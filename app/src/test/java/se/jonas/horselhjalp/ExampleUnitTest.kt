@@ -18,12 +18,14 @@ class ExampleUnitTest {
     @Test
     fun testNewlineRemovalFromRecognizedText() {
         // Test that newlines are removed from speech recognition results
+        // This matches the behavior in MainActivity.onResults() and onPartialResults()
         val input = "Ja då provar vi igen\ndenna gång om det \nblir bättre"
         val expected = "Ja då provar vi igen denna gång om det blir bättre"
         
-        // Simulate the cleaning process
-        val newlineRegex = Regex("\n+")
-        val multipleSpacesRegex = Regex(" +")
+        // Simulate the cleaning process used in MainActivity
+        // Note: In production, these regex patterns are defined as constants
+        val newlineRegex = Regex("\n+")  // NEWLINE_REGEX
+        val multipleSpacesRegex = Regex(" +")  // MULTIPLE_SPACES_REGEX
         val result = input
             .replace(newlineRegex, " ")
             .replace(multipleSpacesRegex, " ")
@@ -34,7 +36,7 @@ class ExampleUnitTest {
     
     @Test
     fun testSessionSeparatorPreserved() {
-        // Test that session separators (3 newlines) are preserved
+        // Test that session separators (3 newlines = 2 empty lines) are preserved
         val sessionSeparator = "\n\n\n"
         val input = "First session${sessionSeparator}Second session"
         
@@ -48,9 +50,11 @@ class ExampleUnitTest {
     @Test
     fun testExcessiveNewlinesReduced() {
         // Test that 4+ newlines are reduced to 3 (2 empty lines)
+        // This cleaning happens in the post-processing step in MainActivity.onResults()
         val sessionSeparator = "\n\n\n"
         val input = "Text\n\n\n\n\nMore text"  // 5 newlines
         
+        // MULTIPLE_NEWLINES_REGEX in MainActivity handles this edge case
         val multipleNewlinesRegex = Regex("\n{4,}")
         val result = input.replace(multipleNewlinesRegex, sessionSeparator)
         
