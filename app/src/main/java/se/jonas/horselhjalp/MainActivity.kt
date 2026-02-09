@@ -495,7 +495,8 @@ class MainActivity : AppCompatActivity() {
 
         // Reset for new listening session
         lastPartialText = "" // Reset for new listening session
-        isNewSession = false // Reset session flag when starting new listening
+        // NOTE: Do NOT reset isNewSession here! It must remain true (if set by stopListening)
+        // so that the first result after STOP→START will add the session separator
         
         // Set listening flag BEFORE starting recognizer to prevent race conditions
         isListening = true
