@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
         // Compiled regex for performance optimization
         private val MULTIPLE_SPACES_REGEX = Regex(" +")
         private val NEWLINE_WITH_SPACE_REGEX = Regex("\n ")
-        private val MULTIPLE_NEWLINES_REGEX = Regex("\n{4,}")  // Allow up to 3 newlines (two empty lines)
+        private val MULTIPLE_NEWLINES_REGEX = Regex("\n{4,}")  // Replace 4+ newlines with 3 (two empty lines max)
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -395,7 +395,7 @@ class MainActivity : AppCompatActivity() {
                 if (newText != null && newText.isNotEmpty()) {
                     if (recognizedText.isNotEmpty()) {
                         if (isNewSession) {
-                            recognizedText.append("\n\n\n")  // Two empty lines for new recording (after STOP)
+                            recognizedText.append("\n\n\n")  // Three newlines = two empty lines for new recording
                             isNewSession = false
                         } else {
                             recognizedText.append(" ")  // Within same recording - just space, NO empty line
@@ -407,7 +407,7 @@ class MainActivity : AppCompatActivity() {
                     val cleaned = recognizedText.toString()
                         .replace(MULTIPLE_SPACES_REGEX, " ")           // Multiple spaces → one
                         .replace(NEWLINE_WITH_SPACE_REGEX, "\n")       // Space after newline → remove
-                        .replace(MULTIPLE_NEWLINES_REGEX, "\n\n\n")    // Max three newlines (two empty lines)
+                        .replace(MULTIPLE_NEWLINES_REGEX, "\n\n\n")    // 4+ newlines → 3 (max two empty lines)
                         .trim()
                     
                     recognizedText.clear()
